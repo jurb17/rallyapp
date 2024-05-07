@@ -76,7 +76,7 @@ const NavGroup = ({ item, chats }) => {
       </List>
 
       {/* group divider */}
-      <Divider className={classes.menuDivider} />
+      {!item.noDivider && <Divider className={classes.menuDivider} />}
     </>
   );
 };

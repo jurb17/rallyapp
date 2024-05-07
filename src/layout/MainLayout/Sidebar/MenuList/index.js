@@ -22,9 +22,11 @@ const MenuList = ({ chats }) => {
       case 1:
         menuList.push("advisory");
         menuList.push("profile");
+        menuList.push("other");
       case 2:
         menuList.push("advisory");
         menuList.push("profile");
+        menuList.push("other");
         break;
       default:
         break;
@@ -36,9 +38,11 @@ const MenuList = ({ chats }) => {
       case 1:
         menuList.push("advisory");
         menuList.push("profile");
+        menuList.push("other");
       case 2:
         menuList.push("advisory");
         menuList.push("profile");
+        menuList.push("other");
         break;
       default:
         break;

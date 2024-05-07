@@ -11,17 +11,28 @@ const icons = {
 // ===========================|| SAMPLE PAGE & DOCUMENTATION MENU ITEMS ||=========================== //
 
 const other = {
-  id: "sample-docs-roadmap",
+  id: "other",
+  title: "",
   type: "group",
+  noDivider: true,
   children: [
     {
-      id: "sample-page",
-      title: "Sample Page",
+      id: "website-home-page",
+      title: "Rally Home Page",
       type: "item",
-      url: "/sample-page",
+      external: true,
+      url: "https://rally.markets",
       icon: icons.IconBrandChrome,
       breadcrumbs: false,
     },
+    // {
+    //   id: "sample-page",
+    //   title: "Sample Page",
+    //   type: "item",
+    //   url: "/sample-page",
+    //   icon: icons.IconBrandChrome,
+    //   breadcrumbs: false,
+    // },
     // {
     //   id: "documentation",
     //   title: "Documentation",

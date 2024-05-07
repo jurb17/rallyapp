@@ -1,0 +1,78 @@
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* css for quill editor functionality */
+.ql-toolbar {
+  background-color: silver;
+}
+.ql-snow {
+  border: none !important;
+  border-top: solid 1px #ccc !important;
+}
+.ql-editor {
+  background-color: #fff;
+  min-height: 300px;
+  max-height: 65vh;
+}
+.quill-blur {
+  display: none;
+}
+@media screen and (min-width: 0) and (max-width: 991px) {
+  .edit-focus .quill {
+    position: absolute;
+    top: 0;
+    height: 226px;
+    overflow: hidden;
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    z-index: 1;
+  }
+  .edit-focus .quill-blur {
+    display: block;
+    position: absolute;
+    top: 226px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    z-index: 1;
+  }
+  .edit-focus .ql-editor {
+    height: 160px;
+    border-bottom: 1px solid #ccc;
+  }
+  .edit-focus .navbar {
+    display: none;
+  }
+  .edit-focus .main-panel {
+    padding: 0 !important;
+    border: none !important;
+  }
+  .edit-focus .main-panel .main-content {
+    min-height: unset !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+  }
+  .main-content {
+    min-height: 300px;
+    border: none !important;
+  }
+}
+
+/* creates Pinterest-like display of cards */
+.my-masonry-grid {
+  display: -webkit-box; /* Not needed if autoprefixing */
+  display: -ms-flexbox; /* Not needed if autoprefixing */
+  display: flex;
+  margin-left: -20px; /* gutter size offset */
+  width: auto;
+}
+.my-masonry-grid_column {
+  padding-left: 20px; /* gutter size */
+  background-clip: padding-box;
+}

@@ -1,0 +1,64 @@
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.hrule {
+  border: 1px solid #003854; /* theme.palette.primary.main */
+  margin-top: 0px;
+  margin-bottom: 8px;
+}
+
+.horizontal-center {
+  width: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.totalAmount {
+  font-size: 1.25rem;
+  font-weight: 500;
+  margin-top: 12px;
+  padding-right: 12px;
+  float: right;
+}
+
+.surveyCard {
+  margin-left: "20%";
+  margin-right: "20%";
+  margin-top: "2%";
+  border: "2px solid #003854"; /* theme.palette.primary.main */
+}
+
+.detailsbox {
+  padding: 16px;
+  border: 1px solid #c3c3c3;
+  border-radius: 8px;
+  background-color: #eeeeee;
+  margin-bottom: 4px;
+}
+
+/* this doesn't work. */
+.modalStyle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  justify-content: center;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  background-color: #ffffff;
+  border: 2px solid #000;
+  border-radius: 8px;
+  box-shadow: 24px;
+  padding: 16px;
+  text-align: center;
+}
+
+@media all and (max-width: 600px) {
+  .modalStyle {
+    width: 85%;
+    justify-content: center;
+    transform: translate(-50%, -60%);
+  }
+}

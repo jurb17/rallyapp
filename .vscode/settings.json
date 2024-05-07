@@ -1,0 +1,7 @@
+{
+    "editor.wordWrap": "on",
+    "workbench.editor.wrapTabs": true,
+    "diffEditor.wordWrap": "on",
+    "editor.wrappingIndent": "indent",
+    "emmet.triggerExpansionOnTab": true,
+}

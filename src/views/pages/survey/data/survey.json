@@ -1,0 +1,109 @@
+{
+  "title": "Set up your Rally Advisor Account",
+  "id": "0000",
+  "submit": "https://staging.rally.markets/account/register/",
+  "survey": [
+    {
+      "subtitle": "Tell us about yourself",
+      "canSkip": false,
+      "questions": [
+        {
+          "id": "user_birthday",
+          "title": "Date of Birth",
+          "required": true,
+          "answers": [],
+          "dtype": 600
+        },
+        {
+          "id": "user_city",
+          "title": "City in which you operate",
+          "required": true,
+          "answers": [],
+          "dtype": 104
+        },
+        {
+          "id": "user_state",
+          "title": "Registered in the selected states",
+          "required": true,
+          "answers": ["STATES"],
+          "dtype": 403
+        }
+      ]
+    },
+    {
+      "subtitle": "Tell us about your advisorship",
+      "canSkip": false,
+      "questions": [
+        {
+          "id": "advisor_crdnumber",
+          "title": "CRD #",
+          "required": true,
+          "answers": [],
+          "dtype": 202
+        },
+        {
+          "id": "advisor_certs",
+          "title": "Which designations apply to you? Select all that apply.",
+          "required": true,
+          "answers": ["DESIGNATIONS"],
+          "dtype": 404
+        },
+        {
+          "id": "advisor_specialties",
+          "title": "Which describe your role as an advisor? Select all that apply.",
+          "required": true,
+          "answers": ["SPECIALTIES"],
+          "dtype": 403
+        },
+        {
+          "id": "feeOnly",
+          "title": "Are you a \"fee-only\" advisor? (You do not make commission on third-party product sales.)",
+          "required": true,
+          "answers": [],
+          "dtype": 300
+        }
+      ]
+    },
+    {
+      "subtitle": "Tell us about your RIA",
+      "canSkip": true,
+      "questions": [
+        {
+          "id": "firm_name",
+          "title": "Firm Name",
+          "required": true,
+          "answers": [],
+          "dtype": 110
+        },
+        {
+          "id": "firm_crdnumber",
+          "title": "Firm CRD #",
+          "required": true,
+          "answers": [],
+          "dtype": 202
+        },
+        {
+          "id": "firm_website",
+          "title": "Website",
+          "required": true,
+          "answers": [],
+          "dtype": 109
+        },
+        {
+          "id": "firm_phonenumber",
+          "title": "Phone Number",
+          "required": true,
+          "answers": [],
+          "dtype": 102
+        },
+        {
+          "id": "firm_state",
+          "title": "Firm can operate in the selected states",
+          "required": true,
+          "answers": ["STATES"],
+          "dtype": 403
+        }
+      ]
+    }
+  ]
+}

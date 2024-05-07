@@ -1,0 +1,113 @@
+// paper & background
+$paper: #ffffff;
+
+// primary
+$primaryLight: #c4e6f7;
+$primaryMain: #003854;
+$primaryDark: #00263d;
+$primary200: #2a8ec0;
+$primary800: #00131c;
+
+// secondary
+$secondaryLight: #ffe6bf;
+$secondaryMain: #f4b759;
+$secondaryDark: #b47619;
+$secondary200: #ffcd82;
+$secondary800: #70490e;
+
+// success Colors
+$successLight: #55ff69;
+$success200: #15ce2a;
+$successMain: #10861e;
+$successDark: #00530a;
+
+// error
+$errorLight: #ffc2c2;
+$errorMain: #d92424;
+$errorDark: #831010;
+
+// purple
+$purpleLight: #9c97fd;
+$purpleMain: #635bff;
+$purpleDark: #2f24ff;
+
+// warning
+$warningLight: #fff0c1;
+$warningMain: #face1d;
+$warningDark: #e49c00;
+
+// orange
+$orangeLight: #ef9763;
+$orangeMain: #ca4b01;
+$orangeDark: #aa3e00;
+
+// grey
+$grey50: #fafafa;
+$grey100: #f5f5f5;
+$grey200: #eeeeee;
+$grey300: #c3c3c3;
+$grey400: #9e9e9e;
+$grey500: #9e9e9e;
+$grey600: #757575;
+$grey700: #616161;
+$grey800: #424242;
+$grey900: #212121;
+
+// ===========================|| JAVASCRIPT ||=========================== //
+
+:export {
+  // paper & background
+  paper: $paper;
+
+  // primary
+  primaryLight: $primaryLight;
+  primary200: $primary200;
+  primaryMain: $primaryMain;
+  primaryDark: $primaryDark;
+  primary800: $primary800;
+
+  // secondary
+  secondaryLight: $secondaryLight;
+  secondary200: $secondary200;
+  secondaryMain: $secondaryMain;
+  secondaryDark: $secondaryDark;
+  secondary800: $secondary800;
+
+  // success
+  successLight: $successLight;
+  success200: $success200;
+  successMain: $successMain;
+  successDark: $successDark;
+
+  // error
+  errorLight: $errorLight;
+  errorMain: $errorMain;
+  errorDark: $errorDark;
+
+  // orange
+  orangeLight: $orangeLight;
+  orangeMain: $orangeMain;
+  orangeDark: $orangeDark;
+
+  // warning
+  warningLight: $warningLight;
+  warningMain: $warningMain;
+  warningDark: $warningDark;
+
+  // purple
+  purpleLight: #9c97fd;
+  purpleMain: #635bff;
+  purpleDark: #2f24ff;
+
+  // grey
+  grey50: $grey50;
+  grey100: $grey100;
+  grey200: $grey200;
+  grey300: $grey300;
+  grey400: $grey400;
+  grey500: $grey500;
+  grey600: $grey600;
+  grey700: $grey700;
+  grey800: $grey800;
+  grey900: $grey900;
+}

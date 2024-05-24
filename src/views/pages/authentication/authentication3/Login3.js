@@ -1,5 +1,7 @@
 import React from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { attributesNavigation } from "utils/navigation";
+import { useLocation } from "react-router-dom";
 
 // material-ui
 import { useTheme } from "@material-ui/core/styles";
@@ -23,6 +25,7 @@ import SecondaryTextButton from "ui-component/buttons/SecondaryTextButton";
 
 const Login = () => {
   const theme = useTheme();
+  const location = useLocation();
   const navigate = useNavigate();
   const matchDownSM = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -72,14 +75,17 @@ const Login = () => {
                             gutterBottom
                             variant={matchDownSM ? "h3" : "h2"}
                           >
-                            Hi, Welcome Back
+                            Welcome to the demo!
                           </Typography>
                           <Typography
                             variant="caption"
                             fontSize="16px"
-                            textAlign={matchDownSM ? "center" : ""}
+                            textAlign={"center"}
+                            sx={{ pl: 1, pr: 1 }}
                           >
-                            Enter your credentials to continue.
+                            Please enter your credentials and select a user role
+                            to continue. User credentials are currently not
+                            being collected or stored.
                           </Typography>
                         </Stack>
                       </Grid>
@@ -100,13 +106,14 @@ const Login = () => {
                     >
                       <SecondaryTextButton
                         name="Client Sign Up"
-                        onClick={() => navigate("/signup")}
+                        onClick={() =>
+                          attributesNavigation(navigate, location, null, 4)
+                        }
                       />
                       <SecondaryTextButton
                         name="Become an advisor"
                         onClick={() =>
-                          (window.location.href =
-                            "https://www2.rally.markets/advisor-sign-up")
+                          attributesNavigation(navigate, location, null, 3)
                         }
                       />
                     </Grid>

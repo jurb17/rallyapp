@@ -16,7 +16,9 @@ import {
   InputAdornment,
   InputLabel,
   OutlinedInput,
+  Select,
   Stack,
+  MenuItem,
 } from "@material-ui/core";
 
 // third party
@@ -79,20 +81,21 @@ const useStyles = makeStyles((theme) => ({
 
 const FirebaseLogin = (props, { ...others }) => {
   const classes = useStyles();
-  const scriptedRef = useScriptRef();
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
 
-  // get attributes for detrmining the nvaigation path
-  const auth = useSelector((state) => state.auth);
-
   const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
-  // handle google authentication
-  const googleHandler = async () => {
-    console.error("Login");
-  };
+  const userRoles = ["Financial Advisor", "Client"];
+  const items = userRoles.map((name, index) => {
+    return (
+      <MenuItem key={index} value={index + 1}>
+        {" "}
+        {name}{" "}
+      </MenuItem>
+    );
+  });
+
   // handle show password toggle
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
@@ -104,80 +107,14 @@ const FirebaseLogin = (props, { ...others }) => {
 
   return (
     <>
-      {
-        //#region
-      }
-      {/* <Grid container direction="column" justifyContent="center" spacing={2}>
-        <Grid item xs={12}>
-          <AnimateButton>
-            s
-            <Button
-              disableElevation
-              fullWidth
-              className={classes.redButton}
-              onClick={googleHandler}
-              size="large"
-              variant="contained"
-            >
-              <img
-                src={Google}
-                alt="google"
-                width="20px"
-                className={classes.loginIcon}
-              />{" "}
-              Sign in with Google
-            </Button>
-          </AnimateButton>
-        </Grid>
-        <Grid item xs={12}>
-          <Box
-            sx={{
-              alignItems: "center",
-              display: "flex",
-            }}
-          >
-            <Divider className={classes.signDivider} orientation="horizontal" />
-            <AnimateButton>
-              <Button
-                variant="outlined"
-                className={classes.signText}
-                sx={{ borderRadius: `${customization.borderRadius}px` }}
-                disableRipple
-                disabled
-              >
-                OR
-              </Button>
-            </AnimateButton>
-            <Divider className={classes.signDivider} orientation="horizontal" />
-          </Box>
-        </Grid>
-        <Grid
-          item
-          xs={12}
-          container
-          alignItems="center"
-          justifyContent="center"
-        >
-          <Box
-            sx={{
-              mb: 2,
-            }}
-          >
-            <Typography variant="subtitle1">
-              Sign in with Email address: {accesstoken}
-            </Typography>
-          </Box>
-        </Grid>
-      </Grid> */}
-      {
-        //#endregion
-      }
       <Formik
         initialValues={{
           email: "",
           password: "",
+          userRole: "",
           submit: null,
         }}
+        // check user email and password are valid entries.
         validationSchema={Yup.object().shape({
           email: Yup.string() // OWASP
             .matches(
@@ -185,56 +122,15 @@ const FirebaseLogin = (props, { ...others }) => {
               "Must be a valid email address"
             )
             .max(255)
-            .required("Email is required"),
-          password: Yup.string().max(255).required("Password is required"),
+            .required("Email is required."),
+          password: Yup.string().max(255).required("Password is required."),
+          userRole: Yup.string().required("Please select a user role."),
         })}
-        onSubmit={async (
-          values,
-          { setErrors, setStatus, setSubmitting, reactDomServer }
-        ) => {
-          if (scriptedRef.current) {
-            setSubmitting(true);
-            await dispatch(login(values.email, values.password, rememberMe))
-              .then((response) => {
-                // if (response.data.details.status === 2) {
-                if (!!response.data.payload.success) {
-                  setStatus({ success: true });
-                  setSubmitting(false);
-                  // redirect user based on attributes.
-                  attributesNavigation(navigate, location);
-                } else if (response.isAxiosError) {
-                  dispatch(
-                    showSnackbar(
-                      response.response.data.details.text,
-                      true,
-                      "error"
-                    )
-                  );
-                  setErrors({
-                    submit:
-                      "Problem signing you in. Please check your credentials.",
-                  });
-                  setStatus({ success: false });
-                  setSubmitting(false);
-                } else {
-                  dispatch(
-                    showSnackbar("Invalid email or password", true, "error")
-                  );
-                  setErrors({ submit: "Invalid email or password" });
-                  setStatus({ success: false });
-                  setSubmitting(false);
-                }
-              })
-              .catch((error) => {
-                console.log("error", error);
-                setStatus({ success: false });
-                setErrors({
-                  submit:
-                    "Problem signing you in. Please check your credentials.",
-                });
-                setSubmitting(false);
-              });
-          }
+        onSubmit={(values, { setStatus, setSubmitting }) => {
+          console.log(values);
+          setStatus({ success: true });
+          setSubmitting(false);
+          attributesNavigation(navigate, location, null, values.userRole);
         }}
       >
         {({
@@ -274,7 +170,6 @@ const FirebaseLogin = (props, { ...others }) => {
                 </FormHelperText>
               )}
             </FormControl>
-
             <FormControl
               fullWidth
               error={Boolean(touched.password && errors.password)}
@@ -314,6 +209,43 @@ const FirebaseLogin = (props, { ...others }) => {
                 </FormHelperText>
               )}
             </FormControl>
+            <FormControl
+              fullWidth
+              error={Boolean(touched.userRole && errors.userRole)}
+              className={classes.loginInput}
+              sx={{ pt: "2px" }}
+            >
+              <InputLabel
+                htmlFor="outlined-adornment-user-role-login"
+                sx={{ pt: "2px" }}
+              >
+                User Role
+              </InputLabel>
+              <Select
+                sx={{ pt: "12px", pb: "0px" }}
+                id="outlined-adornment-user-role-login"
+                type="text"
+                value={values.userRole}
+                name="userRole"
+                onBlur={handleBlur}
+                onChange={(event) => {
+                  console.log(event);
+                  handleChange(event);
+                }}
+                label="User Role"
+              >
+                {items}
+              </Select>
+              {touched.userRole && errors.userRole && (
+                <FormHelperText
+                  error
+                  id="standard-weight-helper-text-user-role-login"
+                >
+                  {" "}
+                  {errors.userRole}{" "}
+                </FormHelperText>
+              )}
+            </FormControl>
             <Stack
               direction="row"
               alignItems="center"
@@ -345,10 +277,12 @@ const FirebaseLogin = (props, { ...others }) => {
                 name="Forgot Password?"
                 size="small"
                 onClick={() =>
-                  window.open(
-                    "https://www.rally.markets/forgot-password/",
-                    "_blank"
-                  )
+                  // @@@ add a "forgot password page or something similar so user doesn't hit a dead end."
+                  // window.open(
+                  //   "https://www.rally.markets/forgot-password/",
+                  //   "_blank"
+                  // )
+                  alert("No passwords to reset, this is just a demo :)")
                 }
               />
             </Stack>
@@ -360,7 +294,7 @@ const FirebaseLogin = (props, { ...others }) => {
             <SecondaryActionButton
               type="submit"
               disabled={isSubmitting}
-              name="Sign In"
+              name="Continue"
               mt={1}
             />
           </form>

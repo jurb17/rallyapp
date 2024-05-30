@@ -29,31 +29,63 @@ export const userRoles = {
 // what attributes are assigned to each user role?
 export const userRoleAttributes = {
   "Financial Advisor": {
-    accesstoken: "",
-    refreshtoken: "",
+    accesstoken: 1,
+    refreshtoken: 1,
     survey: {},
-    attributes: {},
+    attributes: {
+      ACCOUNT: 1,
+      CUSTOMER: 0,
+      ADVISOR: 1,
+      RIA: 1,
+      MERCHANT: 1, // not sure yet
+      IDENTITY: 1, // not sure yet
+      advisorId: 1234, // not sure yet
+    },
     rememberMe: false,
   },
   Client: {
-    accesstoken: "",
-    refreshtoken: "",
+    accesstoken: 1,
+    refreshtoken: 1,
     survey: {},
-    attributes: {},
+    attributes: {
+      ACCOUNT: 1,
+      CUSTOMER: 1,
+      ADVISOR: 0,
+      RIA: 0,
+      MERCHANT: 0, // not sure yet
+      IDENTITY: 1, // not sure yet
+      advisorId: 5678, // not sure yet
+    },
     rememberMe: false,
   },
   "New Financial Advisor": {
-    accesstoken: "",
-    refreshtoken: "",
+    accesstoken: 1,
+    refreshtoken: 1,
     survey: {},
-    attributes: {},
+    attributes: {
+      ACCOUNT: -1,
+      CUSTOMER: 0,
+      ADVISOR: 1,
+      RIA: 1,
+      MERCHANT: 0, // not sure yet
+      IDENTITY: 1, // not sure yet
+      advisorId: 4321, // not sure yet
+    },
     rememberMe: false,
   },
   "New Client": {
-    accesstoken: "",
-    refreshtoken: "",
+    accesstoken: 1,
+    refreshtoken: 1,
     survey: {},
-    attributes: {},
+    attributes: {
+      ACCOUNT: -1,
+      CUSTOMER: 1,
+      ADVISOR: 0,
+      RIA: 0,
+      MERCHANT: 0, // not sure yet
+      IDENTITY: 1, // not sure yet
+      advisorId: 8765, // not sure yet
+    },
     rememberMe: false,
   },
 };

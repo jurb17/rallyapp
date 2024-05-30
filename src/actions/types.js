@@ -1,9 +1,6 @@
 // actions - auth
-export const REGISTER_SUCCESS = "REGISTER_SUCCESS";
-export const REGISTER_FAIL = "REGISTER_FAIL";
-export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
-export const LOGIN_FAIL = "LOGIN_FAIL";
-export const LOGOUT_USER = "LOGOUT_USER";
+export const AUTH_UPDATE = "AUTH_UPDATE";
+export const AUTH_DELETE = "AUTH_DELETE";
 export const REFRESH_TOKENS = "REFRESH_TOKENS";
 
 // actions - customization reducer

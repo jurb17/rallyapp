@@ -178,77 +178,12 @@ const MainLayout = () => {
   }, [location.pathname]);
 
   // HANDLE ROUTING BASED ON QUERY PARAMS ====================================
-  const queryParams = new URLSearchParams(location.search);
-
-  // if there is a token param and the pathname is /register, remove tokens from session and local storage.
-  useEffect(() => {
-    if (location.pathname.includes("/register") && queryParams.has("token")) {
-      tokenService.removeUser();
-    } else if (
-      !!location.pathname.includes("/login") &&
-      !!tokenService.getSessionAccessToken()
-    ) {
-      attributesNavigation(navigate, location);
-    }
-  }, []);
+  // depricated logic to reroute user based on query params in URL that ended in "/register"
+  // @@@ might be able to use this in the future to understand where a user is coming from.
 
   // UPDATES LOOP ============================================================
-  // stop loop cycle if there are too many errors. (to prevent infinite loop)
-  let loopcount = 0;
-
-  // function set an an interval that will capture new chat messages every 15 seconds.
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      // request chat message updates if the advisor user has the merchant attribute and an access token.
-      if (
-        !!tokenService.getSessionAccessToken() &&
-        (auth.attributes.MERCHANT === 1 || auth.attributes.CUSTOMER === 1)
-      ) {
-        adviceService
-          .getUpdates({})
-          .then((response) => {
-            // if there are messages in the response, then dispatch the updatechat action with a list of adviceids.
-            if (!!response.data.payload.success) {
-              // if response has a list of objects for "new_advisory", then update the global unread chats object
-              if (!!response.data.payload.newAdvisory) {
-                dispatch(newAdvisoryUnread(response.data.payload.newAdvisory));
-              } else if (advisory.unreadchats.length > 0) {
-                dispatch(newAdvisoryUnread([]));
-              }
-              // if response has a list of objects for "new_advice", then update the global unread chats object
-              if (!!response.data.payload.newAdvice) {
-                dispatch(newAdviceUnread(response.data.payload.newAdvice));
-              } else if (advice.unreadchats.length > 0) {
-                dispatch(newAdviceUnread([]));
-              }
-            } else {
-              console.log("caught error", response.data.details.text);
-            }
-          })
-          .catch((error) => {
-            // no snackbar here because this process happens in the background.
-            console.log("error", error);
-            clearInterval(interval);
-          });
-      } else {
-        console.log("not authorized for updates.");
-        loopcount++;
-        if (loopcount < 3) {
-          dispatch(
-            refreshAuthRedux(
-              tokenService.getSessionAccessToken(),
-              tokenService.getSessionRefreshToken()
-            )
-          );
-        } else {
-          console.log("three failures to update attributes.");
-          clearInterval(interval);
-        }
-      }
-    }, 15000);
-    // clears the interval when the component unmounts.
-    return () => clearInterval(interval);
-  }, [auth.attributes]); // add some variable here that triggers the loop to start running again.
+  // depricated logic to repeatedly ask database for messages data for "near-instant" messages service.
+  // @@@ will be able to use this in the future for message updates after backend is connected.
 
   // HANDLE SNACKBAR MESSAGES ============================================================
 

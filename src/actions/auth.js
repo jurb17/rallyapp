@@ -1,136 +1,75 @@
-import {
-  REGISTER_SUCCESS,
-  REGISTER_FAIL,
-  LOGIN_SUCCESS,
-  LOGIN_FAIL,
-  LOGOUT_USER,
-  REFRESH_TOKENS,
-} from "./types";
+import { AUTH_UPDATE, AUTH_DELETE, REFRESH_TOKENS } from "./types";
 
 import authService from "services/auth.service";
 import tokenService from "services/token.service";
 import { useNavigate } from "react-router";
 import { showSnackbar } from "./main";
+import { userRoleAttributes } from "utils/user-data-map";
 
-export const register =
-  (firstname, lastname, email, password, token) => (dispatch) => {
-    return authService
-      .register(firstname, lastname, email, password, token)
-      .then(
-        (response) => {
-          dispatch({
-            type: REGISTER_SUCCESS,
-            payload: {
-              ...response.data.payload.tokens,
-              survey: response.data.payload.survey,
-            },
-          });
+// login function for all types of users.
+export const login = (email, password, rememberMe, userRole) => (dispatch) => {
+  // place log in credentials in global storage (localStorage is not as efficient.)
 
-          return Promise.resolve(response);
-          // return response;
-        },
-        (error) => {
-          dispatch({
-            type: REGISTER_FAIL,
-          });
-
-          return Promise.reject(error);
-          // return error;
-        }
-      );
-  };
-
-export const login = (email, password, rememberMe) => (dispatch) => {
-  return authService.login(email, password, rememberMe).then(
-    (response) => {
-      if (!!response.isAxiosError) {
-        dispatch(
-          showSnackbar(response.response.data.details.text, true, "error")
-        );
-        return response;
-      } else {
-        dispatch({
-          type: LOGIN_SUCCESS,
-          payload: {
-            ...response.data.payload.tokens,
-            survey: response.data.payload.survey,
-            rememberMe: rememberMe,
-          },
-        });
-      }
-
-      return Promise.resolve(response);
-      // return response;
-    },
-    (error) => {
-      dispatch({
-        type: LOGIN_FAIL,
-      });
-
-      return Promise.reject(error);
-      // return error;
-    }
-  );
+  /* USER ROLES KEY
+    1: Financial Advisor
+    2: Client
+    3: New Financial Advisor
+    4: New Client
+  */
+  if (userRole === 1) {
+    dispatch({
+      type: AUTH_UPDATE,
+      payload: { ...userRoleAttributes["Financial Advisor"] },
+    });
+  } else if (userRole === 2) {
+    dispatch({
+      type: AUTH_UPDATE,
+      payload: { ...userRoleAttributes.Client },
+    });
+  } else if (userRole === 3) {
+    dispatch({
+      type: AUTH_UPDATE,
+      payload: { ...userRoleAttributes["New Financial Advisor"] },
+    });
+  } else if (userRole === 4) {
+    dispatch({
+      type: AUTH_UPDATE,
+      payload: { ...userRoleAttributes["New Client"] },
+    });
+  }
+  // show snackbar with "Welcome to Rally!"
+  dispatch(showSnackbar("Welcome to Rally!", true, "info"));
 };
 
+// logout function for all types of users
+export const logout = () => async (dispatch) => {
+  // wipe global variables
+  dispatch({
+    type: AUTH_DELETE,
+  });
+  window.location.href = "/advisory/login";
+  // window.location.reload();
+  // redirect to login
+  useNavigate("/login");
+};
+
+// onboarding function for new advisor users.
 export const onboard = (link, surveyObj) => (dispatch) => {
-  // console.log("onboard", link, surveyObj);
-  // $$$ should this Promise line be deleted?
-  return new Promise((resolve, reject) => {
-    return authService.onboard(link, surveyObj).then(
-      (response) => {
-        dispatch({
-          type: REGISTER_SUCCESS,
-          payload: {
-            ...response.data.payload.tokens,
-            // survey: response.data.payload.survey,
-            survey: {},
-          },
-        });
-
-        return Promise.resolve(response);
-        // return response;
-      },
-      (error) => {
-        dispatch({
-          type: LOGIN_FAIL,
-        });
-        useNavigate("/login");
-
-        return Promise.reject(error);
-        // return error;
-      }
-    );
+  dispatch({
+    type: AUTH_UPDATE,
+    payload: { ...userRoleAttributes["New Financial Advisor"] },
   });
 };
 
-export const logout = () => async (dispatch) => {
-  // kick tokens in the back end, then remove from local storage and redirect to login
-  return authService
-    .logout()
-    .then((response) => {
-      tokenService.removeUser();
-      dispatch({
-        type: LOGOUT_USER,
-      });
-      window.location.href = "/advisory/login";
-      // window.location.reload();
-      useNavigate("/login");
-      return Promise.resolve(response);
-    })
-    .catch((error) => {
-      console.log("error", error);
-      tokenService.removeUser();
-      dispatch({
-        type: LOGOUT_USER,
-      });
-      window.location.href = "/advisory/login";
-      // window.location.reload();
-      useNavigate("/login");
-      return Promise.reject(error);
+export const register =
+  (firstname, lastname, email, password, token) => (dispatch) => {
+    dispatch({
+      type: AUTH_UPDATE,
+      payload: { ...userRoleAttributes.Client },
     });
-};
+  };
 
+// refresh tokens - NOT IN DEMO VERSION
 export const refreshTokens =
   (accesstoken, refreshtoken, rememberMe) => (dispatch) => {
     if (rememberMe) {
@@ -145,6 +84,7 @@ export const refreshTokens =
     });
   };
 
+// refresh auth tokens - NOT IN DEMO VERSION
 export const refreshAuthRedux = (accesstoken, refreshtoken) => (dispatch) => {
   dispatch({
     type: REFRESH_TOKENS,

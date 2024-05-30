@@ -1,13 +1,6 @@
 import jwt_decode from "jwt-decode";
 
-import {
-  REGISTER_SUCCESS,
-  REGISTER_FAIL,
-  LOGIN_SUCCESS,
-  LOGIN_FAIL,
-  LOGOUT_USER,
-  REFRESH_TOKENS,
-} from "actions/types";
+import { AUTH_UPDATE, AUTH_DELETE, REFRESH_TOKENS } from "actions/types";
 
 export const initialState = {
   accesstoken: "",
@@ -21,36 +14,18 @@ export default function (state = initialState, action) {
   const { type, payload } = action;
 
   switch (type) {
-    case REGISTER_SUCCESS:
+    case AUTH_UPDATE:
       return {
         ...state,
         accesstoken: payload.accesstoken,
         refreshtoken: payload.refreshtoken,
         survey: payload.survey,
-        attributes: jwt_decode(payload.accesstoken).attributes,
-        accessToken: jwt_decode(payload.accesstoken).accessToken,
-      };
-    case REGISTER_FAIL:
-      return {
-        ...state,
-        ...initialState,
-      };
-    case LOGIN_SUCCESS:
-      return {
-        ...state,
-        accesstoken: payload.accesstoken,
-        refreshtoken: payload.refreshtoken,
-        survey: payload.survey,
-        attributes: jwt_decode(payload.accesstoken).attributes,
-        accessToken: jwt_decode(payload.accesstoken).accessToken,
+        attributes: payload.attributes,
+        // attributes: jwt_decode(payload.accesstoken).attributes,
+        // accessToken: jwt_decode(payload.accesstoken).accessToken,
         rememberMe: payload.rememberMe,
       };
-    case LOGIN_FAIL:
-      return {
-        ...state,
-        ...initialState,
-      };
-    case LOGOUT_USER:
+    case AUTH_DELETE:
       return {
         ...state,
         ...initialState,

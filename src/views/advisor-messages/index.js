@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 // material-ui
 import { makeStyles, useTheme } from "@material-ui/styles";
@@ -14,16 +14,18 @@ import {
   Divider,
 } from "@material-ui/core";
 
-// project imports
+// project component imports
 import AdvisorChat from "./components/AdvisorChat";
-import advisoryService from "services/advisory.service";
-import { showSnackbar } from "actions/main";
 import ChatListItem from "../../ui-component/extended/ChatListItem";
-import { useSelector } from "react-redux";
 import ChatList from "ui-component/chat/ChatList";
 import PagePlaceholderText from "ui-component/extended/PagePlaceholderText";
 import SupportRequest from "ui-component/modals/SupportRequest";
 import ReportAbuseCard from "ui-component/cards/ReportAbuseCard";
+
+// data and functions imports
+import advisoryService from "services/advisory.service";
+import { showSnackbar } from "actions/main";
+import { advisorChatList, advisorClientList } from "utils/advisor-dummy-data";
 
 // style constant
 const useStyles = makeStyles((theme) => ({
@@ -128,17 +130,18 @@ const AdvisorMessageManagement = () => {
   const matchUpLg = useMediaQuery(theme.breakpoints.up("lg"));
   const matchDownSm = useMediaQuery(theme.breakpoints.down("sm"));
   const { attributes } = useSelector((state) => state.auth);
-  const advisory = useSelector((state) => state.advisory);
+  // @@@ Add the funcitonlaity of receiving new messages another time.
+  // const advisory = useSelector((state) => state.advisory);
 
   // extract query params from url
   const [searchParams, setSearchParams] = useSearchParams();
   const idParam = searchParams.get("id");
 
   // data states
-  const [allChatList, setAllChatList] = useState([]);
   const [chatList, setChatList] = useState([]);
-  const [chatObject, setChatObject] = useState({});
-  const [chatData, setChatData] = useState({});
+  const [chatListToDisplay, setChatListToDisplay] = useState([]);
+  const [chatListObject, setChatListObject] = useState({});
+  const [currentChatData, setCurrentChatData] = useState({});
 
   // mode states
   const [noMessages, setNoMessages] = useState(true);
@@ -151,123 +154,69 @@ const AdvisorMessageManagement = () => {
 
   // handle retrieving chat/client data
   const getClientData = async (adviceid) => {
-    return new Promise(async (resolve, reject) => {
-      await advisoryService
-        .getClient({ clientid: adviceid })
-        .then(async (response) => {
-          if (!!response.data.payload.success) {
-            // if the client is found, set the client data
-            if (!!Object.entries(response.data.payload.client).length > 0) {
-              resolve({ ...response.data.payload.client, isClient: true });
-            }
-            // otherwise, request the prospect data
-            else {
-              await advisoryService
-                .getProspect({ clientid: adviceid })
-                .then((response) => {
-                  if (!!response.data.payload.success) {
-                    resolve({
-                      ...response.data.payload.client,
-                      isClient: false,
-                    });
-                  } else {
-                    dispatch(
-                      showSnackbar(response.data.details.text, true, "error")
-                    );
-                    console.log(
-                      "error with prospect data request",
-                      response.data.details.text
-                    );
-                  }
-                });
-            }
-          } else {
-            dispatch(showSnackbar(response.data.details.text, true, "error"));
-            console.log(
-              "error with client data request",
-              response.data.details.text
-            );
-          }
-        })
-        .catch((error) => {
-          dispatch(
-            showSnackbar(
-              "There seems to be an issue. Please contact support if this issue persists.",
-              true,
-              "error"
-            )
-          );
-          console.log("uncaught error", error);
-        });
-    });
+    for (const client of advisorClientList) {
+      if ((client.adviceid = adviceid)) {
+        return { ...client };
+      }
+      // what if the user is not a client, but a prospect?
+      // @@@ Could add this functionality later. Nice to have.
+      else {
+        return {};
+      }
+    }
   };
   // handle retrieving chat list data.
-  const getChatListData = async () => {
-    return new Promise(async (resolve, reject) => {
-      await advisoryService
-        .getChatList({})
-        .then(async (response) => {
-          if (!!response.data.payload.success) {
-            let chats = [];
-            let chatobj = {};
-            // if the chat list is found, set the chat list data
-            if (!!response.data.payload.messages) {
-              setNoMessages(false);
-              const chatlist = response.data.payload.messages;
-              // loop through the chat list and create a chat object for each chat
-              for (const chat of chatlist) {
-                let clientData = await getClientData(chat.adviceid);
-                chats.push({ ...chat, ...clientData });
-                chatobj[chat.adviceid] = { ...chat, ...clientData };
-                // for each chat, check if the adviceid exists as a url param. if so, set the selected index to the adviceid.
-                if (!!idParam && idParam === chat.adviceid) {
-                  setChatData({ ...chat, ...clientData });
-                  setNoChat(false);
-                  if (!!clientData.isClient) {
-                    setIsClient(true);
-                  } else {
-                    setIsClient(false);
-                  }
-                }
-              }
-              chats.sort((a, b) => {
-                let timeA;
-                let timeB;
-                let today = new Date();
-                if (!!a.timestamp) {
-                  timeA = parseInt(a.timestamp);
-                } else {
-                  timeA = today.getTime() + 100;
-                }
-                if (!!b.timestamp) {
-                  timeB = parseInt(b.timestamp);
-                } else {
-                  timeB = today.getTime() + 100;
-                }
-                const num = timeB - timeA;
-                return num;
-              });
-              setAllChatList(chats);
-              setChatList(chats);
-              setChatObject(chatobj);
-              setIsLoading(false);
-              resolve({ ...chatobj });
-            } else {
-              dispatch(
-                showSnackbar("No chat messages found.", true, "warning")
-              );
-              setNoMessages(true);
-              setIsLoading(false);
-            }
+  const getChatListData = (messages) => {
+    // THERE ISN'T GOING TO BE AN ELSE RESPONSE HERE ONCE WE PROVIDE DUMMY DATA
+    // if the chat list is found, set the chat list data
+    if (!!messages) {
+      let tempChatList = [];
+      let tempChatListObject = {};
+      const chatlist = messages;
+      setNoMessages(false);
+      // loop through the chat list and create a chat object for each chat
+      for (const chat of chatlist) {
+        let clientData = getClientData(chat.adviceid);
+        tempChatList.push({ ...chat, ...clientData }); // generating a chat list
+        tempChatListObject[chat.adviceid] = { ...chat, ...clientData }; // adding data to a chat object
+        // for each chat, check if the adviceid exists as a url param. if so, set the selected index to the adviceid.
+        if (!!idParam && idParam === chat.adviceid) {
+          setCurrentChatData({ ...chat, ...clientData });
+          setNoChat(false);
+          if (!!clientData.isClient) {
+            setIsClient(true);
           } else {
-            reject(response.data.details.text);
+            setIsClient(false);
           }
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          reject(error.message);
-        });
-    });
+        }
+      }
+      // tempChatList.sort((a, b) => {
+      //   let timeA;
+      //   let timeB;
+      //   let today = new Date();
+      //   if (!!a.timestamp) {
+      //     timeA = parseInt(a.timestamp);
+      //   } else {
+      //     timeA = today.getTime() + 100;
+      //   }
+      //   if (!!b.timestamp) {
+      //     timeB = parseInt(b.timestamp);
+      //   } else {
+      //     timeB = today.getTime() + 100;
+      //   }
+      //   const num = timeB - timeA;
+      //   return num;
+      // });
+      setChatList(tempChatList);
+      setChatListToDisplay(tempChatList);
+      setChatListObject(tempChatListObject);
+      setIsLoading(false);
+      return { ...tempChatListObject };
+    } else {
+      dispatch(showSnackbar("No chat messages found.", true, "warning"));
+      setNoMessages(true);
+      setIsLoading(false);
+    }
   };
   // handle user selecting a chat from the chat list
   const handleSelectChat = async (adviceid) => {
@@ -279,44 +228,29 @@ const AdvisorMessageManagement = () => {
     if (attributes.ADVISOR > 1 || attributes.RIA > 1) {
       setNotApproved(true);
       setIsLoading(false);
-    } else if (attributes.MERCHANT < 1) {
-      setNotMerchant(true);
-      setIsLoading(false);
     } else {
-      await getChatListData()
-        .then((chatobj) => {
-          if (!chatobj[idParam]) {
-            setNoChat(true);
-            setSearchParams({});
-          }
-        })
-        .catch((error) => {
-          dispatch(
-            showSnackbar(
-              "There seems to be an issue. Please contact support if this issue persists.",
-              true,
-              "error"
-            )
-          );
-          console.log("uncaught error", error);
-          setIsLoading(false);
-        });
+      // perform data manipulation of incoming message data (used to be get chat list API function)
+      let chatListDataObject = getChatListData(advisorChatList);
+      if (!chatListDataObject[idParam]) {
+        setNoChat(true);
+        setSearchParams({});
+      }
     }
-    // if there's a chat id in the url, the chat data is assigned within the loop of "getChatListData".
-  }, [attributes, advisory.unreadchats]);
+  }, [attributes]);
 
   useEffect(async () => {
-    if (!!idParam && Object.keys(chatObject).indexOf(idParam) > -1) {
-      if (!!chatObject[idParam].isClient) {
+    if (!!idParam && Object.keys(chatListObject).indexOf(idParam) > -1) {
+      // check if chat is related to an existing client or a prospect.
+      if (!!chatListObject[idParam].isClient) {
         setIsClient(true);
       } else {
         setIsClient(false);
       }
-      setChatData({ ...chatObject[idParam] });
+      setCurrentChatData({ ...chatListObject[idParam] });
       setNoChat(false);
     } else {
       setNoChat(true);
-      setChatData({});
+      setCurrentChatData({});
     }
   }, [location.search]);
 
@@ -326,7 +260,7 @@ const AdvisorMessageManagement = () => {
   const searchPromise = (value) => {
     return new Promise((resolve, reject) => {
       let searchlist = [];
-      allChatList.forEach((chat) => {
+      chatList.forEach((chat) => {
         const name = new String(chat.name);
         if (name.indexOf(value) !== -1) {
           searchlist.push(chat);
@@ -340,26 +274,23 @@ const AdvisorMessageManagement = () => {
     const newlist = await searchPromise(value);
     if (newlist.length === 0) {
       dispatch(showSnackbar("Name not found in list.", true, "warning"));
-      await getChatListData();
+      await getChatListData(advisorChatList);
     }
-    setChatList(newlist);
+    setChatListToDisplay(newlist);
   };
   // handle cancel of search for a chat in the List
   const handleCancelSearch = async () => {
-    await getChatListData();
+    await getChatListData(advisorChatList);
   };
 
   // PREPARE CHAT LIST UI ============================================================
 
-  let displaychatlist = [];
-  if (chatList.length > 0) {
-    displaychatlist = chatList.map((chat) => {
+  let displayableChatList = [];
+  if (chatListToDisplay.length > 0) {
+    displayableChatList = chatListToDisplay.map((chat) => {
       let body = !!chat.body ? new String(chat.body) : "...";
       let advid = new String(chat.adviceid);
       let newMessage = false;
-      if (!!advisory.unreadchats[advid]) {
-        newMessage = true;
-      }
       return (
         <ChatListItem
           key={chat.adviceid}
@@ -379,46 +310,30 @@ const AdvisorMessageManagement = () => {
   // HANDLE REPORT OF ABUSE ============================================================
 
   // when submit button is selected.
-  const handleConfirm = async (title, message) => {
+  const handleConfirmRequest = async (title, message) => {
     // send support request to hubspot
-    await advisoryService
-      .postReport({
-        title: title,
-        message: message,
-        adviceid: idParam,
-      })
-      .then((response) => {
-        if (!!response.data.payload.success) {
-          dispatch(
-            showSnackbar(
-              "Report sent to support team. Thank you.",
-              true,
-              "success"
-            )
-          );
-          setReportAbuse(false);
-          setTimeout(() => {
-            alert(
-              "Thank you for submitting an abuse report. We will remove this client from your account and investigate this situation immediately."
-            );
-            window.location.reload();
-          }, 1000);
-        } else {
-          dispatch(showSnackbar(response.data.details.text, true, "error"));
-          console.log(response.data.details.text);
-          setReportAbuse(false);
-        }
-      })
-      .catch((error) => {
-        dispatch(
-          showSnackbar(
-            "There seems to be an issue. Please contact support if this issue persists.",
-            true,
-            "error"
-          )
+    if (true) {
+      dispatch(
+        showSnackbar("Report sent to support team. Thank you.", true, "success")
+      );
+      setReportAbuse(false);
+      setTimeout(() => {
+        alert(
+          "Thank you for submitting an abuse report. We will remove this client from your account and investigate this situation immediately."
         );
-        console.log("uncaught error", error);
-      });
+        window.location.reload();
+      }, 1000);
+    } else {
+      dispatch(
+        showSnackbar(
+          "Error sending report. Please contact the team directly for support.",
+          true,
+          "error"
+        )
+      );
+      console.log("Error sending support request from advisor Chat component.");
+      setReportAbuse(false);
+    }
   };
 
   return (
@@ -427,7 +342,7 @@ const AdvisorMessageManagement = () => {
         open={reportAbuse}
         header="Report Abuse"
         handleCancel={() => setReportAbuse(false)}
-        handleConfirm={handleConfirm}
+        handleConfirm={handleConfirmRequest}
       />
       {!!isLoading ? (
         <Box className="horizontal-center">
@@ -441,7 +356,7 @@ const AdvisorMessageManagement = () => {
               handleSearch={handleSearch}
               handleCancelSearch={handleCancelSearch}
               noMessages={noMessages}
-              displaychatlist={displaychatlist}
+              displaychatlist={displayableChatList}
             />
           )}
           {/* CHAT WINDOW */}
@@ -452,10 +367,10 @@ const AdvisorMessageManagement = () => {
                 notMerchant={notMerchant}
                 noChat={noChat}
                 isClient={isClient}
-                clientname={chatData.name}
-                adviceid={chatData.id}
-                token={chatData.token}
-                refreshChatList={getChatListData}
+                clientname={currentChatData.name}
+                adviceid={currentChatData.id}
+                token={currentChatData.token}
+                refreshChatList={() => getChatListData(advisorChatList)}
               />
             </Box>
           )}
@@ -465,7 +380,8 @@ const AdvisorMessageManagement = () => {
               <Typography variant="h3" sx={{ mb: 1 }}>
                 Contact Details
               </Typography>
-              {!chatData || Object.entries(chatData).length === 0 ? (
+              {!currentChatData ||
+              Object.entries(currentChatData).length === 0 ? (
                 <Box
                   className="horizontal-center"
                   mt={1}
@@ -482,14 +398,16 @@ const AdvisorMessageManagement = () => {
                 <>
                   <Box className="detailsbox">
                     <Typography variant="body1">
-                      Invited: {!!chatData.invited ? "Yes" : "No"}
+                      Invited: {!!currentChatData.invited ? "Yes" : "No"}
                     </Typography>
                     <Typography variant="body1">
                       State:{" "}
-                      {chatData.state ? chatData.state.toUpperCase() : ""}
+                      {currentChatData.state
+                        ? currentChatData.state.toUpperCase()
+                        : ""}
                     </Typography>
                   </Box>
-                  {!!chatData.id && (
+                  {!!currentChatData.id && (
                     <List>
                       <ListItem disablePadding>
                         <ListItemButton
@@ -497,8 +415,8 @@ const AdvisorMessageManagement = () => {
                           className={classes.actionButton}
                           onClick={() =>
                             !!isClient
-                              ? navigate(`/adv/clients/${chatData.id}`)
-                              : navigate(`/adv/prospects/${chatData.id}`)
+                              ? navigate(`/adv/clients/${currentChatData.id}`)
+                              : navigate(`/adv/prospects/${currentChatData.id}`)
                           }
                         >
                           View Profile
@@ -509,7 +427,7 @@ const AdvisorMessageManagement = () => {
                           disableGutters
                           className={classes.actionButton}
                           onClick={() =>
-                            navigate(`/adv/invoices/?id=${chatData.id}`)
+                            navigate(`/adv/invoices/?id=${currentChatData.id}`)
                           }
                           disabled={!!noChat}
                         >
@@ -522,7 +440,9 @@ const AdvisorMessageManagement = () => {
                           disableGutters
                           className={classes.actionButton}
                           onClick={() =>
-                            navigate(`/adv/invoices/new/?id=${chatData.id}`)
+                            navigate(
+                              `/adv/invoices/new/?id=${currentChatData.id}`
+                            )
                           }
                           disabled={!!noChat}
                         >

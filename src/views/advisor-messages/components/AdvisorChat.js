@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
 // mui
@@ -17,8 +17,6 @@ token = string to authenticate user participation in chat
 */
 
 const AdvisorChat = (props) => {
-  const location = useLocation();
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const [noChatMessage, setNoChatMessage] = React.useState("");

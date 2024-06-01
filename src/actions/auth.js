@@ -4,7 +4,7 @@ import authService from "services/auth.service";
 import tokenService from "services/token.service";
 import { useNavigate } from "react-router";
 import { showSnackbar } from "./main";
-import { userRoleAttributes } from "utils/user-data-map";
+import { userRoleAttributes } from "utils/user-auth-data-map";
 
 // login function for all types of users.
 export const login = (email, password, rememberMe, userRole) => (dispatch) => {

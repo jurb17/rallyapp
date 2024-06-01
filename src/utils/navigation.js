@@ -39,29 +39,16 @@ export const attributesNavigation = (
     location = { pathname: "/" };
   }
 
-  if (!userRole) {
-    navigate("/login");
-  } else {
-    // if userRole == existing advisor, go to /adv and provide dummy attributes
-    if (userRole == 1) {
-      navigate("/adv");
-    }
-
-    // if userRole == existing client, go to /client
-    if (userRole == 2) {
-      navigate("/client");
-    }
-
-    // if use selects "New Advisor" on the login page or if the
-    if (userRole == 3) {
-      navigate("/onboarding");
-    }
-
-    // if userRole == new client, go to /register (or wherever you're supposed to)
-    if (userRole == 4) {
-      navigate("/register");
-    }
-  }
+  // if no userRole, go to login.
+  if (!userRole) navigate("/login");
+  // if userRole == existing advisor, go to /adv and provide dummy attributes
+  else if (userRole == 1) navigate("/adv");
+  // if userRole == existing client, go to /client
+  else if (userRole == 2) navigate("/client");
+  // if use selects "New Advisor" on the login page or if the
+  else if (userRole == 3) navigate("/onboarding");
+  // if userRole == new client, go to /register (or wherever you're supposed to)
+  else if (userRole == 4) navigate("/register");
 
   // // if the user has outstanding surveys, redirect to /onboarding
   // if (

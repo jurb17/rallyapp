@@ -40,10 +40,11 @@ const App = () => {
 
   useEffect(() => {
     // if there is no accesstoken in the auth global state, then route the user back to the login page.
+    console.log("APP.JS", auth);
     if (!auth.accesstoken) navigate("/login");
     // otherwise, continue to the path specified.
     else console.log("User is authenticated and global state in sync.");
-  }, []);
+  }, [auth.accesstoken]);
 
   const routing = useRoutes(routes(location.pathname));
   const customization = useSelector((state) => state.customization);

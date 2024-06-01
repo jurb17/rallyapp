@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useLocation } from "react-router-dom";
 
 // material-ui
@@ -83,6 +83,7 @@ const FirebaseLogin = (props, { ...others }) => {
   const classes = useStyles();
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
 
   const [rememberMe, setRememberMe] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -130,6 +131,7 @@ const FirebaseLogin = (props, { ...others }) => {
           console.log(values);
           setStatus({ success: true });
           setSubmitting(false);
+          dispatch(login("", "", rememberMe, values.userRole));
           attributesNavigation(navigate, location, null, values.userRole);
         }}
       >

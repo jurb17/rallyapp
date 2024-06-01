@@ -2,6 +2,8 @@ import React from "react";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { attributesNavigation } from "utils/navigation";
 import { useLocation } from "react-router-dom";
+import { login } from "actions/auth";
+import { useDispatch } from "react-redux";
 
 // material-ui
 import { useTheme } from "@material-ui/core/styles";
@@ -27,6 +29,7 @@ const Login = () => {
   const theme = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const matchDownSM = useMediaQuery(theme.breakpoints.down("sm"));
 
   return (
@@ -106,15 +109,17 @@ const Login = () => {
                     >
                       <SecondaryTextButton
                         name="Client Sign Up"
-                        onClick={() =>
-                          attributesNavigation(navigate, location, null, 4)
-                        }
+                        onClick={() => {
+                          dispatch(login("", "", 0, 4));
+                          attributesNavigation(navigate, location, null, 4);
+                        }}
                       />
                       <SecondaryTextButton
                         name="Become an advisor"
-                        onClick={() =>
-                          attributesNavigation(navigate, location, null, 3)
-                        }
+                        onClick={() => {
+                          dispatch(login("", "", 0, 3));
+                          attributesNavigation(navigate, location, null, 3);
+                        }}
                       />
                     </Grid>
                   </Grid>

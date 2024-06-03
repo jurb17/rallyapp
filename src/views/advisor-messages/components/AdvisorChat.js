@@ -1,5 +1,4 @@
 import React, { useMemo } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
 // mui
@@ -9,6 +8,7 @@ import { Box, Typography } from "@material-ui/core";
 import advisoryService from "services/advisory.service";
 import { showSnackbar } from "actions/main";
 import ChatPage from "ui-component/pages/ChatPage";
+import { advisorChatList } from "utils/advisor-dummy-data";
 
 // ==========================================================
 /* PROPS MAP
@@ -21,9 +21,13 @@ const AdvisorChat = (props) => {
 
   const [noChatMessage, setNoChatMessage] = React.useState("");
 
-  // getChatSince
+  /* get messages since a given message.
+  Could be used if user has asked for previous messages,
+  then wants to go forward in the message history. 
+  @@@ PROBABLY NOT USEFUL FOR THE DEMO VERSION. */
   const getChatSince = (messageid, cid, toke) => {
     return new Promise((resolve, reject) => {
+      console.log("getChatSince, AdvisorChat.js");
       advisoryService
         .getChatSince({
           clientid: cid,
@@ -51,8 +55,12 @@ const AdvisorChat = (props) => {
         });
     });
   };
-  // getChatBefore
+  /* get certain number of messages before a given message.
+  Could be used if there's a long chat history and too many messages to load,
+  but the user wants to load previous messages. 
+  @@@ PROBABLY NOT USEFUL FOR THE DEMO VERSION. */
   const getChatBefore = async (messageid, cid, toke) => {
+    console.log("getChatBefore, AdvisorChat.js");
     return new Promise((resolve, reject) => {
       advisoryService
         .getChatBefore({
@@ -81,8 +89,11 @@ const AdvisorChat = (props) => {
         });
     });
   };
-  // getChat
+  /* gets chat messages.
+  NEED TO REPLACE WITH DUMMY DATA */
   const getChat = async (cid, toke) => {
+    console.log("getChat, AdvisorChat.js");
+    return advisorChatList[cid].messages;
     return new Promise((resolve, reject) => {
       advisoryService
         .getChat({ clientid: cid, token: toke })
@@ -107,8 +118,10 @@ const AdvisorChat = (props) => {
         });
     });
   };
-  // postChat
+  /* post new chat messages
+  NEED TO ALLOW USER TO ENTER NEW MESSAGES AND SEE THEM SHOW UP IN THE CHAT. */
   const postChat = async (cid, toke, content) => {
+    console.log("postChat, AdvisorChat.js");
     return new Promise((resolve, reject) => {
       advisoryService
         .postChat({
@@ -137,8 +150,10 @@ const AdvisorChat = (props) => {
         });
     });
   };
-  // deleteChat
+  /* delete chat message
+  NEED TO ALLOW USER TO DELETE CHAT MESSAGES AND HAVE SOME STATE SAVE EXISTING LIST. */
   const deleteChat = async (msgid, cid, toke) => {
+    console.log("deleteChat, AdvisorChat.js");
     return new Promise((resolve, reject) => {
       advisoryService
         .deleteChat({
@@ -210,7 +225,8 @@ const AdvisorChat = (props) => {
           }}
           getChatSince={getChatSince}
           getChatBefore={getChatBefore}
-          getChat={getChat}
+          // getChat={getChat}
+          chatMessages={props.chatMessages}
           postChat={postChat}
           deleteChat={deleteChat}
         />

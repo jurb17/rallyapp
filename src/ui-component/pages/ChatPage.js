@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -25,9 +25,6 @@ import { clientMarksRead } from "actions/advice";
 import DynamicButton from "ui-component/buttons/DynamicButton";
 import ConfirmPrimaryModal from "ui-component/modals/ConfirmPrimaryModal";
 
-// style constant
-const useStyles = makeStyles((theme) => ({}));
-
 // ==========================================================
 /* PROPS MAP
 clientid = string of id representing the relatipnship between client and advisor (clientid or adviceid)
@@ -43,7 +40,6 @@ deleteChat = function to delete a chat message
 */
 
 const ChatPage = (props) => {
-  const classes = useStyles();
   const theme = useTheme();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -153,7 +149,7 @@ const ChatPage = (props) => {
         content: (
           <Button
             onClick={async () => {
-              requestChatSince(list[list.length - 1].id); // TEST THIS
+              requestChatSince(list[list.length - 1].id);
             }}
           >
             <Typography variant="body1">Show Next Messages</Typography>
@@ -478,33 +474,22 @@ const ChatPage = (props) => {
 
   // get messages from backend and display them in the chat.
   const showServerMessages = async (scroll) => {
-    props
-      .getChat(props.clientid, props.token)
-      .then((response) => {
-        // remove this advice id from the unread advice list.
-        if (!!props.advisor) {
-          dispatch(advisorMarksRead(props.clientid));
-        } else {
-          dispatch(clientMarksRead(props.clientid));
-        }
-        let serverMessages = response.data.payload.messages;
-        // create list of messages in controller format
-        createControllerList(serverMessages).then((list) => {
-          const { contactmessages, selfmessages } =
-            getSelfAndContactMessages(list);
-          // add show previous button to the list.
-          list = addShowPreviousButton(list);
-          list.reverse();
-          // update the messages in the chat.
-          updateMessages(list, scroll);
-        });
-      })
-      .catch((error) => {
-        dispatch(
-          showSnackbar("Could not retrieve messages from server", true, "error")
-        );
-        console.log("error", error);
-      });
+    // remove this advice id from the unread advice list.
+    if (!!props.advisor) {
+      dispatch(advisorMarksRead(props.clientid));
+    } else {
+      dispatch(clientMarksRead(props.clientid));
+    }
+    let serverMessages = [...props.chatMessages];
+    // create list of messages in controller format
+    createControllerList(serverMessages).then((list) => {
+      const { contactmessages, selfmessages } = getSelfAndContactMessages(list);
+      // add show previous button to the list.
+      list = addShowPreviousButton(list);
+      list.reverse();
+      // update the messages in the chat.
+      updateMessages(list, scroll);
+    });
   };
   // prompt user to complete account setup.
   const showSetupMessage = () => {

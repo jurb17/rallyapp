@@ -23,7 +23,6 @@ import SupportRequest from "ui-component/modals/SupportRequest";
 import ReportAbuseCard from "ui-component/cards/ReportAbuseCard";
 
 // data and functions imports
-import advisoryService from "services/advisory.service";
 import { showSnackbar } from "actions/main";
 import { advisorChatList, advisorClientList } from "utils/advisor-dummy-data";
 
@@ -252,7 +251,7 @@ const AdvisorMessageManagement = () => {
       setNoChat(true);
       setCurrentChatData({});
     }
-  }, [location.search]);
+  }, [location.search, chatListObject]);
 
   // USER CHAT SEARCH ============================================================
 
@@ -371,12 +370,14 @@ const AdvisorMessageManagement = () => {
                 adviceid={currentChatData.id}
                 token={currentChatData.token}
                 refreshChatList={() => getChatListData(advisorChatList)}
+                chatMessages={currentChatData.messages}
               />
             </Box>
           )}
           {/* CONTACT DETAILS */}
           {!!matchUpLg && !notApproved && !notMerchant ? (
             <Box className={classes.detailsPanel}>
+              {/* @@@ create new component for organization pruposes. */}
               <Typography variant="h3" sx={{ mb: 1 }}>
                 Contact Details
               </Typography>

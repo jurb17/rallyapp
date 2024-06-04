@@ -18,7 +18,7 @@ import routes from "./routes";
 // project imports
 import NavigationScroll from "./layout/NavigationScroll";
 import tokenService from "services/token.service";
-import { refreshTokens } from "actions/auth";
+import { refreshTokens, login } from "actions/auth";
 
 // ===========================|| APP ||=========================== //
 
@@ -28,9 +28,8 @@ const App = () => {
   const navigate = useNavigate();
 
   // Evaluate the tokens using browser storage.
-  // @@@ Will have to look at if the user is remembered after the session
-  // const sessionuser = tokenService.getSessionUser();
-  // const localuser = tokenService.getLocalUser();
+  const sessionuser = tokenService.getSessionUser();
+  const localuser = tokenService.getLocalUser();
 
   // Evaluate global state.
   const auth = useSelector((state) => state.auth);
@@ -39,12 +38,31 @@ const App = () => {
   const queryParams = new URLSearchParams(location.search);
 
   useEffect(() => {
-    // if there is no accesstoken in the auth global state, then route the user back to the login page.
-    console.log("APP.JS", auth);
-    if (!auth.accesstoken) navigate("/login");
-    // otherwise, continue to the path specified.
-    else console.log("User is authenticated and global state in sync.");
-  }, [auth.accesstoken]);
+    // if there is no localuser object, sessionuser object, or global access token variable, then go to login page.
+    if (!localuser && !sessionuser && !auth.accesstoken) navigate("/login");
+    // if there is a localuser object, but no sessionuser object or global access token, then use localuser to update other states.
+    else if (localuser && !sessionuser && !auth.accesstoken) {
+      login(
+        localuser.email,
+        "remembered_local_user",
+        false,
+        localuser.userRole
+      );
+      console.log("User details remembered.");
+    }
+    // if there is a session user, but no global variables, then update global state.
+    else if (sessionuser && !auth.accesstoken) {
+      login(
+        sessionuser.email,
+        "session_user_adjustment",
+        false,
+        sessionuser.userRole
+      );
+      console.log("Session update.");
+    }
+    // else: navigate to the route in url bar.
+    else console.log("User is authenticated and global state ins in sync.");
+  }, [localuser, sessionuser, auth.accesstoken]);
 
   const routing = useRoutes(routes(location.pathname));
   const customization = useSelector((state) => state.customization);

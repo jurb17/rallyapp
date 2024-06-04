@@ -85,7 +85,8 @@ const FirebaseLogin = (props, { ...others }) => {
   const location = useLocation();
   const dispatch = useDispatch();
 
-  const [rememberMe, setRememberMe] = useState(true);
+  // data states for this component
+  const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const userRoles = ["Financial Advisor", "Client"];
   const items = userRoles.map((name, index) => {
@@ -96,6 +97,9 @@ const FirebaseLogin = (props, { ...others }) => {
       </MenuItem>
     );
   });
+  let initialEmail = "";
+  if (localStorage.getItem("lastEmail"))
+    initialEmail = JSON.parse(localStorage.getItem("lastEmail"));
 
   // handle show password toggle
   const handleClickShowPassword = () => {
@@ -110,7 +114,7 @@ const FirebaseLogin = (props, { ...others }) => {
     <>
       <Formik
         initialValues={{
-          email: "",
+          email: initialEmail,
           password: "",
           userRole: "",
           submit: null,
@@ -131,7 +135,7 @@ const FirebaseLogin = (props, { ...others }) => {
           console.log(values);
           setStatus({ success: true });
           setSubmitting(false);
-          dispatch(login("", "", rememberMe, values.userRole));
+          dispatch(login(values.email, "", rememberMe, values.userRole));
           attributesNavigation(navigate, location, null, values.userRole);
         }}
       >

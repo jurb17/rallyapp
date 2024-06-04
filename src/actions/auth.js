@@ -8,6 +8,15 @@ import { userRoleAttributes } from "utils/user-auth-data-map";
 
 // login function for all types of users.
 export const login = (email, password, rememberMe, userRole) => (dispatch) => {
+  // save last used email in localStorage under "lastEmail" variable name.
+  localStorage.setItem("lastEmail", JSON.stringify(email));
+
+  // save data to sessionStorage to allow user to refresh page
+  tokenService.setSessionUser({ email: email, userRole: userRole });
+  // if rememberMe, then save data to localStorage.
+  if (rememberMe)
+    tokenService.setLocalUser({ email: email, userRole: userRole });
+
   // place log in credentials in global storage (localStorage is not as efficient.)
 
   /* USER ROLES KEY
@@ -43,6 +52,8 @@ export const login = (email, password, rememberMe, userRole) => (dispatch) => {
 
 // logout function for all types of users
 export const logout = () => async (dispatch) => {
+  // wipe browser storage, keep local "lastEmail" variable.
+  tokenService.removeUser();
   // wipe global variables
   dispatch({
     type: AUTH_DELETE,

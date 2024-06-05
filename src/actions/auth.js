@@ -10,7 +10,6 @@ import { userRoleAttributes } from "utils/user-auth-data-map";
 export const login = (email, password, rememberMe, userRole) => (dispatch) => {
   // save last used email in localStorage under "lastEmail" variable name.
   localStorage.setItem("lastEmail", JSON.stringify(email));
-
   // save data to sessionStorage to allow user to refresh page
   tokenService.setSessionUser({ email: email, userRole: userRole });
   // if rememberMe, then save data to localStorage.
@@ -18,7 +17,6 @@ export const login = (email, password, rememberMe, userRole) => (dispatch) => {
     tokenService.setLocalUser({ email: email, userRole: userRole });
 
   // place log in credentials in global storage (localStorage is not as efficient.)
-
   /* USER ROLES KEY
     1: Financial Advisor
     2: Client
@@ -46,8 +44,9 @@ export const login = (email, password, rememberMe, userRole) => (dispatch) => {
       payload: { ...userRoleAttributes["New Client"] },
     });
   }
-  // show snackbar with "Welcome to Rally!"
-  dispatch(showSnackbar("Welcome to Rally!", true, "info"));
+  // if not a session or local update, show snackbar message.
+  if (password !== "session_update" && password != "local_update")
+    dispatch(showSnackbar("Welcome to Rally!", true, "info"));
 };
 
 // logout function for all types of users

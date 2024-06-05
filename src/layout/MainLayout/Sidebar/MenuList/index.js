@@ -60,7 +60,7 @@ const MenuList = ({ chats }) => {
         break;
     }
   } else {
-    console.log("No attributes detected");
+    console.log("No attributes detected, MenuList");
   }
 
   const navItems = menuItem.items.map((item) => {

@@ -139,43 +139,22 @@ const MainLayout = () => {
     dispatch({ type: SET_MENU, opened: !matchDownMd });
   }, [matchDownMd]);
 
-  // for the following paths, close drawer if open.
   useEffect(() => {
+    // close drawer for given locations
     if (
-      (location.pathname.includes("/signup") ||
-        location.pathname.includes("/register") ||
-        location.pathname.includes("/login") ||
-        location.pathname.includes("/onboarding")) &&
-      !matchDownMd
+      location.pathname.includes("/signup") ||
+      location.pathname.includes("/register") ||
+      location.pathname.includes("/login") ||
+      location.pathname.includes("/onboarding")
     ) {
-      if (!!customization.opened) {
+      // check if drawer is open first
+      if (!matchDownMd && !!customization.opened)
         dispatch({ type: SET_MENU, opened: false });
-      }
     }
-  }, [customization]);
-
-  // for other paths, open drawer upon landing on the app the page.
-  useEffect(() => {
-    if (
-      !location.pathname.includes("/signup") &&
-      !location.pathname.includes("/register") &&
-      !location.pathname.includes("/login") &&
-      !location.pathname.includes("/onboarding") &&
-      !matchDownMd
-    ) {
-      if (!customization.opened) {
-        dispatch({ type: SET_MENU, opened: true });
-      }
-    }
-    if (!auth.attributes) {
-      dispatch(
-        refreshAuthRedux(
-          tokenService.getSessionAccessToken(),
-          tokenService.getSessionRefreshToken()
-        )
-      );
-    }
-  }, [location.pathname]);
+    // open drawer for other locations when drawer is closed
+    else if (!matchDownMd && !customization.opened)
+      dispatch({ type: SET_MENU, opened: true });
+  }, [customization, location.pathname, auth.accesstoken]);
 
   // HANDLE ROUTING BASED ON QUERY PARAMS ====================================
   // depricated logic to reroute user based on query params in URL that ended in "/register"

@@ -42,21 +42,15 @@ const App = () => {
     if (!localuser && !sessionuser && !auth.accesstoken) navigate("/login");
     // if there is a localuser object, but no sessionuser object or global access token, then use localuser to update other states.
     else if (localuser && !sessionuser && !auth.accesstoken) {
-      login(
-        localuser.email,
-        "remembered_local_user",
-        false,
-        localuser.userRole
+      dispatch(
+        login(localuser.email, "local_update", false, localuser.userRole)
       );
-      console.log("User details remembered.");
+      console.log("Local update. User details remembered.");
     }
     // if there is a session user, but no global variables, then update global state.
     else if (sessionuser && !auth.accesstoken) {
-      login(
-        sessionuser.email,
-        "session_user_adjustment",
-        false,
-        sessionuser.userRole
+      dispatch(
+        login(sessionuser.email, "session_update", false, sessionuser.userRole)
       );
       console.log("Session update.");
     }

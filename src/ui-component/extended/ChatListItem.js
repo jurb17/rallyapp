@@ -1,7 +1,7 @@
 import React from "react";
 
 // material-ui
-import { makeStyles, useTheme } from "@material-ui/styles";
+import { makeStyles } from "@material-ui/styles";
 import {
   Divider,
   ListItemText,
@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
 
 // =======================================================================
 /* PROPS MAP
-clientid = string of the client id
+adviceid = string of the client id
 selectedIndex = selected index of the chat list
 clientname = string presenting the name of the client
 lastmessage = string of the last message
@@ -83,7 +83,7 @@ const ChatListItem = (props) => {
         <ListItemButton
           className={classes.chatItem}
           onClick={handleSelectChat}
-          selected={props.clientid === props.selectedIndex}
+          selected={props.adviceid === props.selectedIndex}
         >
           <ListItemAvatar>
             <Avatar

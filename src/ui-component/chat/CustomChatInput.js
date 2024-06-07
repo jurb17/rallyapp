@@ -38,7 +38,7 @@ const CustomChatInput = ({ chatController, actionRequest }) => {
       return;
     } else {
       const res = { type: "custom", value: value };
-      actRequest.onSubmit(value);
+      actRequest.onSubmit(value, actRequest.clientid);
       setValue("");
       return;
     }

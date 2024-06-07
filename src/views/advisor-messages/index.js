@@ -101,14 +101,13 @@ const AdvisorMessageManagement = () => {
   const idParam = searchParams.get("id");
 
   // data states
+  const [activeId, setActiveId] = useState(idParam);
   const [userSearch, setUserSearch] = useState("");
-  const [chatList, setChatList] = useState([]);
-  const [chatListObject, setChatListObject] = useState({});
-  const [currentChatData, setCurrentChatData] = useState({});
+  const [chatList, setChatList] = useState([]); // This is for the ChatList component
+  const [chatObject, setChatObject] = useState({}); // This is for storing all chats and messages by adviceid
 
   // mode states
   const [noMessages, setNoMessages] = useState(true);
-  const [noChat, setNoChat] = useState(true);
   const [isClient, setIsClient] = useState(true);
   const [notApproved, setNotApproved] = useState(false);
   const [notMerchant, setNotMerchant] = useState(false);
@@ -116,110 +115,82 @@ const AdvisorMessageManagement = () => {
   const [reportAbuse, setReportAbuse] = useState(false);
 
   // handle retrieving chat/client data
-  const getClientData = async (adviceid) => {
-    for (const client of advisorClientList) {
-      if ((client.id = adviceid)) {
-        return { ...client };
+  const getClientData = async (adviceid) => {};
+
+  // create the chat list and chat object
+  const initializeChatData = (chatdata) => {
+    // generate the initial chatList
+    let tempChatList = [...chatdata];
+    // sort the chat list by date
+    tempChatList.sort((a, b) => {
+      let timeA;
+      let timeB;
+      let today = new Date();
+      if (a.timestamp) {
+        timeA = parseInt(a.timestamp);
+      } else {
+        timeA = today.getTime() + 100;
       }
-      // what if the user is not a client, but a prospect?
-      // @@@ Could add this functionality later. Nice to have.
-      else {
-        return {};
+      if (b.timestamp) {
+        timeB = parseInt(b.timestamp);
+      } else {
+        timeB = today.getTime() + 100;
       }
-    }
+      const num = timeB - timeA;
+      return num;
+    });
+    setChatList(tempChatList);
+
+    // generate the initial chat object
+    let tempChatListObject = {};
+    // loop through the chat list and create a chat list object
+    for (const chat of chatdata)
+      tempChatListObject[chat.adviceid] = { ...chat };
+
+    console.log("HOOHA", tempChatListObject);
+    setChatObject(tempChatListObject);
+
+    setIsLoading(false);
+    return true;
   };
-  // handle retrieving chat list data.
-  const getChatListData = (messages) => {
-    // if the chat list is found, set the chat list data
-    if (!!messages) {
+
+  // update all of the state variables when the index.js file mounts.
+  useEffect(() => {
+    if (advisorChatList) {
       setNoMessages(false);
-      let tempChatList = [];
-      let tempChatListObject = {};
-      const chatlist = messages;
-      // loop through the chat list and create a chat object for each chat
-      for (const chat of chatlist) {
-        let clientData = getClientData(chat.adviceid);
-        tempChatList.push({ ...chat, ...clientData }); // generating a chat list
-        tempChatListObject[chat.adviceid] = { ...chat, ...clientData }; // adding data to a chat object
-        // for each chat, check if the adviceid exists as a url param. if so, set the selected index to the adviceid.
-        if (idParam && idParam === chat.adviceid) {
-          setCurrentChatData({ ...chat, ...clientData });
-          setNoChat(false);
-          if (clientData.isClient) {
-            setIsClient(true);
-          } else {
-            setIsClient(false);
-          }
-        }
-      }
-      tempChatList.sort((a, b) => {
-        let timeA;
-        let timeB;
-        let today = new Date();
-        if (a.timestamp) {
-          timeA = parseInt(a.timestamp);
-        } else {
-          timeA = today.getTime() + 100;
-        }
-        if (b.timestamp) {
-          timeB = parseInt(b.timestamp);
-        } else {
-          timeB = today.getTime() + 100;
-        }
-        const num = timeB - timeA;
-        return num;
-      });
-      setChatList(tempChatList);
-      setChatListObject(tempChatListObject);
-      setIsLoading(false);
-      return { ...tempChatListObject };
+      initializeChatData(advisorChatList);
     } else {
       dispatch(showSnackbar("No chat messages found.", true, "warning"));
       setNoMessages(true);
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  // CHAT MESSAGES ==========================================================
   // handle user selecting a chat from the chat list
   const handleSelectChat = async (adviceid) => {
     setSearchParams({ id: adviceid });
+    setActiveId(adviceid);
   };
-
-  //use cases
-  // 1: user just logged on, no idParam
-  // load chatList, leave currentChatDAta empty
-  // 2: user switches to a specific chat, chatList exists, idParam change
-  // leave chatList alone, load currentCHatDAta
-  // 3: user arrives to chat with idParam in url, no chatList, idParam exists
-  // load chatList, load currentChatData
+  // handle chat messages update
+  const handleUpdateChatMessages = (newmessage, adviceid) => {
+    // console.log("here in update function of index.js", newmessage);
+    // console.log("IAUBWLEKUFVCUEIBClieubciewbc", activeId);
+    setChatObject((prevState) => ({
+      ...prevState,
+      [adviceid]: {
+        ...prevState[adviceid],
+        messages: [...prevState[adviceid].messages, newmessage],
+      },
+    }));
+  };
 
   // if a message is sent, that chat should move to the top of the chat list. -> new messages are only really going to persist in global state, so when "refresh" is selected, all data is erased.
   // if a message is deleted, that chat should move to the top of the list.
-  // open the page -> need list of chats. Need to determine list of displayable chats. Need a function to convert those chats to displayable components
-  // search for a chat -> need to update list of displayable chats. Then need to run function for displayable components.
   // @@@ evaluating attributes? is that necessary?
 
-  useEffect(() => {
-    // if no chatList and there is an advisorChatList (dummy data), then update all state variables
-    if (
-      !chatList.length &&
-      !Object.keys(chatListObject).length &&
-      advisorChatList.length
-    )
-      getChatListData(advisorChatList);
-    else {
-      // if there is a chatList, but the idParam has changed, then update currentChatData
-      if (idParam && Object.keys(chatListObject).length) {
-        setCurrentChatData({ ...chatListObject[idParam] });
-        setNoChat(false);
-        // @@@ Add isClient logic for prospects? Maybe later
-      } else {
-        setNoChat(true);
-        setCurrentChatData({});
-      }
-    }
-  }, [idParam, chatList]);
-
-  // PREPARE CHAT LIST UI ============================================================
+  // CHAT LIST ============================================================
+  // generate list of components that are displayed in the chat window.
   const createChatList = (chatlist) => {
     let components = [];
     if (chatlist.length > 0) {
@@ -250,9 +221,7 @@ const AdvisorMessageManagement = () => {
     if (!userSearch) return createChatList(chatList);
     else return handleSearch(userSearch);
   }, [userSearch, chatList]);
-
-  // USER CHAT SEARCH ============================================================
-  // promise to search for the user's search input
+  // search for a chat
   const searchPromise = (value) => {
     return new Promise((resolve, reject) => {
       let searchlist = [];
@@ -277,7 +246,6 @@ const AdvisorMessageManagement = () => {
   const handleCancelSearch = () => setUserSearch("");
 
   // HANDLE REPORT OF ABUSE ============================================================
-
   // when submit button is selected.
   const handleConfirmRequest = async (title, message) => {
     // send support request to hubspot - NOT IN DEMO VERSION
@@ -326,17 +294,17 @@ const AdvisorMessageManagement = () => {
             />
           )}
           {/* CHAT WINDOW */}
-          {(!!searchParams.get("id") || !matchDownSm) && (
+          {(searchParams.get("id") || !matchDownSm) && (
             <Box className={classes.flexPanel}>
               <AdvisorChat
                 notApproved={notApproved}
                 notMerchant={notMerchant}
-                noChat={noChat}
                 isClient={isClient}
-                clientname={currentChatData.name}
-                adviceid={currentChatData.adviceid}
-                token={currentChatData.token}
-                chatMessages={currentChatData.messages}
+                clientname={idParam ? chatObject[idParam].name : undefined}
+                adviceid={idParam ? chatObject[idParam].adviceid : undefined}
+                token={idParam ? chatObject[idParam].token : undefined}
+                currentMessages={idParam ? chatObject[idParam].messages : []}
+                updateChatMessages={handleUpdateChatMessages}
               />
             </Box>
           )}
@@ -347,8 +315,7 @@ const AdvisorMessageManagement = () => {
               <Typography variant="h3" sx={{ mb: 1 }}>
                 Contact Details
               </Typography>
-              {!currentChatData ||
-              Object.entries(currentChatData).length === 0 ? (
+              {!idParam ? (
                 <Box
                   className="horizontal-center"
                   mt={1}
@@ -365,16 +332,16 @@ const AdvisorMessageManagement = () => {
                 <>
                   <Box className="detailsbox">
                     <Typography variant="body1">
-                      Invited: {!!currentChatData.invited ? "Yes" : "No"}
+                      Invited: {!!chatObject[idParam].invited ? "Yes" : "No"}
                     </Typography>
                     <Typography variant="body1">
                       State:{" "}
-                      {currentChatData.state
-                        ? currentChatData.state.toUpperCase()
+                      {chatObject[idParam].state
+                        ? chatObject[idParam].state.toUpperCase()
                         : ""}
                     </Typography>
                   </Box>
-                  {!!currentChatData.adviceid && (
+                  {!!chatObject[idParam].adviceid && (
                     <List>
                       <ListItem disablePadding>
                         <ListItemButton
@@ -383,10 +350,10 @@ const AdvisorMessageManagement = () => {
                           onClick={() =>
                             !!isClient
                               ? navigate(
-                                  `/adv/clients/${currentChatData.adviceid}`
+                                  `/adv/clients/${chatObject[idParam].adviceid}`
                                 )
                               : navigate(
-                                  `/adv/prospects/${currentChatData.adviceid}`
+                                  `/adv/prospects/${chatObject[idParam].adviceid}`
                                 )
                           }
                         >
@@ -399,7 +366,7 @@ const AdvisorMessageManagement = () => {
                           className={classes.actionButton}
                           onClick={() =>
                             navigate(
-                              `/adv/invoices/?id=${currentChatData.adviceid}`
+                              `/adv/invoices/?id=${chatObject[idParam].adviceid}`
                             )
                           }
                           disabled={!!noChat}
@@ -414,7 +381,7 @@ const AdvisorMessageManagement = () => {
                           className={classes.actionButton}
                           onClick={() =>
                             navigate(
-                              `/adv/invoices/new/?id=${currentChatData.adviceid}`
+                              `/adv/invoices/new/?id=${chatObject[idParam].adviceid}`
                             )
                           }
                           disabled={!!noChat}

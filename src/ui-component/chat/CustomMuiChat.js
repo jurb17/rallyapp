@@ -19,7 +19,7 @@ export function CustomMuiChat({ chatController, deleteChat }) {
     }
   }, [msgRef]);
   React.useEffect(() => {
-    function handleMassagesChanged() {
+    function handleMessagesChanged() {
       setMessages([...chatCtl.getMessages()]);
       if (!!chatCtl.getActionRequest().scroll) {
         scroll();
@@ -33,7 +33,7 @@ export function CustomMuiChat({ chatController, deleteChat }) {
       }
     }
 
-    chatCtl.addOnMessagesChanged(handleMassagesChanged);
+    chatCtl.addOnMessagesChanged(handleMessagesChanged);
     chatCtl.addOnActionChanged(handleActionChanged);
   }, [chatCtl, scroll]);
 

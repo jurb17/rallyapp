@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 
 // material-ui
-import { makeStyles, useTheme } from "@material-ui/styles";
+import { makeStyles } from "@material-ui/styles";
 import { Box, Typography, List } from "@material-ui/core";
 
 // project imports

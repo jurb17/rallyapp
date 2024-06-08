@@ -174,8 +174,6 @@ const AdvisorMessageManagement = () => {
   };
   // handle chat messages update
   const handleUpdateChatMessages = (newmessage, adviceid) => {
-    // console.log("here in update function of index.js", newmessage);
-    // console.log("IAUBWLEKUFVCUEIBClieubciewbc", activeId);
     setChatObject((prevState) => ({
       ...prevState,
       [adviceid]: {
@@ -192,56 +190,49 @@ const AdvisorMessageManagement = () => {
   // CHAT LIST ============================================================
   // generate list of components that are displayed in the chat window.
   const createChatList = (chatlist) => {
+    console.log(chatlist);
     let components = [];
-    if (chatlist.length > 0) {
-      components = chatlist.map((chat) => {
-        let body = !!chat.body ? new String(chat.body) : "...";
-        let newMessage = false;
-        return (
-          <ChatListItem
-            key={chat.adviceid}
-            adviceid={chat.adviceid}
-            token={chat.token}
-            selectedIndex={idParam}
-            clientname={chat.name}
-            advisorslug=""
-            lastmessage={
-              body.length > 37 ? body.substring(0, 38) + "..." : body
-            }
-            handleSelectChat={handleSelectChat}
-            newMessage={newMessage}
-          />
-        );
-      });
-      return components;
-    } else return components;
+    components = chatlist.map((chat) => {
+      let body = !!chat.body ? new String(chat.body) : "...";
+      let newMessage = false;
+      return (
+        <ChatListItem
+          key={chat.adviceid}
+          adviceid={chat.adviceid}
+          token={chat.token}
+          selectedIndex={idParam}
+          clientname={chat.name}
+          advisorslug=""
+          lastmessage={body.length > 37 ? body.substring(0, 38) + "..." : body}
+          handleSelectChat={handleSelectChat}
+          newMessage={newMessage}
+        />
+      );
+    });
+    return components;
+  };
+  // search for matching chats
+  const searchForChats = (value) => {
+    let searchlist = [];
+    chatList.forEach((chat) => {
+      const name = new String(chat.name.toLowerCase());
+      if (name.indexOf(value.toLowerCase()) !== -1) {
+        searchlist.push(chat);
+      }
+    });
+    return searchlist;
   };
   // memoize the displayChats
   const displayChats = useMemo(() => {
     if (!userSearch) return createChatList(chatList);
-    else return handleSearch(userSearch);
+    else {
+      const newlist = searchForChats(userSearch);
+      if (!newlist.length) {
+        dispatch(showSnackbar("Name not found in list.", true, "warning"));
+        return createChatList(chatList);
+      } else return createChatList(newlist);
+    }
   }, [userSearch, chatList]);
-  // search for a chat
-  const searchPromise = (value) => {
-    return new Promise((resolve, reject) => {
-      let searchlist = [];
-      chatList.forEach((chat) => {
-        const name = new String(chat.name.toLowerCase());
-        if (name.indexOf(value.toLowerCase()) !== -1) {
-          searchlist.push(chat);
-        }
-      });
-      resolve(searchlist);
-    });
-  };
-  // handle searching for a chat in the List
-  const handleSearch = async (value) => {
-    const newlist = await searchPromise(value);
-    if (newlist.length === 0) {
-      dispatch(showSnackbar("Name not found in list.", true, "warning"));
-      createChatList(chatList);
-    } else createChatList(newlist);
-  };
   // handle cancel of search for a chat in the List
   const handleCancelSearch = () => setUserSearch("");
 
@@ -287,7 +278,7 @@ const AdvisorMessageManagement = () => {
           {/* CHAT LIST */}
           {(!searchParams.get("id") || !matchDownSm) && (
             <ChatList
-              handleSearch={handleSearch}
+              handleSearch={(value) => setUserSearch(value)}
               handleCancelSearch={handleCancelSearch}
               noMessages={noMessages}
               displaychatlist={displayChats}

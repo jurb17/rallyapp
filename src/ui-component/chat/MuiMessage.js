@@ -24,6 +24,7 @@ export function MuiMessage({
   showTime,
   chatController,
   deleteChat,
+  clientid,
 }) {
   const theme = useTheme();
   const dispatch = useDispatch();
@@ -64,7 +65,7 @@ export function MuiMessage({
                 id: "delete",
                 name: "Delete",
                 onClick: () => {
-                  deleteChat(message.id);
+                  deleteChat(message.id, clientid);
                 },
               },
             ]

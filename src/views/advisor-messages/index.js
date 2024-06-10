@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useRef } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -101,7 +101,6 @@ const AdvisorMessageManagement = () => {
   const idParam = searchParams.get("id");
 
   // data states
-  const [activeId, setActiveId] = useState(idParam);
   const [userSearch, setUserSearch] = useState("");
   const [chatList, setChatList] = useState([]); // This is for the ChatList component
   const [chatObject, setChatObject] = useState({}); // This is for storing all chats and messages by adviceid
@@ -117,8 +116,8 @@ const AdvisorMessageManagement = () => {
   // handle retrieving chat/client data
   const getClientData = async (adviceid) => {};
 
-  // create the chat list and chat object
-  const initializeChatData = (chatdata) => {
+  // load data into chatList state variable
+  const loadChatList = (chatdata) => {
     // generate the initial chatList
     let tempChatList = [...chatdata];
     // sort the chat list by date
@@ -140,25 +139,25 @@ const AdvisorMessageManagement = () => {
       return num;
     });
     setChatList(tempChatList);
+  };
 
+  // load data into chatObject state variable
+  const loadChatObject = (chatdata) => {
     // generate the initial chat object
-    let tempChatListObject = {};
+    let tempChatObject = {};
     // loop through the chat list and create a chat list object
-    for (const chat of chatdata)
-      tempChatListObject[chat.adviceid] = { ...chat };
-
-    console.log("HOOHA", tempChatListObject);
-    setChatObject(tempChatListObject);
-
-    setIsLoading(false);
-    return true;
+    for (const chat of chatdata) tempChatObject[chat.adviceid] = { ...chat };
+    setChatObject(tempChatObject);
   };
 
   // update all of the state variables when the index.js file mounts.
   useEffect(() => {
     if (advisorChatList) {
       setNoMessages(false);
-      initializeChatData(advisorChatList);
+      loadChatList(advisorChatList);
+      loadChatObject(advisorChatList);
+      // be careful that isLoading isn't flipped before the previous functions are done running.
+      setIsLoading(false);
     } else {
       dispatch(showSnackbar("No chat messages found.", true, "warning"));
       setNoMessages(true);
@@ -168,19 +167,58 @@ const AdvisorMessageManagement = () => {
 
   // CHAT MESSAGES ==========================================================
   // handle user selecting a chat from the chat list
-  const handleSelectChat = async (adviceid) => {
+  const handleSelectChat = async (adviceid) =>
     setSearchParams({ id: adviceid });
-    setActiveId(adviceid);
-  };
-  // handle chat messages update
-  const handleUpdateChatMessages = (newmessage, adviceid) => {
+
+  // handle chat list and object updates for new message.
+  const handlePostChatMessage = (newmessage, timestamp, adviceid) => {
+    // update object with new message
     setChatObject((prevState) => ({
       ...prevState,
       [adviceid]: {
         ...prevState[adviceid],
+        body: newmessage,
+        timestamp: timestamp,
         messages: [...prevState[adviceid].messages, newmessage],
       },
     }));
+    // create temp list of chats and update chat with current adviceid
+    const tempchatlist = chatList.map((chat) => {
+      if (chat.adviceid === adviceid)
+        return { ...chat, body: newmessage.body, timestamp: timestamp };
+      else return chat;
+    });
+    // regenerate the chat list.
+    loadChatList(tempchatlist);
+  };
+
+  // handle chat list and object updates for deleted message.
+  const handleDeleteChatMessage = (messageid, timestamp, adviceid) => {
+    let tempmessageslist = [];
+    // add the "deletedAt" attribute to the deleted message
+    for (const message of chatObject[adviceid].messages) {
+      if (message.id === messageid) message["deletedAt"] = timestamp;
+      tempmessageslist.push(message);
+    }
+
+    console.log("INDEX JS MESSAGES", tempmessageslist);
+    setChatObject((prevState) => ({
+      ...prevState,
+      [adviceid]: {
+        ...prevState[adviceid],
+        body: "[message deleted]",
+        timestamp: timestamp,
+        messages: [...tempmessageslist],
+      },
+    }));
+    // create temp list of chats and update chat with current adviceid
+    const tempchatlist = chatList.map((chat) => {
+      if (chat.adviceid === adviceid)
+        return { ...chat, body: "[message deleted]", timestamp: timestamp };
+      else return chat;
+    });
+    // regenerate the chat list.
+    loadChatList(tempchatlist);
   };
 
   // if a message is sent, that chat should move to the top of the chat list. -> new messages are only really going to persist in global state, so when "refresh" is selected, all data is erased.
@@ -190,7 +228,6 @@ const AdvisorMessageManagement = () => {
   // CHAT LIST ============================================================
   // generate list of components that are displayed in the chat window.
   const createChatList = (chatlist) => {
-    console.log(chatlist);
     let components = [];
     components = chatlist.map((chat) => {
       let body = !!chat.body ? new String(chat.body) : "...";
@@ -224,7 +261,9 @@ const AdvisorMessageManagement = () => {
   };
   // memoize the displayChats
   const displayChats = useMemo(() => {
+    // no user search, then generate the entire list of chats.
     if (!userSearch) return createChatList(chatList);
+    // if there's a userSearch, then search for chats and generate new list.
     else {
       const newlist = searchForChats(userSearch);
       if (!newlist.length) {
@@ -295,7 +334,8 @@ const AdvisorMessageManagement = () => {
                 adviceid={idParam ? chatObject[idParam].adviceid : undefined}
                 token={idParam ? chatObject[idParam].token : undefined}
                 currentMessages={idParam ? chatObject[idParam].messages : []}
-                updateChatMessages={handleUpdateChatMessages}
+                postChatMessage={handlePostChatMessage}
+                deleteChatMessage={handleDeleteChatMessage}
               />
             </Box>
           )}
@@ -360,7 +400,7 @@ const AdvisorMessageManagement = () => {
                               `/adv/invoices/?id=${chatObject[idParam].adviceid}`
                             )
                           }
-                          disabled={!!noChat}
+                          disabled={!idParam}
                         >
                           View Invoices
                         </ListItemButton>
@@ -375,7 +415,7 @@ const AdvisorMessageManagement = () => {
                               `/adv/invoices/new/?id=${chatObject[idParam].adviceid}`
                             )
                           }
-                          disabled={!!noChat}
+                          disabled={!idParam}
                         >
                           Send New Invoice
                         </ListItemButton>

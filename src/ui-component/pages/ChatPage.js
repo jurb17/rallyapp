@@ -3,22 +3,14 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 // third party libraries
-import { makeStyles, useTheme } from "@material-ui/styles";
-import {
-  Box,
-  Button,
-  Typography,
-  Grid,
-  useMediaQuery,
-} from "@material-ui/core";
+import { useTheme } from "@material-ui/styles";
+import { Box, Typography, Grid, useMediaQuery } from "@material-ui/core";
 import * as chatui from "chat-ui-react";
-import { IconMessageOff, IconRefresh, IconUser } from "@tabler/icons";
+import { IconRefresh, IconUser } from "@tabler/icons";
 
 // local libraries
 import CustomChatInput from "ui-component/chat/CustomChatInput";
 import { CustomMuiChat } from "ui-component/chat/CustomMuiChat";
-import config from "config";
-import { showSnackbar } from "actions/main";
 import SubsectionWrapper from "ui-component/wrappers/SubsectionWrapper";
 import { advisorMarksRead } from "actions/advisory";
 import { clientMarksRead } from "actions/advice";
@@ -41,7 +33,6 @@ deleteChat = function to delete a chat message
 
 const ChatPage = (props) => {
   const theme = useTheme();
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const matchDownSm = useMediaQuery(theme.breakpoints.down("sm"));
   const matchDownLg = useMediaQuery(theme.breakpoints.down("lg"));
@@ -68,6 +59,7 @@ const ChatPage = (props) => {
   const [scroll, setScroll] = React.useState(true);
   const [notSetup, setNotSetup] = React.useState(false);
   const [notConnected, setNotConnected] = React.useState(false);
+  const [messageLimitReached, setMessageLimitReached] = React.useState(false);
 
   // update unix time to date time
   const updateTime = (time) => {
@@ -78,7 +70,7 @@ const ChatPage = (props) => {
     return date;
   };
 
-  // FUNCTIONS TO UPDATE CHAT CONTROLLER ==========================================================
+  // FUNCTIONS TO UPDATE CHAT CONTROLLER ==================================================
   // update the scroll of the chat window.
   const updateScroll = async (scroll) => {
     return new Promise((resolve, reject) => {
@@ -97,90 +89,91 @@ const ChatPage = (props) => {
   const updateControllerMessages = (messages, scroll) => {
     updateScroll(scroll);
     chatCtl.setMessages(messages);
-    // setMessagesInfo((prevState) => {
-    //   return {
-    //     ...prevState,
-    //     earliestMessage: messages.length ? messages[0] : {},
-    //     latestMessage: messages.length ? messages[messages.length - 1] : {},
-    //     numMessages: messages.length ? messages.length : 0,
-    //   };
-    // });
   };
   // create list of message components given all message data. (super critical)
   const createControllerMessage = (message) => {
-    if (message.advisor === -1) {
-      return {
-        system: true,
-        type: "jsx",
-        content: (
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Box sx={{ mr: 0 }}>
-              <Grid item>
-                <Typography
-                  variant="body1"
-                  fontStyle="italic"
-                  fontWeight={"bold"}
-                >
-                  Payment Request
-                </Typography>
-              </Grid>
-              <Grid item>
-                <Typography variant="body1">
-                  {message.body.indexOf("$") !== -1
-                    ? "Status: open, $" +
-                      parseFloat(
-                        message.body.slice(message.body.indexOf("$") + 1)
-                      ).toFixed(2)
-                    : "Status: " + message.body}
-                </Typography>
-              </Grid>
-            </Box>
-            <DynamicButton
-              name="View"
-              color="secondary"
-              variant={
-                message.body.indexOf("$") !== -1 ? "contained" : "outlined"
-              }
-              onClick={async () => {
-                if (!!props.advisor) {
-                  navigate(`/adv/invoices/${props.clientid}/${message.id}`, {
-                    state: {
-                      backlink: `/adv/messages/?id=${props.clientid}`,
-                    },
-                  });
-                } else {
-                  navigate(`/client/payments/${props.clientid}/${message.id}`, {
-                    state: {
-                      backlink: `/client/messages/?id=${props.clientid}`,
-                    },
-                  });
+    // check if message is undefined
+    if (!message) return false;
+    else {
+      if (message.advisor === -1) {
+        return {
+          system: true,
+          type: "jsx",
+          content: (
+            <Box sx={{ display: "flex", alignItems: "center" }}>
+              <Box sx={{ mr: 0 }}>
+                <Grid item>
+                  <Typography
+                    variant="body1"
+                    fontStyle="italic"
+                    fontWeight={"bold"}
+                  >
+                    Payment Request
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <Typography variant="body1">
+                    {message.body.indexOf("$") !== -1
+                      ? "Status: open, $" +
+                        parseFloat(
+                          message.body.slice(message.body.indexOf("$") + 1)
+                        ).toFixed(2)
+                      : "Status: " + message.body}
+                  </Typography>
+                </Grid>
+              </Box>
+              <DynamicButton
+                name="View"
+                color="secondary"
+                variant={
+                  message.body.indexOf("$") !== -1 ? "contained" : "outlined"
                 }
-              }}
-            ></DynamicButton>
-          </Box>
-        ),
-        self: Boolean(!!message.advisor === !!props.advisor),
-        id: message.id,
-        clientid: props.clientid,
-        token: props.token,
-        createdAt: updateTime(message.timestamp),
-        username: Boolean(!!message.advisor !== !!props.advisor)
-          ? props.contactname
-          : "",
-      };
-    } else {
-      return {
-        type: "text",
-        content: message.body,
-        self: Boolean(!!message.advisor === !!props.advisor),
-        id: message.id,
-        clientid: props.clientid,
-        token: props.token,
-        createdAt: updateTime(message.timestamp),
-        username: Boolean(!!message.advisor !== !!props.advisor)
-          ? props.contactname
-          : "",
-      };
+                onClick={async () => {
+                  if (!!props.advisor) {
+                    navigate(`/adv/invoices/${props.clientid}/${message.id}`, {
+                      state: {
+                        backlink: `/adv/messages/?id=${props.clientid}`,
+                      },
+                    });
+                  } else {
+                    navigate(
+                      `/client/payments/${props.clientid}/${message.id}`,
+                      {
+                        state: {
+                          backlink: `/client/messages/?id=${props.clientid}`,
+                        },
+                      }
+                    );
+                  }
+                }}
+              ></DynamicButton>
+            </Box>
+          ),
+          self: Boolean(!!message.advisor === !!props.advisor),
+          id: message.id,
+          clientid: props.clientid,
+          token: props.token,
+          createdAt: updateTime(message.timestamp),
+          deletedAt: message.deletedAt ? message.deletedAt : null,
+          username: Boolean(!!message.advisor !== !!props.advisor)
+            ? props.contactname
+            : "",
+        };
+      } else {
+        return {
+          type: "text",
+          content: message.body,
+          self: Boolean(!!message.advisor === !!props.advisor),
+          id: message.id,
+          clientid: props.clientid,
+          token: props.token,
+          createdAt: updateTime(message.timestamp),
+          deletedAt: message.deletedAt ? message.deletedAt : null,
+          username: Boolean(!!message.advisor !== !!props.advisor)
+            ? props.contactname
+            : "",
+        };
+      }
     }
   };
 
@@ -199,9 +192,10 @@ const ChatPage = (props) => {
     let controllerlist = [];
     for (const message of parentChatMessages) {
       let controllermessage = createControllerMessage(message);
-      controllerlist.push(controllermessage);
+      // if message is false, don't add it to the list.
+      if (controllermessage) controllerlist.push(controllermessage);
     }
-    // @@@ beware of this reverse function. Might be appropriate, might not be.
+    // @@@ beware of this reverse function. Change if necessary.
     // list.reverse();
     updateScroll(scroll);
     chatCtl.setMessages(controllerlist);
@@ -222,7 +216,6 @@ const ChatPage = (props) => {
     };
     updateControllerMessages([message], true);
   };
-
   // create chat controller DURING FIRST RENDER.
   React.useEffect(async () => {
     const custom = await chatCtl.setActionRequest({
@@ -241,52 +234,41 @@ const ChatPage = (props) => {
     if (parentChatMessages) intializeChatMessages(true);
   }, [props.clientid]);
 
-  // use cases
-  // 1: user opens a chat (selects one or opens directly to a url with idParam) - good
-  // take message data from props, load it into CustomMuiChat
-  // 2: user sends a message
-  // send the data back to the index.js file. Add the chat to the chat controller
-  // 3: user deletes a message
-  // send the data back to the index.js file. Add the chat to the chat controller
-  // 4: user refreshes the page
-  // nothing yet
-  // 5: user opens a different chat and comes back
-  // take message data from props, load it into CustomMuiChat
-
+  // FUNCTIONS FOR USER ACTIONS ===========================================================
   // add show previous button to list of messages
   const addShowPreviousButton = (list) => {};
   // add show next button to list of messages
   const addShowNextButton = (list) => {};
-  // add messages in controller format to the chat.
-  const addControllerMessages = (messages) => {};
-  // add messages in server format to the chat.
-  const addServerMessages = (messages) => {};
-  // delete a message from the chat and then reload without scrolling.
-  const deleteChatNoScroll = async (messageid) => {};
-  // delete a message from the chat and then reload.
-  const deleteChatScroll = async (messageid) => {
-    props.deleteChat(messageid, props.clientid, props.token, [
-      ...parentChatMessages,
-    ]);
+  // delete a message from the chat
+  const deleteChatScroll = async (messageid, id) => {
+    // generate new timestamp
+    let timestamp = Date.now();
+    // remove message from chat controller (removeMessage() uses INDEX of message in list)
+    chatCtl.removeMessage(messageid - 1);
+    // remove message from state in parent component
+    props.deleteChat(messageid, timestamp, id);
   };
   // post new message to the chat.
   const sendNewMessage = async (value, id) => {
-    // generate new raw message
-    let msgid = Math.random();
-    let timestamp = Date.now();
-    let rawMessage = {
-      id: msgid,
-      advisor: props.advisor,
-      body: value,
-      timestamp: timestamp,
-    };
-    // generate new controller message
-    let newControllerMessage = createControllerMessage(rawMessage);
-    // add new message to the chat controller
-    chatCtl.addMessage({ ...newControllerMessage });
-
-    // send new message data back up to the index file.
-    props.postChat(rawMessage, id);
+    // if number of chat messages exceeds 20, stop adding messages.
+    if (chatCtl.getMessages().length > 30) setMessageLimitReached(true);
+    else {
+      // generate new raw message
+      let msgid = chatCtl.getMessages().length + 1; // msgid has to be an integer
+      let timestamp = Date.now();
+      let rawMessage = {
+        id: msgid,
+        advisor: props.advisor,
+        body: value,
+        timestamp: timestamp,
+      };
+      // generate new controller message
+      let newControllerMessage = createControllerMessage(rawMessage);
+      // add new message to the chat controller
+      chatCtl.addMessage({ ...newControllerMessage });
+      // send new message data back up to the index file.
+      props.postChat(rawMessage, timestamp, id);
+    }
   };
 
   // FUNCTIONS FOR BUTTONS ==========================================================
@@ -303,6 +285,13 @@ const ChatPage = (props) => {
   // JSX CODE ==========================================================
   return (
     <>
+      <ConfirmPrimaryModal
+        open={messageLimitReached}
+        heading="Chat Message Limit Reached"
+        body="You have reached the limit for posting messages in this chat. Please refresh the page to clear the chat or select another chat from the list."
+        action="Okay"
+        handleConfirm={() => setMessageLimitReached(false)}
+      />
       <ConfirmPrimaryModal
         open={notSetup}
         heading="Please Complete Account Setup"
@@ -366,6 +355,7 @@ const ChatPage = (props) => {
           <CustomMuiChat
             chatController={chatCtl}
             deleteChat={deleteChatScroll}
+            clientid={props.clientid}
           />
         </Box>
       </SubsectionWrapper>

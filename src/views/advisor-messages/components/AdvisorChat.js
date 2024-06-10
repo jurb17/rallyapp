@@ -5,10 +5,7 @@ import { useDispatch } from "react-redux";
 import { Box, Typography } from "@material-ui/core";
 
 // local libraries
-import advisoryService from "services/advisory.service";
-import { showSnackbar } from "actions/main";
 import ChatPage from "ui-component/pages/ChatPage";
-import { advisorChatList } from "utils/advisor-dummy-data";
 
 // ==========================================================
 /* PROPS MAP
@@ -18,14 +15,13 @@ notApproved = whether the advisor is approved to be using the chat feature
 notMerchant = whether the advisor user is approved to be a merchant on the platform
 noChat = whether a chat has been selected or not.
 isClient = whether the current chat is with a client or a prospect
-clientname = name of the client or prospect the advisor user is chatting with
-adviceid = id of the advisor-client relationship
-chatMessages = messages between the advisor and client
+clientname = name of the client or prospect the advisor user is chatting with 
+currentMessages = messages between the advisor and client
+postChatMessage = function passed to update the state when a new message is posted
+deleteChatMessage = function passed to update state when a message is deleted
 */
 
 const AdvisorChat = (props) => {
-  const dispatch = useDispatch();
-
   // determine the chat message to be shared when there is no current chat selected.
   const noChatMessage = useMemo(() => {
     if (!!props.notApproved)
@@ -53,13 +49,13 @@ const AdvisorChat = (props) => {
 
   /* post new chat messages
   NEED TO ALLOW USER TO ENTER NEW MESSAGES AND SEE THEM SHOW UP IN THE CHAT. */
-  const postChat = async (newmessage, adviceid) =>
-    props.updateChatMessages(newmessage, adviceid);
+  const postChat = async (newmessage, timestamp, adviceid) =>
+    props.postChatMessage(newmessage, timestamp, adviceid);
 
   /* delete chat message
   NEED TO ALLOW USER TO DELETE CHAT MESSAGES AND HAVE SOME STATE SAVE EXISTING LIST. */
-  const deleteChat = async (newmessage, adviceid) =>
-    props.updateChatMessages(newmessage, adviceid);
+  const deleteChat = async (messageid, timestamp, adviceid) =>
+    props.deleteChatMessage(messageid, timestamp, adviceid);
 
   return (
     <>

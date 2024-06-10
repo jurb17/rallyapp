@@ -8,7 +8,7 @@ import { MuiMessage } from "./MuiMessage";
 // import { MuiMultiSelectInput } from "./MuiMultiSelectInput";
 // import { MuiSelectInput } from "./MuiSelectInput";
 // import { MuiTextInput } from "./MuiTextInput";
-export function CustomMuiChat({ chatController, deleteChat }) {
+export function CustomMuiChat({ chatController, deleteChat, clientid }) {
   const chatCtl = chatController;
   const [messages, setMessages] = React.useState(chatCtl.getMessages());
   const [actReq, setActReq] = React.useState(chatCtl.getActionRequest());
@@ -115,6 +115,7 @@ export function CustomMuiChat({ chatController, deleteChat }) {
             showTime: showTime,
             chatController: chatCtl,
             deleteChat: deleteChat,
+            clientid: clientid,
           });
         }
 
@@ -127,6 +128,7 @@ export function CustomMuiChat({ chatController, deleteChat }) {
             showTime: showTime,
             chatController: chatCtl,
             deleteChat: deleteChat,
+            clientid: clientid,
           });
         }
 
@@ -138,6 +140,7 @@ export function CustomMuiChat({ chatController, deleteChat }) {
           showTime: showTime,
           chatController: chatCtl,
           deleteChat: deleteChat,
+          clientid: clientid,
         });
       })
     ),

@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
 /* PROPS MAP
 adviceid = string of the client id
 selectedIndex = selected index of the chat list
-clientname = string presenting the name of the client
+contactname = string presenting the name of the contact
 lastmessage = string of the last message
 handleSelectChat = function to be called when chat list item is selected.
 newMessage = boolean used to determine whether a notification icon should be dispayed or not
@@ -87,12 +87,12 @@ const ChatListItem = (props) => {
         >
           <ListItemAvatar>
             <Avatar
-              {...stringAvatar(props.clientname ? props.clientname : "")}
+              {...stringAvatar(props.contactname ? props.contactname : "")}
             />
           </ListItemAvatar>
           {/* remember to shorten the latest message to a certain number of characters that doesn't require crazy wrapping  */}
           <ListItemText
-            primary={props.clientname}
+            primary={props.contactname}
             secondary={props.lastmessage}
           />{" "}
         </ListItemButton>

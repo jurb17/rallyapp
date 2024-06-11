@@ -31,7 +31,7 @@ const client = {
   children: [
     {
       id: "client-messages",
-      title: "Chat",
+      title: "Messages",
       type: "item",
       url: "/client/messages",
       icon: icons.IconMessage,

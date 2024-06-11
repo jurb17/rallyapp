@@ -133,8 +133,6 @@ const ClientChatManagement = () => {
   const navigate = useNavigate();
   const matchUpLg = useMediaQuery(theme.breakpoints.up("lg"));
   const matchDownSm = useMediaQuery(theme.breakpoints.down("sm"));
-  const advice = useSelector((state) => state.advice);
-  const { attributes } = useSelector((state) => state.auth);
 
   // extract query params from url
   const [searchParams, setSearchParams] = useSearchParams();
@@ -152,6 +150,7 @@ const ClientChatManagement = () => {
   const [notSetup, setNotSetup] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [reportAbuse, setReportAbuse] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
 
   // handle retrieving chat/advisor data
   const getAdvisorData = async (names, adviceid, token) => {};
@@ -310,45 +309,26 @@ const ClientChatManagement = () => {
   // HANDLE REPORT OF ABUSE ============================================================
   // when submit button is selected.
   const handleConfirmRequest = async (title, message) => {
-    // send support request to hubspot
-    await adviceService
-      .postReport({
-        title: title,
-        message: message,
-        adviceid: idParam,
-      })
-      .then((response) => {
-        if (!!response.data.payload.success) {
-          dispatch(
-            showSnackbar(
-              "Report sent to support team. Thank you.",
-              true,
-              "success"
-            )
-          );
-          setReportAbuse(false);
-          setTimeout(() => {
-            alert(
-              "Thank you for submitting an abuse report. We will disconnect you from this advisor and investigate this situation immediately."
-            );
-            window.location.reload();
-          }, 1000);
-        } else {
-          dispatch(showSnackbar(response.data.details.text, true, "error"));
-          console.log(response.data.details.text);
-          setReportAbuse(false);
-        }
-      })
-      .catch((error) => {
-        dispatch(
-          showSnackbar(
-            "There seems to be an issue. Please contact support if this issue persists.",
-            true,
-            "error"
-          )
-        );
-        console.log("uncaught error", error);
-      });
+    // send support request to hubspot - NOT IN DEMO VERSION
+    /* @@@ Maybe this would be a good opportunity to record the user email or have
+    an email message sent to them explaining that there isn't a connected database,
+    etc. This would help showcase your management of automated process. */
+    if (true) {
+      dispatch(
+        showSnackbar("Report sent to support team. Thank you.", true, "success")
+      );
+      setReportAbuse(false);
+    } else {
+      dispatch(
+        showSnackbar(
+          "Error sending report. Please contact the team directly for support.",
+          true,
+          "error"
+        )
+      );
+      console.log("Error sending support request from client Chat component.");
+      setReportAbuse(false);
+    }
   };
 
   return (
@@ -367,6 +347,13 @@ const ClientChatManagement = () => {
         handleCancel={() => setNotSetup(false)}
         handleConfirm={() => navigate("/client/settings")}
         nonaction="Later"
+      />
+      <ConfirmPrimaryModal
+        open={showProfile}
+        heading="Web Profiles Not Available"
+        body="Typically each Rally advisor would have an associated firm profile and advisor profile on the Rally website. These web pages showcase services and content created by the advisors themselves using the tools on the Rally app. Web profiles are not available for this demo version."
+        action="Continue"
+        handleConfirm={() => setShowProfile(false)}
       />
       {!!isLoading ? (
         <Box className="horizontal-center">
@@ -440,14 +427,15 @@ const ClientChatManagement = () => {
                           <ListItemButton
                             disableGutters
                             className={classes.actionButton}
-                            onClick={() => {
-                              history.pushState(
-                                null,
-                                null,
-                                `/advisory/client/messages/?id=${chatObject[idParam].adviceid}`
-                              );
-                              window.location.href = `https://rally.markets/firm/${chatObject[idParam].firmslug}/advisor/${chatObject[idParam].advisorslug}`;
-                            }}
+                            onClick={() => setShowProfile(true)}
+                            //   () => {
+                            //   history.pushState(
+                            //     null,
+                            //     null,
+                            //     `/advisory/client/messages/?id=${chatObject[idParam].adviceid}`
+                            //   );
+                            //   window.location.href = `https://rally.markets/firm/${chatObject[idParam].firmslug}/advisor/${chatObject[idParam].advisorslug}`;
+                            // }}
                           >
                             Advisor Profile
                           </ListItemButton>
@@ -456,14 +444,15 @@ const ClientChatManagement = () => {
                           <ListItemButton
                             disableGutters
                             className={classes.actionButton}
-                            onClick={() => {
-                              history.pushState(
-                                null,
-                                null,
-                                `/advisory/client/messages/?id=${chatObject[idParam].adviceid}`
-                              );
-                              window.location.href = `https://rally.markets/firm/${chatObject[idParam].firmslug}`;
-                            }}
+                            onClick={() => setShowProfile(true)}
+                            //   () => {
+                            //   history.pushState(
+                            //     null,
+                            //     null,
+                            //     `/advisory/client/messages/?id=${chatObject[idParam].adviceid}`
+                            //   );
+                            //   window.location.href = `https://rally.markets/firm/${chatObject[idParam].firmslug}`;
+                            // }}
                           >
                             Firm Profile
                           </ListItemButton>

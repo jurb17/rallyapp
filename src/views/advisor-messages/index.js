@@ -24,7 +24,7 @@ import ReportAbuseCard from "ui-component/cards/ReportAbuseCard";
 
 // data and functions imports
 import { showSnackbar } from "actions/main";
-import { advisorChatList, advisorClientList } from "utils/advisor-dummy-data";
+import { advisorChatList } from "utils/advisor-dummy-data";
 
 // style constant
 const useStyles = makeStyles((theme) => ({
@@ -92,7 +92,6 @@ const AdvisorMessageManagement = () => {
   const navigate = useNavigate();
   const matchUpLg = useMediaQuery(theme.breakpoints.up("lg"));
   const matchDownSm = useMediaQuery(theme.breakpoints.down("sm"));
-  const { attributes } = useSelector((state) => state.auth);
   // @@@ Add the funcitonlaity of receiving new messages another time.
   // const advisory = useSelector((state) => state.advisory);
 
@@ -101,7 +100,7 @@ const AdvisorMessageManagement = () => {
   const idParam = searchParams.get("id");
 
   // data states
-  const [userSearch, setUserSearch] = useState("");
+  const [chatSearch, setChatSearch] = useState("");
   const [chatList, setChatList] = useState([]); // This is for the ChatList component
   const [chatObject, setChatObject] = useState({}); // This is for storing all chats and messages by adviceid
 
@@ -140,7 +139,6 @@ const AdvisorMessageManagement = () => {
     });
     setChatList(tempChatList);
   };
-
   // load data into chatObject state variable
   const loadChatObject = (chatdata) => {
     // generate the initial chat object
@@ -200,8 +198,6 @@ const AdvisorMessageManagement = () => {
       if (message.id === messageid) message["deletedAt"] = timestamp;
       tempmessageslist.push(message);
     }
-
-    console.log("INDEX JS MESSAGES", tempmessageslist);
     setChatObject((prevState) => ({
       ...prevState,
       [adviceid]: {
@@ -221,10 +217,6 @@ const AdvisorMessageManagement = () => {
     loadChatList(tempchatlist);
   };
 
-  // if a message is sent, that chat should move to the top of the chat list. -> new messages are only really going to persist in global state, so when "refresh" is selected, all data is erased.
-  // if a message is deleted, that chat should move to the top of the list.
-  // @@@ evaluating attributes? is that necessary?
-
   // CHAT LIST ============================================================
   // generate list of components that are displayed in the chat window.
   const createChatList = (chatlist) => {
@@ -238,7 +230,7 @@ const AdvisorMessageManagement = () => {
           adviceid={chat.adviceid}
           token={chat.token}
           selectedIndex={idParam}
-          clientname={chat.name}
+          contactname={chat.name}
           advisorslug=""
           lastmessage={body.length > 37 ? body.substring(0, 38) + "..." : body}
           handleSelectChat={handleSelectChat}
@@ -262,18 +254,18 @@ const AdvisorMessageManagement = () => {
   // memoize the displayChats
   const displayChats = useMemo(() => {
     // no user search, then generate the entire list of chats.
-    if (!userSearch) return createChatList(chatList);
-    // if there's a userSearch, then search for chats and generate new list.
+    if (!chatSearch) return createChatList(chatList);
+    // if there's a chatSearch, then search for chats and generate new list.
     else {
-      const newlist = searchForChats(userSearch);
+      const newlist = searchForChats(chatSearch);
       if (!newlist.length) {
         dispatch(showSnackbar("Name not found in list.", true, "warning"));
         return createChatList(chatList);
       } else return createChatList(newlist);
     }
-  }, [userSearch, chatList]);
+  }, [chatSearch, chatList]);
   // handle cancel of search for a chat in the List
-  const handleCancelSearch = () => setUserSearch("");
+  const handleCancelSearch = () => setChatSearch("");
 
   // HANDLE REPORT OF ABUSE ============================================================
   // when submit button is selected.
@@ -315,16 +307,16 @@ const AdvisorMessageManagement = () => {
       ) : (
         <Box display="flex">
           {/* CHAT LIST */}
-          {(!searchParams.get("id") || !matchDownSm) && (
+          {(!idParam || !matchDownSm) && (
             <ChatList
-              handleSearch={(value) => setUserSearch(value)}
+              handleSearch={(value) => setChatSearch(value)}
               handleCancelSearch={handleCancelSearch}
               noMessages={noMessages}
               displaychatlist={displayChats}
             />
           )}
           {/* CHAT WINDOW */}
-          {(searchParams.get("id") || !matchDownSm) && (
+          {(idParam || !matchDownSm) && (
             <Box className={classes.flexPanel}>
               <AdvisorChat
                 notApproved={notApproved}

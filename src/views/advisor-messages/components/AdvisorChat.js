@@ -43,17 +43,14 @@ const AdvisorChat = (props) => {
   @@@ PROBABLY NOT USEFUL FOR THE DEMO VERSION. */
   const getChatBefore = async (messageid, cid, toke) => {};
 
-  /* gets chat messages.
-  NEED TO REPLACE WITH DUMMY DATA */
+  /* gets chat messages. */
   const getChat = async (cid, toke) => {};
 
-  /* post new chat messages
-  NEED TO ALLOW USER TO ENTER NEW MESSAGES AND SEE THEM SHOW UP IN THE CHAT. */
+  /* post new chat messages */
   const postChat = async (newmessage, timestamp, adviceid) =>
     props.postChatMessage(newmessage, timestamp, adviceid);
 
-  /* delete chat message
-  NEED TO ALLOW USER TO DELETE CHAT MESSAGES AND HAVE SOME STATE SAVE EXISTING LIST. */
+  /* delete chat message */
   const deleteChat = async (messageid, timestamp, adviceid) =>
     props.deleteChatMessage(messageid, timestamp, adviceid);
 

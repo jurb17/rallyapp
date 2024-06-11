@@ -16,6 +16,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
     outline: `1px solid ${theme.palette.grey[900]}`,
     borderRadius: theme.spacing(0.5),
+    marginTop: theme.spacing(1),
     padding: theme.spacing(1),
     spacing: theme.spacing(1),
   },

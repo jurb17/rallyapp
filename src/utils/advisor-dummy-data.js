@@ -239,7 +239,7 @@ export const advisorChatList = [
   },
 ];
 
-export const advisorClientList = [
+export const myClientList = [
   { id: 1, name: "Donald Duck" },
   { id: 2, name: "Goofy Dog" },
   { id: 3, name: "Mickey Mouse" },

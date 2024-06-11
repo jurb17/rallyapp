@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useMemo } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
@@ -7,7 +7,6 @@ import { makeStyles } from "@material-ui/styles";
 import { Box } from "@material-ui/core";
 
 // project imports
-import ClientForm from "./forms/ClientForm";
 import CustomForm from "./forms/CustomForm";
 import CustomFieldForm from "./forms/CustomFieldForm";
 import ConfirmDeleteModal from "ui-component/modals/ConfirmDeleteModal";
@@ -26,11 +25,18 @@ import {
 } from "@tabler/icons";
 import InputBaseForm from "ui-component/forms/InputBaseForm";
 
+// data and functions imports
+import { myClientList, emptyList } from "utils/advisor-dummy-data";
+import ClientForm from "./forms/ClientForm";
+
 // style constant
 const useStyles = makeStyles((theme) => ({}));
 
 // =============================================================
 // NO PROPS, ONLY LOCATION.STATE
+/* location state variables
+  backlink = string of text to be inserted into a url that is used for a button that brings the user back to a previous page.
+*/
 // this page can be accessed from the client list page, the messages page, and the invoice page.
 
 const ClientProfile = () => {
@@ -38,19 +44,14 @@ const ClientProfile = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
-  const clientFormRef = useRef({});
   const customFormRef = useRef({});
 
   // get the client id from the url
   const { id } = useParams();
-
-  // request states
-  const [clientid, setClientid] = useState(id);
+  const clientid = id;
 
   // data states
   const [clientPayload, setClientPayload] = useState({});
-
-  // temporary data states
   const [tempCustomFields, setTempCustomFields] = useState([]);
   const [deleteCustomFields, setDeleteCustomFields] = useState([]);
 
@@ -62,56 +63,36 @@ const ClientProfile = () => {
   const [addFieldErrorMode, setAddFieldErrorMode] = useState(false);
 
   // get client profile data from server
-  const getClientData = async () => {
-    // get client payload
-    await advisoryService
-      .getClient({
-        clientid: clientid,
-      })
-      .then((response) => {
-        if (!!response.data.payload.success) {
-          setClientPayload({ ...response.data.payload });
-          setTempCustomFields({ ...response.data.payload.client.customfields });
-        } else {
-          dispatch(showSnackbar(response.data.details.text, true, "error"));
-          console.log(response.data.details.text);
-          navigate(-1);
-          // $$$ or show error-related page
+  const getClientData = async (clientlist) => {
+    // get the data for the client that matches the idParam
+    if (clientlist.length) {
+      for (const client of clientlist) {
+        if (client.id.toString() === clientid) {
+          setClientPayload({ ...client });
+          setTempCustomFields({ ...client.customfields });
         }
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        dispatch(
-          showSnackbar(
-            "There seems to be an issue. Please contact support if this issue persists.",
-            true,
-            "error"
-          )
-        );
-        console.log("uncaught error", error);
-        setIsLoading(false);
-        navigate(-1);
-        // or show error-related page
-      });
+      }
+      setIsLoading(false);
+    } else {
+      console.log("Client list empty.");
+      navigate(-1);
+    }
   };
 
   // get current data from the server
   useEffect(() => {
-    if (!!clientid) {
-      getClientData();
-    } else {
-      dispatch(showSnackbar("No client id found", true, "warning"));
-      navigate("/adv/clients");
-      setIsLoading(false);
-    }
+    if (clientid)
+      if (myClientList) getClientData(myClientList);
+      else {
+        console.log("No client list found.");
+        navigate(-1);
+      }
+    else navigate(-1);
   }, []);
 
   useEffect(() => {
-    if (!!editMode) {
-      dispatch(showEditBanner(true, "Editing client profile..."));
-    } else {
-      dispatch(showEditBanner(false, ""));
-    }
+    if (!!editMode) dispatch(showEditBanner(true, "Editing client profile..."));
+    else dispatch(showEditBanner(false, ""));
   }, [editMode]);
 
   // DATA FUNCTIONS ======================================
@@ -300,9 +281,7 @@ const ClientProfile = () => {
         <>
           <GenericPage
             pageHeader={
-              clientPayload.client.name
-                ? clientPayload.client.name
-                : "Client Profile"
+              clientPayload.name ? clientPayload.name : "Client Profile"
             }
             backlink={
               !!location.state && location.state.backlink
@@ -347,13 +326,17 @@ const ClientProfile = () => {
                 ]}
               >
                 <Box sx={{ width: 1, flexGrow: 1, mb: 2 }}>
-                  <InputBaseForm
+                  {/* <InputBaseForm
                     key={clientid}
                     formObj={{
-                      firstname: clientPayload.client.firstname,
-                      lastname: clientPayload.client.lastname,
-                      email: clientPayload.client.email,
+                      firstname: clientPayload.firstname,
+                      lastname: clientPayload.lastname,
+                      email: clientPayload.email,
                     }}
+                  /> */}
+                  <ClientForm
+                    key={clientid}
+                    clientInput={{ ...clientPayload }}
                   />
                 </Box>
               </SubsectionWrapper>
@@ -365,7 +348,7 @@ const ClientProfile = () => {
                 tipBody="Custom fields are used to store additional information about your client. Select the Add button to add more. Custom fields are editable."
                 border={true}
                 buttonlist={
-                  !clientPayload.client.customfields
+                  !clientPayload.customfields
                     ? [
                         {
                           name: "Add New",

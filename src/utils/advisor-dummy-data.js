@@ -240,8 +240,48 @@ export const advisorChatList = [
 ];
 
 export const myClientList = [
-  { id: 1, name: "Donald Duck" },
-  { id: 2, name: "Goofy Dog" },
-  { id: 3, name: "Mickey Mouse" },
-  { id: 4, name: "Minney Mouse" },
+  {
+    id: 1,
+    name: "Donald Duck",
+    firstname: "Donald",
+    lastname: "Duck",
+    state: "FL",
+    phone: "555-555-5555",
+    email: "dduck@fake.com",
+    customfields: {
+      birthday: "May 5th",
+    },
+  },
+  {
+    id: 2,
+    name: "Goofy Dog",
+    firstname: "Goofy",
+    lastname: "Dog",
+    state: "NJ",
+    phone: "555-555-5555",
+    email: "gdog@fake.com",
+    customfields: [],
+  },
+  {
+    id: 3,
+    name: "Mickey Mouse",
+    firstname: "Mickey",
+    lastname: "Mouse",
+    state: "KY",
+    phone: "555-555-5555",
+    email: "mickey@mouse.com",
+    customfields: [],
+  },
+  {
+    id: 4,
+    name: "Minney Mouse",
+    firstname: "Minney",
+    lastname: "Mouse",
+    state: "KY",
+    phone: "555-555-5555",
+    email: "minnye@mouse.com",
+    customfields: [],
+  },
 ];
+
+export const emptyList = [];

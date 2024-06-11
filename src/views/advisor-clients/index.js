@@ -6,13 +6,15 @@ import { useNavigate } from "react-router-dom";
 import { Box } from "@material-ui/core";
 
 // project imports
-import advisoryService from "services/advisory.service";
 import DataGridPage from "ui-component/pages/DataGridPage";
 import PagePlaceholderText from "ui-component/extended/PagePlaceholderText";
 import NoteBanner from "ui-component/banners/NoteBanner";
 import GenericPage from "ui-component/pages/GenericPage";
 import { showSnackbar } from "actions/main";
 import { IconMailForward } from "@tabler/icons";
+
+// data and functions
+import { myClientList } from "utils/advisor-dummy-data";
 
 // ======================================================
 // NO PROPS, LOCATION.STATE ONLY
@@ -33,71 +35,33 @@ const ManageClients = () => {
   // handle preparing client data for the grid
   const prepClientsData = (clients) => {
     for (const client of clients) {
-      if (!!client.state) {
-        client.stateString = client.state.toUpperCase();
-      } else {
-        client.stateString = "--";
-      }
-      if (!!client.invited) {
-        client.invitedString = "Yes";
-        client.emailString = client.email;
-      } else {
-        client.invitedString = "No";
-        client.emailString = "not available";
-      }
-      if (!!client.id) {
-        client.selectionroute = `/adv/clients/${client.id}`;
-      }
+      // set displayed table data
+      client.stateString = client.state ? client.state.toUpperCase() : "--";
+      client.emailString = client.email ? client.email : "not available";
+      client.invitedString = client.invited ? "Yes" : "No";
+      client.selectionroute = client.id ? `/adv/clients/${client.id}` : "";
     }
     return clients;
   };
 
   // function with get request to get list of clients
-  const getClientsData = async () => {
-    await advisoryService
-      .getClientList({})
-      .then((response) => {
-        if (!!response.data.payload.success) {
-          if (!!response.data.payload.clients) {
-            let clients = response.data.payload.clients;
-            const newClients = prepClientsData(clients);
-            setClients([...newClients]);
-          } else {
-            dispatch(showSnackbar("No clients found.", true, "warning"));
-          }
-        } else {
-          dispatch(showSnackbar(response.data.details.text, true, "error"));
-          console.log("caught error", response.data.details.text);
-        }
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        dispatch(
-          showSnackbar(
-            "There seems to be an issue. Please contact support if this issue persists.",
-            true,
-            "error"
-          )
-        );
-        console.log("uncaught error", error);
-        setIsLoading(false);
-      });
+  const getClientsData = async (clientlist) => {
+    if (clientlist.length) {
+      const tempClientsList = prepClientsData(clientlist);
+      setClients([...tempClientsList]);
+    } else dispatch(showSnackbar("No clients found", true, "warning"));
+    setIsLoading(false);
   };
 
   useEffect(async () => {
-    if (attributes.ADVISOR > 1 || attributes.RIA > 1) {
-      setPlaceholder(
-        "Your account has not been approved yet. Please wait for the Rally team to review and approve your account. \nThank you."
-      );
-      setIsLoading(false);
-    } else if (attributes.MERCHANT < 0) {
+    if (attributes.MERCHANT < 0) {
       setPlaceholder(
         "You do not have a merchant account. Please go to the Settings page and create a merchant account with Stripe."
       );
       setIsLoading(false);
     } else {
       setPlaceholder("");
-      await getClientsData();
+      getClientsData(myClientList);
     }
   }, [attributes]);
 
@@ -110,13 +74,13 @@ const ManageClients = () => {
       width: 200,
       hide: false,
     },
-    // {
-    //   field: "invitedString",
-    //   headerName: "Invited",
-    //   minWidth: 80,
-    //   width: 80,
-    //   hide: false,
-    // },
+    {
+      field: "invitedString",
+      headerName: "Invited",
+      minWidth: 80,
+      width: 80,
+      hide: false,
+    },
     {
       field: "stateString",
       headerName: "State",
@@ -124,9 +88,16 @@ const ManageClients = () => {
       width: 150,
       hide: false,
     },
+    {
+      field: "emailString",
+      headerName: "Email",
+      minWidth: 200,
+      width: 200,
+      hide: false,
+    },
     { field: "id", headerName: "", minWidth: 10, width: 10, hide: true },
-    // { field: "invited", headerName: "", minWidth: 10, width: 10, hide: true },
-    // { field: "email", headerName: "", minWidth: 10, width: 10, hide: true },
+    { field: "invited", headerName: "", minWidth: 10, width: 10, hide: true },
+    { field: "email", headerName: "", minWidth: 10, width: 10, hide: true },
     { field: "state", headerName: "", minWidth: 10, width: 10, hide: true },
     {
       field: "selectionroute",
@@ -138,13 +109,11 @@ const ManageClients = () => {
   ];
 
   const handleNewClick = () => {
-    if (attributes.MERCHANT !== 1) {
+    if (attributes.MERCHANT !== 1)
       alert(
         "You are not authorized to invite clients without a merchant account with Stripe. Please finish setting up your merchant account by navigating to account settings."
       );
-    } else {
-      navigate("/adv/clients/new");
-    }
+    else navigate("/adv/clients/new");
   };
 
   return (

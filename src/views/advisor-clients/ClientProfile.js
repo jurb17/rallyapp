@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
@@ -9,9 +9,7 @@ import { Box } from "@material-ui/core";
 // project imports
 import CustomForm from "./forms/CustomForm";
 import CustomFieldForm from "./forms/CustomFieldForm";
-import ConfirmDeleteModal from "ui-component/modals/ConfirmDeleteModal";
 import ErrorModal from "ui-component/modals/ErrorModal";
-import advisoryService from "services/advisory.service";
 import SubsectionWrapper from "ui-component/wrappers/SubsectionWrapper";
 import PagePlaceholderText from "ui-component/extended/PagePlaceholderText";
 import GenericPage from "ui-component/pages/GenericPage";
@@ -23,10 +21,9 @@ import {
   IconReceipt2,
   IconMessage,
 } from "@tabler/icons";
-import InputBaseForm from "ui-component/forms/InputBaseForm";
 
 // data and functions imports
-import { myClientList, emptyList } from "utils/advisor-dummy-data";
+import { myClientList } from "utils/advisor-dummy-data";
 import ClientForm from "./forms/ClientForm";
 
 // style constant
@@ -44,7 +41,6 @@ const ClientProfile = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
-  const customFormRef = useRef({});
 
   // get the client id from the url
   const { id } = useParams();
@@ -52,13 +48,11 @@ const ClientProfile = () => {
 
   // data states
   const [clientPayload, setClientPayload] = useState({});
-  const [tempCustomFields, setTempCustomFields] = useState([]);
-  const [deleteCustomFields, setDeleteCustomFields] = useState([]);
+  const [tempCustomFields, setTempCustomFields] = useState({});
 
   // mode states
   const [isLoading, setIsLoading] = useState(true);
   const [editMode, setEditMode] = useState(false);
-  const [deleteMode, setDeleteMode] = useState(false);
   const [addFieldMode, setAddFieldMode] = useState(false);
   const [addFieldErrorMode, setAddFieldErrorMode] = useState(false);
 
@@ -96,155 +90,54 @@ const ClientProfile = () => {
   }, [editMode]);
 
   // DATA FUNCTIONS ======================================
-
-  // clear the current list of fields to be deleted.
-  const clearDeleteFieldsList = () => {
-    setDeleteCustomFields([]);
-  };
-  // cancel changes
-  const handleEditCancel = () => {
-    setEditMode(false);
-    setTempCustomFields({ ...clientPayload.client.customfields });
-    setDeleteCustomFields([]);
-  };
-  // save changes (updates)
-  const handleEditSave = async () => {
-    setEditMode(false);
-    await advisoryService
-      .putClient({
-        clientid: clientid,
-        customdata: { ...tempCustomFields },
-        deletelist: [...deleteCustomFields],
-      })
-      .then((response) => {
-        if (!!response.data.payload.success) {
-          // update the custom fields object and clear out the delete list
-          setClientPayload((prevState) => ({
-            ...prevState,
-            client: {
-              ...prevState.client,
-
-              customfields: { ...tempCustomFields },
-              deletelist: [],
-            },
-          }));
-          clearDeleteFieldsList();
-          dispatch(
-            showSnackbar("Custom fields updated successfully", true, "success")
-          );
-        } else {
-          dispatch(showSnackbar(response.data.details.text, true, "error"));
-          console.log("caught error", response.data.details.text);
-        }
-      })
-      .catch((error) => {
-        dispatch(
-          showSnackbar(
-            "There seems to be an issue. Please contact support if this issue persists.",
-            true,
-            "error"
-          )
-        );
-        console.log("uncaught error", error);
-      });
-  };
   // submit new field
   const handleAddFieldSave = async (name, value) => {
     setAddFieldMode(false);
-    // if that field name already exists, don't add it and show an error
+    // if there are custom fields and the given field name already exists, don't add it and show an error
     if (
-      !!clientPayload.client.customfields &&
-      Object.keys(clientPayload.client.customfields).includes(name)
-    ) {
-      // snackbar
-      setAddFieldMode(false);
+      !!clientPayload.customfields &&
+      Object.keys(clientPayload.customfields).includes(name)
+    )
       setAddFieldErrorMode(true);
-      return false;
-    } else {
-      // set modes
-      setAddFieldMode(false);
-      let newObj = {
-        ...clientPayload.client.customfields,
-        [name]: value,
-      };
-      await advisoryService
-        .putClient({
-          clientid: clientid,
-          customdata: { ...newObj },
-          deletelist: [],
-        })
-        .then((response) => {
-          if (!!response.data.payload.success) {
-            // add the new field to the custom fields object
-            setClientPayload((prevState) => ({
-              ...prevState,
-              client: {
-                ...prevState.client,
-                customfields: {
-                  ...clientPayload.client.customfields,
-                  [name]: value,
-                },
-              },
-            }));
-            setTempCustomFields({ ...tempCustomFields, [name]: value });
-            dispatch(
-              showSnackbar("New field added successfully", true, "success")
-            );
-          } else {
-            dispatch(showSnackbar(response.data.details.text, true, "error"));
-            console.log("caught error", response.data.details.text);
-          }
-        })
-        .catch((error) => {
-          dispatch(
-            showSnackbar(
-              "There seems to be an issue. Please contact support if this issue persists.",
-              true,
-              "error"
-            )
-          );
-          console.log("uncaught error", error);
-        });
+    else {
+      // add new field to the custom fields object within clientPayload
+      setClientPayload((prevState) => ({
+        ...prevState,
+        customfields: {
+          ...clientPayload.customfields,
+          [name]: value,
+        },
+      }));
+      setTempCustomFields({ ...tempCustomFields, [name]: value });
+      dispatch(showSnackbar("New field added successfully", true, "success"));
     }
+  };
+  // cancel changes to custom fields
+  const handleEditCancel = () => {
+    setEditMode(false);
+    setTempCustomFields({ ...clientPayload.customfields });
+  };
+  // save changes to custom fields
+  const handleEditSave = async () => {
+    setEditMode(false);
+    // update the custom fields object
+    setClientPayload((prevState) => ({
+      ...prevState,
+      customfields: { ...tempCustomFields },
+    }));
+    dispatch(
+      showSnackbar("Custom fields updated successfully", true, "success")
+    );
   };
   // handle delete custom field confirm
   const handleDeleteFieldConfirm = (name) => {
+    // remove field from tempCustomFields and add it to deleteCustomFields
     const newObj = { ...tempCustomFields };
     delete newObj[name];
     setTempCustomFields({ ...newObj });
-    setDeleteCustomFields([...deleteCustomFields, name]);
     dispatch(
       showSnackbar(`'${name}' field deleted successfully.`, true, "success")
     );
-  };
-  // handle confirm delete profile (NOT SUPPORTED ATM)
-  const handleDeleteProfileConfirm = async () => {
-    // there is no form to validate here.
-    await advisoryService
-      .deleteClient({
-        clientid: clientid,
-      })
-      .then((response) => {
-        if (!!response.data.payload.success) {
-          dispatch(
-            showSnackbar("Client deleted successfully", true, "success")
-          );
-          navigate("/adv/clients");
-        } else {
-          dispatch(showSnackbar(response.data.details.text, true, "error"));
-          console.log("caught error", response.data.details.text);
-        }
-      })
-      .catch((error) => {
-        dispatch(
-          showSnackbar(
-            "There seems to be an issue. Please contact support if this issue persists.",
-            true,
-            "error"
-          )
-        );
-        console.log("uncaught error", error);
-      });
   };
   // when user changes the value of a custom field
   const handleCustomInputChange = (name, value) => {
@@ -252,6 +145,8 @@ const ClientProfile = () => {
     newObj[name] = value;
     setTempCustomFields({ ...newObj });
   };
+  // handle confirm delete profile (NOT SUPPORTED ATM)
+  const handleDeleteProfileConfirm = async () => {};
 
   return (
     <>
@@ -265,13 +160,6 @@ const ClientProfile = () => {
         heading="Field Name Already Exists"
         body="This custom field name already exists for this client! Please enter a new field name."
         handleErrorConfirmation={() => setAddFieldErrorMode(false)}
-      />
-      <ConfirmDeleteModal
-        open={deleteMode}
-        handleConfirm={handleDeleteProfileConfirm}
-        handleCancel={() => setDeleteMode(false)}
-        heading="Are you sure you want to delete this profile?"
-        body="This action cannot be undone."
       />
       {isLoading ? (
         <Box className="horizontal-center">
@@ -326,14 +214,6 @@ const ClientProfile = () => {
                 ]}
               >
                 <Box sx={{ width: 1, flexGrow: 1, mb: 2 }}>
-                  {/* <InputBaseForm
-                    key={clientid}
-                    formObj={{
-                      firstname: clientPayload.firstname,
-                      lastname: clientPayload.lastname,
-                      email: clientPayload.email,
-                    }}
-                  /> */}
                   <ClientForm
                     key={clientid}
                     clientInput={{ ...clientPayload }}
@@ -348,7 +228,8 @@ const ClientProfile = () => {
                 tipBody="Custom fields are used to store additional information about your client. Select the Add button to add more. Custom fields are editable."
                 border={true}
                 buttonlist={
-                  !clientPayload.customfields
+                  // if there are no custum fields, only show "Add New" button.
+                  !Object.keys(clientPayload.customfields).length
                     ? [
                         {
                           name: "Add New",
@@ -358,7 +239,8 @@ const ClientProfile = () => {
                           onClick: () => setAddFieldMode(true),
                         },
                       ]
-                    : !editMode
+                    : // if not in edit mode, show "Edit Fields" button alongside "Add New" button
+                    !editMode
                     ? [
                         {
                           name: "Add New",
@@ -375,7 +257,8 @@ const ClientProfile = () => {
                           onClick: () => setEditMode(true),
                         },
                       ]
-                    : [
+                    : // if in edit mode, that means there are custom fields!
+                      [
                         {
                           name: "Cancel",
                           color: "primary",
@@ -398,7 +281,6 @@ const ClientProfile = () => {
                     customInput={{ ...tempCustomFields }}
                     handleDeleteFieldConfirm={handleDeleteFieldConfirm}
                     handleCustomInputChange={handleCustomInputChange}
-                    forwardedCustomFormRef={customFormRef}
                   />
                 </Box>
               </SubsectionWrapper>

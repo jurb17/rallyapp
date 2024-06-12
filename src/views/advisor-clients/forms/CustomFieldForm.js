@@ -78,7 +78,7 @@ const CustomFieldForm = (props, { ...others }) => {
             </Grid>
             <Grid item xs={12}>
               <Formik
-                initialValues={{ fieldname: "" }}
+                initialValues={{ fieldname: "", fieldvalue: "" }}
                 validationSchema={customFieldValidationSchema}
                 innerRef={customFieldFormRef}
               >
@@ -94,13 +94,14 @@ const CustomFieldForm = (props, { ...others }) => {
                         label="Field Name"
                         value={fieldname}
                         onChange={(e) => {
-                          formik.handleChange(e);
-                          handleFieldnameChange(e);
+                          // only allow changes if value length is less than 60 characters
+                          if (e.target.value.length < 32) {
+                            formik.handleChange(e);
+                            handleFieldnameChange(e);
+                          }
                         }}
                         onKeyPress={(e) => {
-                          if (e.key === "Enter") {
-                            handleSave(e);
-                          }
+                          if (e.key === "Enter") handleSave(e);
                         }}
                       />
                       <MyTextInput
@@ -111,13 +112,14 @@ const CustomFieldForm = (props, { ...others }) => {
                         label="Field Value"
                         value={fieldvalue}
                         onChange={(e) => {
-                          formik.handleChange(e);
-                          handleFieldvalueChange(e);
+                          // only allow changes if value length is less than 60 characters
+                          if (e.target.value.length < 60) {
+                            formik.handleChange(e);
+                            handleFieldvalueChange(e);
+                          }
                         }}
                         onKeyPress={(e) => {
-                          if (e.key === "Enter") {
-                            handleSave(e);
-                          }
+                          if (e.key === "Enter") handleSave(e);
                         }}
                       />
                       {/* <MySelectInput formik={formik} id='fieldtype' label='Field Type' value={fieldname['fieldtype']} readOnly={!props.editMode} options={types} onChange={inputChangeHandler} /> */}

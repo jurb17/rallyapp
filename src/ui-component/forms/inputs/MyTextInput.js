@@ -83,7 +83,6 @@ const MyTextInput = (props) => {
           startAdornment={props.startAdornment ? props.startAdornment : ""}
           endAdornment={props.endAdornment ? props.endAdornment : ""}
           inputProps={props.inputProps ? props.inputProps : {}}
-          {...props}
         />
         {!props.readOnly &&
           props.formik.touched[props.id] &&

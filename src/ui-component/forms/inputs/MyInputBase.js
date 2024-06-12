@@ -28,8 +28,7 @@ onBlur = function to handle blur
 startAdornment = start adornment of the select
 endAdornment = endAdornment of the select
 inputProps = inputProps onject of the select
-helpertext = helpertext string  of the select
-handledelete = function to handle delete
+helpertext = helpertext string  of the select 
 */
 
 const MyInputBase = (props) => {

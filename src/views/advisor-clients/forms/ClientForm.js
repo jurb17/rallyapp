@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 
 // material-ui
 import { makeStyles } from "@material-ui/styles";
@@ -28,9 +28,8 @@ const ClientForm = (props) => {
   const classes = useStyles();
 
   // when there is a change to an input, pass it to the parent profile component
-  const handleInputChange = (e) => {
+  const handleInputChange = (e) =>
     props.handleClientInputChange(e.target.name, e.target.value);
-  };
 
   return (
     <>
@@ -92,11 +91,11 @@ const ClientForm = (props) => {
                 md={4}
                 lg={4}
                 formik={formik}
-                key="name"
-                id="name"
-                name="name"
-                label="Display Name"
-                value={props.clientInput.name ? props.clientInput.name : ""}
+                key="email"
+                id="email"
+                name="email"
+                label="Email"
+                value={props.clientInput.email ? props.clientInput.email : ""}
                 onChange={(e) => {
                   formik.handleChange(e);
                   handleInputChange(e);

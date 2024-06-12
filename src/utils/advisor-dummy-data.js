@@ -260,7 +260,7 @@ export const myClientList = [
     state: "NJ",
     phone: "555-555-5555",
     email: "gdog@fake.com",
-    customfields: [],
+    customfields: {},
   },
   {
     id: 3,
@@ -270,7 +270,7 @@ export const myClientList = [
     state: "KY",
     phone: "555-555-5555",
     email: "mickey@mouse.com",
-    customfields: [],
+    customfields: {},
   },
   {
     id: 4,
@@ -280,7 +280,7 @@ export const myClientList = [
     state: "KY",
     phone: "555-555-5555",
     email: "minnye@mouse.com",
-    customfields: [],
+    customfields: {},
   },
 ];
 

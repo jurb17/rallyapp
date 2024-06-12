@@ -46,11 +46,9 @@ const CustomForm = (props) => {
     setDeleteFieldName("");
   };
   // handle changes to form fields
-  const handleInputChange = (e) => {
+  const handleInputChange = (e) =>
     props.handleCustomInputChange(e.target.name, e.target.value);
-  };
 
-  // display the modal, should the user be in the mode of creating a new custom field. Display the client and custom fields regardless.
   return (
     <>
       <ConfirmDeleteModal
@@ -60,10 +58,7 @@ const CustomForm = (props) => {
         heading="Are you sure you want to delete this field?"
         body={`This will delete the field "${deleteFieldName}"`}
       />
-      <Formik
-        innerRef={props.forwardedCustomFormRef}
-        initialValues={props.customInput}
-      >
+      <Formik initialValues={props.customInput}>
         {(formik) => (
           <form noValidate onSubmit={formik.handleSubmit}>
             <Box sx={{ flexGrow: 1 }}>
@@ -72,7 +67,7 @@ const CustomForm = (props) => {
                   {Object.entries(props.customInput)
                     .sort()
                     .map(([key, value]) => {
-                      return !!props.editMode ? (
+                      return props.editMode ? (
                         <MyTextInput
                           xs={12}
                           sm={6}
@@ -84,10 +79,13 @@ const CustomForm = (props) => {
                           label={key}
                           value={value ? value : ""}
                           readOnly={!props.editMode}
-                          deletable={props.editMode ? true : undefined}
+                          deletable={props.editMode ? "true" : "undefined"}
                           onChange={(e) => {
-                            formik.handleChange(e);
-                            handleInputChange(e);
+                            // only allow changes if value length is less than 60 characters
+                            if (e.target.value.length < 60) {
+                              formik.handleChange(e);
+                              handleInputChange(e);
+                            }
                           }}
                           handledelete={handleDelete}
                         />

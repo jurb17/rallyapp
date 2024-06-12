@@ -16,14 +16,15 @@ import "./assets/scss/style.scss";
 // ===========================|| REACT DOM RENDER  ||=========================== //
 
 const container = document.getElementById("root");
-const root = ReactDOM.createRoot(container);
+// const root = ReactDOM.createRoot(container);
 
-root.render(
+ReactDOM.render(
   <Provider store={store}>
     <BrowserRouter basename={config.basename}>
       <App />
     </BrowserRouter>
-  </Provider>
+  </Provider>,
+  container
 );
 
 setupInterceptors(store);

@@ -8,7 +8,7 @@ import client from "./client";
 // ===========================|| MENU ITEMS ||=========================== //
 
 const menuItems = {
-  items: [advisory, profile, client, pages, utilities, other],
+  items: [advisory, client, pages, utilities, other],
 };
 
 export default menuItems;

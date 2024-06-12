@@ -50,11 +50,13 @@ const MenuList = ({ chats }) => {
     switch (attributes.CUSTOMER) {
       case -1:
         menuList.push("client");
+        menuList.push("other");
         break;
       case 0:
         break;
       case 1:
         menuList.push("client");
+        menuList.push("other");
         break;
       default:
         break;

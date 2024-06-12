@@ -37,22 +37,22 @@ const client = {
       icon: icons.IconMessage,
       breadcrumbs: false,
     },
-    {
-      id: "client-advisors",
-      title: "Advice",
-      type: "item",
-      url: "/client/advisors",
-      icon: icons.IconUserCheck,
-      breadcrumbs: false,
-    },
-    {
-      id: "client-payments",
-      title: "Pay",
-      type: "item",
-      url: "/client/payments",
-      icon: icons.IconReceipt2,
-      breadcrumbs: false,
-    },
+    // {
+    //   id: "client-advisors",
+    //   title: "Advice",
+    //   type: "item",
+    //   url: "/client/advisors",
+    //   icon: icons.IconUserCheck,
+    //   breadcrumbs: false,
+    // },
+    // {
+    //   id: "client-payments",
+    //   title: "Pay",
+    //   type: "item",
+    //   url: "/client/payments",
+    //   icon: icons.IconReceipt2,
+    //   breadcrumbs: false,
+    // },
   ],
 };
 

@@ -53,14 +53,14 @@ const advisory = {
       icon: icons.IconUsers,
       breadcrumbs: false,
     },
-    // {
-    //   id: "adv-prospects",
-    //   title: "Prospects",
-    //   type: "item",
-    //   url: "/adv/prospects",
-    //   icon: icons.IconUserPlus,
-    //   breadcrumbs: false,
-    // },
+    {
+      id: "adv-prospects",
+      title: "Prospects",
+      type: "item",
+      url: "/adv/prospects",
+      icon: icons.IconUserPlus,
+      breadcrumbs: false,
+    },
     // {
     //   id: "adv-invoices",
     //   title: "Invoices",

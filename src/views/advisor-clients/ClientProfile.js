@@ -44,7 +44,7 @@ const ClientProfile = () => {
 
   // get the client id from the url
   const { id } = useParams();
-  const clientid = id;
+  const idParam = id;
 
   // data states
   const [clientPayload, setClientPayload] = useState({});
@@ -59,24 +59,21 @@ const ClientProfile = () => {
   // get client profile data from server
   const getClientData = async (clientlist) => {
     // get the data for the client that matches the idParam
-    if (clientlist.length) {
-      for (const client of clientlist) {
-        if (client.id.toString() === clientid) {
-          setClientPayload({ ...client });
-          setTempCustomFields({ ...client.customfields });
-        }
+    for (const client of clientlist) {
+      if (client.id.toString() === idParam) {
+        setClientPayload({ ...client });
+        setTempCustomFields({ ...client.customfields });
       }
-      setIsLoading(false);
-    } else {
-      console.log("Client list empty.");
-      navigate(-1);
     }
+    setIsLoading(false);
   };
 
   // get current data from the server
   useEffect(() => {
-    if (clientid)
-      if (myClientList) getClientData(myClientList);
+    // if idParam and clientList exist, get current client data
+    if (idParam)
+      if (myClientList && myClientList.length) getClientData(myClientList);
+      // otherwise, go back
       else {
         console.log("No client list found.");
         navigate(-1);
@@ -181,13 +178,13 @@ const ClientProfile = () => {
                 name: "Send Invoice",
                 color: "primary",
                 variant: "contained",
-                onClick: () => navigate(`/adv/invoices/new/?id=${clientid}`),
+                onClick: () => navigate(`/adv/invoices/new/?id=${idParam}`),
               },
               {
                 name: "Send Message",
                 color: "primary",
                 variant: "contained",
-                onClick: () => navigate(`/adv/messages/?id=${clientid}`),
+                onClick: () => navigate(`/adv/messages/?id=${idParam}`),
               },
             ]}
           >
@@ -202,20 +199,20 @@ const ClientProfile = () => {
                     color: "primary",
                     variant: "text",
                     startIcon: <IconReceipt2 stroke={1.25} />,
-                    onClick: () => navigate(`/adv/invoices/?id=${clientid}`),
+                    onClick: () => navigate(`/adv/invoices/?id=${idParam}`),
                   },
                   {
                     name: "View Chat",
                     color: "primary",
                     variant: "text",
                     startIcon: <IconMessage stroke={1.25} />,
-                    onClick: () => navigate(`/adv/messages/?id=${clientid}`),
+                    onClick: () => navigate(`/adv/messages/?id=${idParam}`),
                   },
                 ]}
               >
                 <Box sx={{ width: 1, flexGrow: 1, mb: 2 }}>
                   <ClientForm
-                    key={clientid}
+                    key={idParam}
                     clientInput={{ ...clientPayload }}
                   />
                 </Box>

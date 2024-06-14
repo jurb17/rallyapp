@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 
 // material-ui
 import { makeStyles } from "@material-ui/styles";
@@ -9,7 +9,6 @@ import { Formik } from "formik";
 // import { prospectProfileSchema } from "utils/Validation";
 
 // assets
-import { gridSpacing } from "store/constant";
 import { mapStateName } from "utils/DataMapFunctions";
 import MyInputBase from "ui-component/forms/inputs/MyInputBase";
 
@@ -76,6 +75,16 @@ const ProspectForm = (props) => {
                     ? mapStateName(props.prospectInput.state)
                     : ""
                 }
+              />
+              <MyInputBase
+                xs={12}
+                sm={4}
+                formik={formik}
+                key="serviceRequestDate"
+                id="serviceRequestDate"
+                name="serviceRequestDate"
+                label="Service Request Date"
+                value={props.prospectInput.serviceRequestDate}
               />
             </Grid>
           </form>

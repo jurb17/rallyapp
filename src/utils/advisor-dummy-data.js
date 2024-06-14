@@ -237,6 +237,38 @@ export const advisorChatList = [
       },
     ],
   },
+  {
+    adviceid: 5,
+    token: 5,
+    name: "Taz McLooney",
+    body: "Hi Taz, I see you're interested in tax services. Could you share some details about your career and financial situation? What is your line of work? And do you have investment funds, own a home, own a car, or have kids?",
+    timestamp: "1718223960000",
+    state: "FL",
+    messages: [
+      {
+        id: 1,
+        advisor: 1,
+        body: "Hi Taz, I see you're interested in tax services. Could you share some details about your career and financial situation? What is your line of work? And do you have investment funds, own a home, own a car, or have kids?",
+        timestamp: "1718223960000",
+      },
+    ],
+  },
+  {
+    adviceid: 6,
+    token: 6,
+    name: "Gladys Finkle",
+    body: "Hi Gladys, I see you're interested in a portfolio review. Could you tell me about your investment funds and the assets you own? Just looking to build a picture first.",
+    timestamp: "1718374790000",
+    state: "FL",
+    messages: [
+      {
+        id: 1,
+        advisor: 1,
+        body: "Hi Gladys, I see you're interested in a portfolio review. Could you tell me about your investment funds and the assets you own? Just looking to build a picture first.",
+        timestamp: "1718374790000",
+      },
+    ],
+  },
 ];
 
 export const myClientList = [
@@ -281,6 +313,23 @@ export const myClientList = [
     phone: "555-555-5555",
     email: "minnye@mouse.com",
     customfields: {},
+  },
+];
+
+export const myProspectList = [
+  {
+    id: 5,
+    name: "Taz McLooney",
+    state: "FL",
+    dateContacted: 1718220540000,
+    payments: [],
+  },
+  {
+    id: 6,
+    name: "Gladys Finkle",
+    state: "AZ",
+    dateContacted: 1718378940000,
+    payments: [],
   },
 ];
 

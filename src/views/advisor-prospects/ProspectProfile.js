@@ -8,18 +8,13 @@ import { Box } from "@material-ui/core";
 
 // project imports
 import ProspectForm from "./forms/ProspectForm";
-import advisoryService from "services/advisory.service";
 import SubsectionWrapper from "ui-component/wrappers/SubsectionWrapper";
 import GenericPage from "ui-component/pages/GenericPage";
 import ConfirmDeleteModal from "ui-component/modals/ConfirmDeleteModal";
 import { showSnackbar } from "actions/main";
 import PagePlaceholderText from "ui-component/extended/PagePlaceholderText";
-import {
-  IconMailForward,
-  IconUserOff,
-  IconMessage,
-  IconReceipt2,
-} from "@tabler/icons";
+import { IconUserOff, IconMessage } from "@tabler/icons";
+import { myProspectList } from "utils/advisor-dummy-data";
 
 // style constant
 const useStyles = makeStyles((theme) => ({}));
@@ -37,111 +32,66 @@ const ProspectProfile = () => {
 
   // bring in params from url
   const { id } = useParams();
-
-  // request states
-  const [adviceid, setProspectid] = useState(id);
+  const idParam = id;
 
   // data states
   const [prospectPayload, setProspectPayload] = useState({});
-  const [calcData, setCalcData] = useState({});
 
   // mode states
   const [pendingInvoice, setPendingInvoice] = useState(false);
   const [deletingProspect, setDeletingProspect] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // function to set the calcData states (calcData states only)
-  const getCalcData = (prospectLoad) => {
-    console.log("nothing to calculate");
-  };
-
   // get prospect profile data from server (payload states and mode states)
-  const getProspectData = async () => {
-    await advisoryService
-      .getProspect({
-        clientid: adviceid,
-      })
-      .then((response) => {
-        if (!!response.data.payload.success) {
-          setProspectPayload(response.data.payload);
-          // if there is a payments list, set the pendingInvoice mode to true
-          if (!!response.data.payload.payments) {
-            response.data.payload.payments.forEach((payment) => {
-              if (payment.status === "open") {
-                setPendingInvoice(true);
-              }
-            });
-          } else {
-            setPendingInvoice(false);
-          }
-          // get the calcData states
-          getCalcData(response.data.payload);
-        } else {
-          dispatch(showSnackbar(response.data.details.text, true, "error"));
-          console.log(response.data.details.text);
-          navigate(-1);
-          // $$$ or show error-related page instead of navigating away
+  const getProspectData = async (prospectlist) => {
+    // get the data for the client that matches the idParam
+    for (const prospect of prospectlist) {
+      if (prospect.id.toString() === idParam) {
+        // if there is a payments list, set the pendingInvoice mode to true
+        if (prospect.payments) {
+          setPendingInvoice(false);
+          prospect.payments.forEach((payment) => {
+            if (payment.status === "open") setPendingInvoice(true);
+          });
+        } else setPendingInvoice(false);
+        if (prospect.dateContacted) {
+          // get formatted date string
+          let formattedDate = new Date(
+            parseInt(prospect.dateContacted)
+          ).toLocaleDateString("en-US");
+          // get formatted time string
+          let formattedTime = new Date(
+            parseInt(prospect.dateContacted)
+          ).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+          // combine date and time for table
+          prospect.serviceRequestDate = formattedDate + " " + formattedTime;
         }
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        dispatch(
-          showSnackbar(
-            "There seems to be an issue. Please contact support if this issue persists.",
-            true,
-            "error"
-          )
-        );
-        console.log("uncaught error", error);
-        setIsLoading(false);
-        navigate(-1);
-        // $$$ or show error-related page
-      });
-  };
-  // get current data from the server
-  useEffect(() => {
-    if (!!adviceid) {
-      getProspectData();
-    }
-    // if there is no paymentid, then redirect to the prospect list
-    else {
-      dispatch(
-        showSnackbar("No advice ID or payment ID found", true, "warning")
-      );
-      setIsLoading(false);
-      if (!!location.state && !!location.state.backlink) {
-        navigate(location.state.backlink);
-      } else {
-        navigate(-1);
+        setProspectPayload({ ...prospect });
       }
     }
+    setIsLoading(false);
+  };
+
+  // run on mount
+  useEffect(() => {
+    // if idParam and prospectList exist, get current prospect data
+    if (idParam)
+      if (myProspectList && myProspectList.length)
+        getProspectData(myProspectList);
+      // otherwise, go back.
+      else {
+        console.log("No prospect list found.");
+        navigate(-1);
+      }
+    else navigate(-1);
   }, []);
 
   // DATA FUNCTIONS ======================================
-
   // handle confirm delete profile
   const handleDeclineProspectConfirm = async () => {
-    // API request to delete the profile.
-    await advisoryService
-      .deleteProspect({ clientid: adviceid })
-      .then((response) => {
-        if (!!response.data.payload.success) {
-          dispatch(
-            showSnackbar("Prospect successfully declined", true, "success")
-          );
-          navigate("/adv/prospects");
-        } else {
-          dispatch(showSnackbar(response.data.details.text, true, "error"));
-          console.log(response.data.details.text);
-          setDeletingProspect(false);
-        }
-      })
-      .catch((error) => {
-        dispatch(
-          showSnackbar("Decline failed. Please try again later.", true, "error")
-        );
-        console.log("something went wrong with declining the prospect.", error);
-      });
+    console.log("handle delete prospect profile");
+    dispatch(showSnackbar("Prospect successfully declined", true, "success"));
+    navigate("/adv/prospects");
   };
 
   return (
@@ -156,7 +106,7 @@ const ProspectProfile = () => {
             open={deletingProspect}
             handleConfirm={handleDeclineProspectConfirm}
             handleCancel={() => setDeletingProspect(false)}
-            heading={`Are you sure you want to turn away ${prospectPayload.client.name} as a prospect?`}
+            heading={`Are you sure you want to turn away ${prospectPayload.name} as a prospect?`}
             body="This action cannot be undone."
             action={"Decline"}
             nonaction={"Cancel"}
@@ -183,7 +133,7 @@ const ProspectProfile = () => {
                       color: "primary",
                       variant: "contained",
                       onClick: () =>
-                        navigate(`/adv/invoices/new/?id=${adviceid}`),
+                        navigate(`/adv/invoices/new/?id=${idParam}`),
                     },
                   ]
                 : [
@@ -201,7 +151,7 @@ const ProspectProfile = () => {
                       onClick: () =>
                         !!prospectPayload.payments
                           ? navigate(
-                              `/adv/invoices/${adviceid}/${prospectPayload.payments[0].id}`
+                              `/adv/invoices/${idParam}/${prospectPayload.payments[0].id}`
                             )
                           : null,
                     },
@@ -218,17 +168,18 @@ const ProspectProfile = () => {
                   color: "primary",
                   variant: "text",
                   startIcon: <IconMessage stroke={1.25} />,
-                  onClick: () => navigate(`/adv/messages/?id=${adviceid}`),
+                  onClick: () => navigate(`/adv/messages/?id=${idParam}`),
                 },
               ]}
             >
               <ProspectForm
                 editMode={false}
                 prospectInput={{
-                  name: prospectPayload.client.name
-                    ? prospectPayload.client.name
+                  name: prospectPayload.name
+                    ? prospectPayload.name
                     : "No Name Found",
-                  state: prospectPayload.client.state,
+                  state: prospectPayload.state,
+                  serviceRequestDate: prospectPayload.serviceRequestDate,
                 }}
                 forwardedProspectFormRef={prospectFormRef}
               />

@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 // mui
 import { Box } from "@material-ui/core";
 
 // project imports
-import advisoryService from "services/advisory.service";
 import DataGridPage from "ui-component/pages/DataGridPage";
 import PagePlaceholderText from "ui-component/extended/PagePlaceholderText";
 import NoteBanner from "ui-component/banners/NoteBanner";
 import GenericPage from "ui-component/pages/GenericPage";
 import { showSnackbar } from "actions/main";
+
+// data and functions imports
+import { myProspectList } from "utils/advisor-dummy-data";
 
 // =====================================================
 // NO PROPS, LOCATION.STATE ONLY
@@ -18,25 +20,31 @@ import { showSnackbar } from "actions/main";
 
 const ManageProspects = () => {
   const dispatch = useDispatch();
-  const { attributes } = useSelector((state) => state.auth);
 
   // data states
   const [prospects, setProspects] = useState([]);
 
   // mode states
   const [isLoading, setIsLoading] = useState(true);
-  const [placeholder, setPlaceholder] = useState("");
 
   // prep data for grid
   const prepProspectsData = (prospects) => {
     for (const prospect of prospects) {
-      if (!!prospect.state) {
-        prospect.stateString = prospect.state.toUpperCase();
-      } else {
-        prospect.stateString = "--";
-      }
-      if (!!prospect.id) {
+      if (prospect.state) prospect.stateString = prospect.state.toUpperCase();
+      else prospect.stateString = "--";
+      if (prospect.id)
         prospect.selectionroute = `/adv/prospects/${prospect.id}`;
+      if (prospect.dateContacted) {
+        // get formatted date string
+        let formattedDate = new Date(
+          parseInt(prospect.dateContacted)
+        ).toLocaleDateString("en-US");
+        // get formatted time string
+        let formattedTime = new Date(
+          parseInt(prospect.dateContacted)
+        ).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+        // combine date and time for table
+        prospect.dateContactedString = formattedDate + " " + formattedTime;
       }
       prospect.invited = false;
     }
@@ -44,53 +52,20 @@ const ManageProspects = () => {
   };
 
   // get the prospect list from the api.
-  const getProspectsData = async () => {
-    await advisoryService
-      .getProspectList({})
-      .then((response) => {
-        if (!!response.data.payload.success) {
-          if (!!response.data.payload.clients) {
-            let prospects = response.data.payload.clients;
-            const newProspects = prepProspectsData(prospects);
-            setProspects([...newProspects]);
-          } else {
-            dispatch(showSnackbar("No prospects found.", true, "warning"));
-          }
-        } else {
-          dispatch(showSnackbar(response.data.details.text, true, "error"));
-          console.log("caught error", response.data.details.text);
-        }
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        dispatch(
-          showSnackbar(
-            "There seems to be an issue. Please contact support if this issue persists.",
-            true,
-            "error"
-          )
-        );
-        console.log("uncaught error", error);
-        setIsLoading(false);
-      });
+  const getProspectsData = async (prospectlist) => {
+    let prospects = prospectlist;
+    const newProspects = prepProspectsData(prospects);
+    setProspects([...newProspects]);
+    setIsLoading(false);
   };
 
   useEffect(async () => {
-    if (attributes.ADVISOR > 1 || attributes.RIA > 1) {
-      setPlaceholder(
-        "Your account has not been approved yet. Please wait for the Rally team to review and approve your account. \nThank you."
-      );
+    if (myProspectList) getProspectsData(myProspectList);
+    else {
       setIsLoading(false);
-    } else if (attributes.MERCHANT < 0) {
-      setPlaceholder(
-        "You do not have a merchant account. Please go to the Settings page and create a merchant account with Stripe."
-      );
-      setIsLoading(false);
-    } else {
-      setPlaceholder("");
-      await getProspectsData();
+      dispatch(showSnackbar("No prospects found.", true, "warning"));
     }
-  }, [attributes]);
+  }, []);
 
   // define row data. firstname, middlename, lastname, prefix, suffix, nickname, email, phone
   const columns: GridColDef[] = [
@@ -106,6 +81,13 @@ const ManageProspects = () => {
       headerName: "State",
       minWidth: 150,
       width: 150,
+      hide: false,
+    },
+    {
+      field: "dateContactedString",
+      headerName: "Service Request Date",
+      minWidth: 180,
+      width: 180,
       hide: false,
     },
     { field: "id", headerName: "", minWidth: 10, width: 10, hide: true },
@@ -129,11 +111,7 @@ const ManageProspects = () => {
           <>
             <Box className="horizontal-center">
               <PagePlaceholderText
-                text={
-                  placeholder
-                    ? placeholder
-                    : "You do not have any prospects yet!"
-                }
+                text={"You do not have any prospects yet!"}
               />
             </Box>
             <Box className="horizontal-center">

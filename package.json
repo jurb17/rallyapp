@@ -1,6 +1,6 @@
 {
   "name": "rally-crm",
-  "homepage": "https://www.rally.markets/advisory/",
+  "homepage": "https://jordanurbaczek-rallyapp.netlify.app/advisory/",
   "version": "0.0.1",
   "private": true,
   "dependencies": {

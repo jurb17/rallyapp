@@ -97,7 +97,7 @@ const Login = () => {
                   <Grid item xs={12}>
                     <FirebaseLogin login={3} />
                   </Grid>
-                  <Grid item xs={12}>
+                  {/* <Grid item xs={12}>
                     <Divider />
                   </Grid>
                   <Grid item xs={12}>
@@ -122,7 +122,7 @@ const Login = () => {
                         }}
                       />
                     </Grid>
-                  </Grid>
+                  </Grid> */}
                 </Grid>
               </AuthCardWrapper>
             </Grid>

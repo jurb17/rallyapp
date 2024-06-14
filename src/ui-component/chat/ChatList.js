@@ -12,8 +12,8 @@ import BackButton from "ui-component/buttons/BackButton";
 const useStyles = makeStyles((theme) => ({
   chatList: {
     height: "68vh",
-    width: "280px",
-    minWidth: "240px",
+    width: "300px",
+    minWidth: "260px",
     marginRight: theme.spacing(2),
     "@media (max-width: 600px)": {
       marginRight: 0,

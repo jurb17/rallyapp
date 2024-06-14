@@ -18,11 +18,8 @@ import {
 import ClientChat from "./components/ClientChat";
 import { showSnackbar } from "actions/main";
 import ChatListItem from "ui-component/extended/ChatListItem";
-import { useSelector } from "react-redux";
-import adviceService from "services/advice.service";
 import ConfirmPrimaryModal from "ui-component/modals/ConfirmPrimaryModal";
 import ChatList from "ui-component/chat/ChatList";
-import { mapStateName } from "utils/DataMapFunctions";
 import PagePlaceholderText from "ui-component/extended/PagePlaceholderText";
 import SupportRequest from "ui-component/modals/SupportRequest";
 import ReportAbuseCard from "ui-component/cards/ReportAbuseCard";
@@ -46,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     borderRight: `1px solid ${theme.palette.grey[300]}`,
     borderLeft: `1px solid ${theme.palette.grey[300]}`,
-    paddingLeft: theme.spacing(2),
+    paddingLeft: theme.spacing(1),
   },
   actionButton: {
     marginBottom: theme.spacing(1),

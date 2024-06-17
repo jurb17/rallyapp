@@ -6,6 +6,7 @@ export const advisorChatList = [
     body: "When you're ready, click the button in the message above to move forward with payment. I'm ready when you are!",
     timestamp: "1718030609000",
     state: "FL",
+    isClient: true,
     messages: [
       {
         id: 1,
@@ -82,6 +83,7 @@ export const advisorChatList = [
     body: "[Payment Request]",
     timestamp: "1709995350000",
     state: "NJ",
+    isClient: true,
     messages: [
       {
         id: 1,
@@ -140,6 +142,7 @@ export const advisorChatList = [
     body: "Great! Can we discuss possible deductions? I want to make some business purchases in the future and want to make sure I'm considering my taxes beforehand.",
     timestamp: "1711280505000",
     state: "KY",
+    isClient: true,
     messages: [
       {
         id: 1,
@@ -204,6 +207,7 @@ export const advisorChatList = [
     body: "Great, thank you. I’m curious about contributing to our daughter's education and whether there is a tax benefit to having a 529 account.",
     timestamp: "1711287730000",
     state: "KY",
+    isClient: true,
     messages: [
       {
         id: 1,
@@ -244,6 +248,7 @@ export const advisorChatList = [
     body: "Hi Taz, I see you're interested in tax services. Could you share some details about your career and financial situation? What is your line of work? And do you have investment funds, own a home, own a car, or have kids?",
     timestamp: "1718223960000",
     state: "FL",
+    isClient: false,
     messages: [
       {
         id: 1,
@@ -260,6 +265,7 @@ export const advisorChatList = [
     body: "Hi Gladys, I see you're interested in a portfolio review. Could you tell me about your investment funds and the assets you own? Just looking to build a picture first.",
     timestamp: "1718374790000",
     state: "FL",
+    isClient: false,
     messages: [
       {
         id: 1,
@@ -316,6 +322,8 @@ export const myClientList = [
   },
 ];
 
+export const myClientIdList = [1, 2, 3, 4];
+
 export const myProspectList = [
   {
     id: 5,
@@ -332,5 +340,7 @@ export const myProspectList = [
     payments: [],
   },
 ];
+
+export const myProspectIdList = [5, 6];
 
 export const emptyList = [];

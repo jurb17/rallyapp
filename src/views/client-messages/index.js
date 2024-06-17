@@ -267,7 +267,6 @@ const ClientChatManagement = () => {
           token={chat.token}
           selectedIndex={idParam}
           contactname={chat.advisorname}
-          advisorslug=""
           lastmessage={body.length > 37 ? body.substring(0, 38) + "..." : body}
           handleSelectChat={handleSelectChat}
           newMessage={newMessage}
@@ -299,7 +298,7 @@ const ClientChatManagement = () => {
         return createChatList(chatList);
       } else return createChatList(newlist);
     }
-  }, [chatSearch, chatList]);
+  }, [chatSearch, chatList, idParam]);
   // handle cancel of search for a chat in the List
   const handleCancelSearch = () => setChatSearch("");
 

@@ -24,7 +24,7 @@ import ReportAbuseCard from "ui-component/cards/ReportAbuseCard";
 
 // data and functions imports
 import { showSnackbar } from "actions/main";
-import { advisorChatList } from "utils/advisor-dummy-data";
+import { advisorChatList, myClientIdList } from "utils/advisor-dummy-data";
 
 // style constant
 const useStyles = makeStyles((theme) => ({
@@ -106,7 +106,7 @@ const AdvisorMessageManagement = () => {
 
   // mode states
   const [noMessages, setNoMessages] = useState(true);
-  const [isClient, setIsClient] = useState(true);
+  const [isClient, setIsClient] = useState(null);
   const [notApproved, setNotApproved] = useState(false);
   const [notMerchant, setNotMerchant] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -165,9 +165,13 @@ const AdvisorMessageManagement = () => {
 
   // CHAT MESSAGES ==========================================================
   // handle user selecting a chat from the chat list
-  const handleSelectChat = async (adviceid) =>
+  const handleSelectChat = async (adviceid) => {
+    // check whether the adviceid selected is a client or a prospect. Then update the "isClient" state paramter
+    if (adviceid in myClientIdList) setIsClient(true);
+    else setIsClient(false);
+    // update URL in case of refresh
     setSearchParams({ id: adviceid });
-
+  };
   // handle chat list and object updates for new message.
   const handlePostChatMessage = (newmessage, timestamp, adviceid) => {
     // update object with new message
@@ -231,7 +235,6 @@ const AdvisorMessageManagement = () => {
           token={chat.token}
           selectedIndex={idParam}
           contactname={chat.name}
-          advisorslug=""
           lastmessage={body.length > 37 ? body.substring(0, 38) + "..." : body}
           handleSelectChat={handleSelectChat}
           newMessage={newMessage}
@@ -245,9 +248,7 @@ const AdvisorMessageManagement = () => {
     let searchlist = [];
     chatList.forEach((chat) => {
       const name = new String(chat.name.toLowerCase());
-      if (name.indexOf(value.toLowerCase()) !== -1) {
-        searchlist.push(chat);
-      }
+      if (name.indexOf(value.toLowerCase()) !== -1) searchlist.push(chat);
     });
     return searchlist;
   };
@@ -263,7 +264,7 @@ const AdvisorMessageManagement = () => {
         return createChatList(chatList);
       } else return createChatList(newlist);
     }
-  }, [chatSearch, chatList]);
+  }, [chatSearch, chatList, idParam]);
   // handle cancel of search for a chat in the List
   const handleCancelSearch = () => setChatSearch("");
 
@@ -300,7 +301,7 @@ const AdvisorMessageManagement = () => {
         handleCancel={() => setReportAbuse(false)}
         handleConfirm={handleConfirmRequest}
       />
-      {!!isLoading ? (
+      {isLoading ? (
         <Box className="horizontal-center">
           <PagePlaceholderText text="Loading..." />
         </Box>
@@ -371,7 +372,7 @@ const AdvisorMessageManagement = () => {
                           disableGutters
                           className={classes.actionButton}
                           onClick={() =>
-                            !!isClient
+                            isClient
                               ? navigate(
                                   `/adv/clients/${chatObject[idParam].adviceid}`
                                 )

@@ -57,7 +57,7 @@ export const logout = () => async (dispatch) => {
   dispatch({
     type: AUTH_DELETE,
   });
-  window.location.href = "/advisory/login";
+  window.location.href = "/login";
   // window.location.reload();
   // redirect to login
   useNavigate("/login");

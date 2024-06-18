@@ -39,6 +39,7 @@ import User1 from "assets/images/users/user-round.svg";
 import LogoutButton from "ui-component/buttons/LogoutButton";
 import AccountButton from "ui-component/buttons/AccountButton";
 import ConfirmPrimaryModal from "ui-component/modals/ConfirmPrimaryModal";
+import { pageGuideObject } from "utils/page-guidance";
 
 // style const
 const useStyles = makeStyles((theme) => ({
@@ -148,30 +149,42 @@ const ProfileSection = () => {
     if (anchorRef.current && anchorRef.current.contains(event.target)) return;
     setOpen(false);
   };
+  // useRef for Settings popper
+  const prevOpen = React.useRef(open);
+  React.useEffect(() => {
+    if (prevOpen.current === true && open === false) anchorRef.current.focus();
+    prevOpen.current = open;
+  }, [open]);
 
   // data and functions for About Page button
   const [showAbout, setShowAbout] = React.useState(false);
-
   const handleAboutClick = () => {
-    console.log(pathname);
     setShowAbout(!showAbout);
   };
-
-  const prevOpen = React.useRef(open);
+  function hasNumbers(t) {
+    var regex = /\d/g;
+    return regex.test(t);
+  }
   React.useEffect(() => {
-    if (prevOpen.current === true && open === false) {
-      anchorRef.current.focus();
-    }
-
-    prevOpen.current = open;
-  }, [open]);
+    if (location.pathname.indexOf("login") !== -1) setShowAbout(true);
+  }, [location.pathname]);
 
   return (
     <>
       <ConfirmPrimaryModal
         open={showAbout}
-        heading={"About this page"}
-        body={"Example text example text text"}
+        heading={
+          pageGuideObject[location.pathname.replace(/\d+/g, "profile")]
+            ? pageGuideObject[location.pathname.replace(/\d+/g, "profile")]
+                .title
+            : "About This Page"
+        }
+        body={
+          pageGuideObject[location.pathname.replace(/\d+/g, "profile")]
+            ? pageGuideObject[location.pathname.replace(/\d+/g, "profile")]
+                .description
+            : "No description available"
+        }
         action={"Got it"}
         handleConfirm={handleAboutClick}
       />
@@ -185,7 +198,7 @@ const ProfileSection = () => {
             color={theme.palette.background.paper}
           />
         }
-        label="About Page"
+        label="About This Page"
         variant="outlined"
         onClick={handleAboutClick}
       />

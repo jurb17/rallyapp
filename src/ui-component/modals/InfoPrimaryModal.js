@@ -33,11 +33,11 @@ const InfoPrimaryModal = (props, { ...others }) => {
       <Box className="modalStyle">
         <h3>{props.heading}</h3>
         {props.bodyList
-          ? props.bodyList.map((item) => {
+          ? props.bodyList.map((item, index) => {
               return (
-                <>
+                <Box key={index}>
                   <p>{item}</p>
-                </>
+                </Box>
               );
             })
           : ""}

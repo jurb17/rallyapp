@@ -55,7 +55,7 @@ const App = () => {
       console.log("Session update.");
     }
     // else: navigate to the route in url bar.
-    else console.log("User is authenticated and global state ins in sync.");
+    else console.log("User is authenticated and global state is in sync.");
   }, [localuser, sessionuser, auth.accesstoken]);
 
   const routing = useRoutes(routes(location.pathname));

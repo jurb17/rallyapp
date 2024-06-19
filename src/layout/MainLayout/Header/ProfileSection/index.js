@@ -29,10 +29,18 @@ import Transitions from "ui-component/extended/Transitions";
 import UpgradePlanCard from "./UpgradePlanCard";
 
 // assets
-import { IconLogout, IconSearch, IconSettings } from "@tabler/icons";
+import {
+  IconLogout,
+  IconSearch,
+  IconSettings,
+  IconFileInfo,
+} from "@tabler/icons";
 import User1 from "assets/images/users/user-round.svg";
 import LogoutButton from "ui-component/buttons/LogoutButton";
 import AccountButton from "ui-component/buttons/AccountButton";
+import ConfirmPrimaryModal from "ui-component/modals/ConfirmPrimaryModal";
+import { pageGuideObject } from "utils/page-guidance";
+import InfoPrimaryModal from "ui-component/modals/InfoPrimaryModal";
 
 // style const
 const useStyles = makeStyles((theme) => ({
@@ -75,8 +83,30 @@ const useStyles = makeStyles((theme) => ({
     paddingLeft: "8px",
     paddingRight: "8px",
   },
-  listItem: {
-    marginTop: "5px",
+  aboutChip: {
+    height: "48px",
+    alignItems: "center",
+    borderRadius: "27px",
+    transition: "all .2s ease-in-out",
+    border: `2px solid ${theme.palette.primary.main}`,
+    // backgroundColor: theme.palette.primary.light,
+    '&[aria-controls="menu-list-grow"], &:hover': {
+      background: `${theme.palette.primary.dark}!important`,
+      color: theme.palette.background.paper,
+      "& svg": {
+        color: theme.palette.background.paper,
+      },
+      "& .MuiChip-label": {
+        color: theme.palette.background.paper,
+      },
+    },
+    "& .MuiChip-label": {
+      color: theme.palette.background.paper,
+    },
+    fontSize: "1rem",
+    paddingLeft: "8px",
+    paddingRight: "8px",
+    marginRight: "8px",
   },
   cardContent: {
     padding: "16px !important",
@@ -86,17 +116,6 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: "16px",
     marginTop: "16px",
   },
-  searchControl: {
-    width: "100%",
-    paddingRight: "8px",
-    paddingLeft: "16px",
-    marginBottom: "16px",
-    marginTop: "16px",
-  },
-  startAdornment: {
-    fontSize: "1rem",
-    color: theme.palette.grey[500],
-  },
   flex: {
     display: "flex",
   },
@@ -104,16 +123,6 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: "2px",
     fontWeight: 400,
   },
-  ScrollHeight: {
-    height: "100%",
-    maxHeight: "calc(100vh - 250px)",
-    overflowX: "hidden",
-  },
-  badgeWarning: {
-    backgroundColor: theme.palette.warning.dark,
-    color: theme.palette.text.main,
-  },
-  iconSettings: {},
 }));
 
 // ===========================|| PROFILE MENU ||=========================== //
@@ -122,6 +131,7 @@ const ProfileSection = () => {
   const classes = useStyles();
   const theme = useTheme();
   const location = useLocation();
+  const { pathname } = location;
   const customization = useSelector((state) => state.customization);
 
   const [sdm, setSdm] = React.useState(true);
@@ -129,6 +139,7 @@ const ProfileSection = () => {
   const [notification, setNotification] = React.useState(false);
   const [selectedIndex] = React.useState(1);
 
+  // data and functions for Settings Button
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef(null);
 
@@ -136,24 +147,80 @@ const ProfileSection = () => {
     setOpen((prevOpen) => !prevOpen);
   };
   const handleClose = (event) => {
-    if (anchorRef.current && anchorRef.current.contains(event.target)) {
-      return;
-    }
-
+    if (anchorRef.current && anchorRef.current.contains(event.target)) return;
     setOpen(false);
   };
-
+  // useRef for Settings popper
   const prevOpen = React.useRef(open);
   React.useEffect(() => {
-    if (prevOpen.current === true && open === false) {
-      anchorRef.current.focus();
-    }
-
+    if (prevOpen.current === true && open === false) anchorRef.current.focus();
     prevOpen.current = open;
   }, [open]);
 
+  // data and functions for About Page button
+  const [showAbout, setShowAbout] = React.useState(false);
+  const handleAboutClick = () => {
+    setShowAbout(!showAbout);
+  };
+  function hasNumbers(t) {
+    var regex = /\d/g;
+    return regex.test(t);
+  }
+  React.useEffect(() => {
+    if (location.pathname.indexOf("login") !== -1) setShowAbout(true);
+  }, [location.pathname]);
+
   return (
     <>
+      {/* <ConfirmPrimaryModal
+        open={showAbout}
+        heading={
+          pageGuideObject[location.pathname.replace(/\d+/g, "profile")]
+            ? pageGuideObject[location.pathname.replace(/\d+/g, "profile")]
+                .title
+            : "About This Page"
+        }
+        body={
+          pageGuideObject[location.pathname.replace(/\d+/g, "profile")]
+            ? pageGuideObject[location.pathname.replace(/\d+/g, "profile")]
+                .description
+            : "No description available"
+        }
+        action={"Got it"}
+        handleConfirm={handleAboutClick}
+      /> */}
+      <InfoPrimaryModal
+        open={showAbout}
+        heading={
+          pageGuideObject[location.pathname.replace(/\d+/g, "profile")]
+            ? pageGuideObject[location.pathname.replace(/\d+/g, "profile")]
+                .title
+            : "About This Page"
+        }
+        bodyList={
+          pageGuideObject[location.pathname.replace(/\d+/g, "profile")]
+            ? pageGuideObject[location.pathname.replace(/\d+/g, "profile")]
+                .description
+            : ["A page description is not available."]
+        }
+        action={"Got it"}
+        handleConfirm={handleAboutClick}
+      />
+
+      <Chip
+        className={classes.aboutChip}
+        icon={
+          <IconFileInfo
+            stroke={1.5}
+            size="1.5em"
+            color={theme.palette.background.paper}
+          />
+        }
+        label="About This Page"
+        variant="outlined"
+        onClick={handleAboutClick}
+      />
+
       {!location.pathname.includes("/login") &&
         !location.pathname.includes("/signup") &&
         !location.pathname.includes("/register") && (
@@ -213,99 +280,6 @@ const ProfileSection = () => {
                   shadow={theme.shadows[16]}
                 >
                   <CardContent className={classes.cardContent}>
-                    {/* <Grid container direction="column" spacing={0}>
-                      <Grid item className={classes.flex}>
-                        <Typography variant="h4">Good Morning,</Typography>
-                        <Typography
-                          component="span"
-                          variant="h4"
-                          className={classes.name}
-                        >
-                          John
-                        </Typography>
-                      </Grid>
-                      <Grid item>
-                        <Typography variant="subtitle2">
-                          Project Admin
-                        </Typography>
-                      </Grid>
-                    </Grid>
-                    <OutlinedInput
-                      className={classes.searchControl}
-                      id="input-search-profile"
-                      value={value}
-                      onChange={(e) => setValue(e.target.value)}
-                      placeholder="Search profile options"
-                      startAdornment={
-                        <InputAdornment position="start">
-                          <IconSearch
-                            stroke={1.5}
-                            size="1.3rem"
-                            className={classes.startAdornment}
-                          />
-                        </InputAdornment>
-                      }
-                      aria-describedby="search-helper-text"
-                      inputProps={{
-                        "aria-label": "weight",
-                      }}
-                    />
-                    <Divider /> */}
-                    {/* <Card className={classes.card}>
-                        <CardContent>
-                          <Grid container spacing={3} direction="column">
-                            <Grid item>
-                              <Grid
-                                item
-                                container
-                                alignItems="center"
-                                justifyContent="space-between"
-                              >
-                                <Grid item>
-                                  <Typography variant="subtitle1">
-                                    Start DND Mode
-                                  </Typography>
-                                </Grid>
-                                <Grid item>
-                                  <Switch
-                                    color="primary"
-                                    checked={sdm}
-                                    onChange={(e) => setSdm(e.target.checked)}
-                                    name="sdm"
-                                    size="small"
-                                  />
-                                </Grid>
-                              </Grid>
-                            </Grid>
-                            <Grid item>
-                              <Grid
-                                item
-                                container
-                                alignItems="center"
-                                justifyContent="space-between"
-                              >
-                                <Grid item>
-                                  <Typography variant="subtitle1">
-                                    Allow Notifications
-                                  </Typography>
-                                </Grid>
-                                <Grid item>
-                                  <Switch
-                                    checked={notification}
-                                    onChange={(e) =>
-                                      setNotification(e.target.checked)
-                                    }
-                                    name="sdm"
-                                    size="small"
-                                  />
-                                </Grid>
-                              </Grid>
-                            </Grid>
-                          </Grid>
-                        </CardContent>
-                      </Card>
-                      <Divider /> */}
-                    {/* <PerfectScrollbar className={classes.ScrollHeight}> */}
                     {/* NOTE TO FIND THIS LATER: Upgrade your plan; Go Premium; Membership; Account; Subscription */}
                     {/* <UpgradePlanCard /> */}
                     {/* <Divider /> */}

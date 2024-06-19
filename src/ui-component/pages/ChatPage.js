@@ -49,12 +49,6 @@ const ChatPage = (props) => {
   );
   let parentChatMessages = [...props.currentMessages];
 
-  console.log(
-    "BEGINIING OF CHATPAGE - PARENT MESSAGES",
-    parentChatMessages,
-    props.clientid
-  );
-
   // mode states
   const [scroll, setScroll] = React.useState(true);
   const [notSetup, setNotSetup] = React.useState(false);

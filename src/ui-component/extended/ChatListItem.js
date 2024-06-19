@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
     "&.Mui-selected": {
       // style of text in the side menu on select.
       color: theme.menuSelected,
-      backgroundColor: theme.palette.primary.light,
+      backgroundColor: theme.palette.grey[200],
       "&:hover": {
         backgroundColor: theme.palette.primary.light,
         color: theme.menuSelected,
@@ -59,7 +59,7 @@ const ChatListItem = (props) => {
 
   // handle the selection of a chat from the list
   const handleSelectChat = () => {
-    props.handleSelectChat(props.adviceid, props.token, props.advisorslug);
+    props.handleSelectChat(props.adviceid);
   };
 
   return (
@@ -83,7 +83,7 @@ const ChatListItem = (props) => {
         <ListItemButton
           className={classes.chatItem}
           onClick={handleSelectChat}
-          selected={props.adviceid === props.selectedIndex}
+          selected={props.adviceid == props.selectedIndex}
         >
           <ListItemAvatar>
             <Avatar

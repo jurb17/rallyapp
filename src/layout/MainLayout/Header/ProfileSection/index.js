@@ -40,6 +40,7 @@ import LogoutButton from "ui-component/buttons/LogoutButton";
 import AccountButton from "ui-component/buttons/AccountButton";
 import ConfirmPrimaryModal from "ui-component/modals/ConfirmPrimaryModal";
 import { pageGuideObject } from "utils/page-guidance";
+import InfoPrimaryModal from "ui-component/modals/InfoPrimaryModal";
 
 // style const
 const useStyles = makeStyles((theme) => ({
@@ -171,7 +172,7 @@ const ProfileSection = () => {
 
   return (
     <>
-      <ConfirmPrimaryModal
+      {/* <ConfirmPrimaryModal
         open={showAbout}
         heading={
           pageGuideObject[location.pathname.replace(/\d+/g, "profile")]
@@ -184,6 +185,23 @@ const ProfileSection = () => {
             ? pageGuideObject[location.pathname.replace(/\d+/g, "profile")]
                 .description
             : "No description available"
+        }
+        action={"Got it"}
+        handleConfirm={handleAboutClick}
+      /> */}
+      <InfoPrimaryModal
+        open={showAbout}
+        heading={
+          pageGuideObject[location.pathname.replace(/\d+/g, "profile")]
+            ? pageGuideObject[location.pathname.replace(/\d+/g, "profile")]
+                .title
+            : "About This Page"
+        }
+        bodyList={
+          pageGuideObject[location.pathname.replace(/\d+/g, "profile")]
+            ? pageGuideObject[location.pathname.replace(/\d+/g, "profile")]
+                .description
+            : ["A page description is not available."]
         }
         action={"Got it"}
         handleConfirm={handleAboutClick}

@@ -8,12 +8,13 @@ export const pageGuideObject = {
       "Thank you!",
     ],
   },
+  // ADVISOR PAGES
   "/adv": { title: "", description: "" },
   "/adv/messages": {
     title: "The Messages Page",
     description: [
       "The messages feature was created to provide a space for conversations between advisors and their clients.",
-      "Previously, message data was pulled from a database every 10-15 seconds on a continuous loop in the background. If the database happened to have new messages for the user, a notification would appear for that user and direct them towards the messages page. This feature provided the experience of instant messaging on the Rally app.",
+      "Previously, message data was pulled from a database every 10-15 seconds on a continuous loop in the background. If the database happened to have new messages for the user, a notification would appear for that user and direct them towards the messages page. flogoutThis feature provided the experience of instant messaging on the Rally app.",
       "There is no database linked to this demo version, so the app is not looking for new messages. But you can still select a chat from the Chat List and send messages to your imaginary clients!",
     ],
   },
@@ -53,6 +54,23 @@ export const pageGuideObject = {
     description: [
       "The prospect profile page provides an overview of the prospect.",
       "Details are limited and custom fields cannot be added until the prospect becomes a client. There are quick links at the top right of the page to manage invoices and communications with this prospect.",
+    ],
+  },
+  // CLIENT PAGES
+  "/client/messages": {
+    title: "The Messages Page",
+    description: [
+      "The messages feature was created to provide a space for conversations between clients and their advisors.",
+      "Previously, message data was pulled from a database every 10-15 seconds on a continuous loop in the background. If the database happened to have new messages for the user, a notification would appear for that user and direct them towards the messages page. This feature provided the experience of instant messaging on the Rally app.",
+      "There is no database linked to this demo version, so the app is not looking for new messages. But you can still select a chat from the Chat List to send messages to your imaginary advisors!",
+    ],
+  },
+  "/client/messages/": {
+    title: "The Messages Page",
+    description: [
+      "The messages feature was created to provide a space for conversations between clients and their advisors.",
+      "Previously, message data was pulled from a database every 10-15 seconds on a continuous loop in the background. If the database happened to have new messages for the user, a notification would appear for that user and direct them towards the messages page. This feature provided the experience of instant messaging on the Rally app.",
+      "There is no database linked to this demo version, so the app is not looking for new messages. But you can still select a chat from the Chat List to send messages to your imaginary advisors!",
     ],
   },
 };

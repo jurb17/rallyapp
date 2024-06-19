@@ -57,10 +57,10 @@ export const logout = () => async (dispatch) => {
   dispatch({
     type: AUTH_DELETE,
   });
-  window.location.href = "/login";
+  window.location.href = "/";
   // window.location.reload();
   // redirect to login
-  useNavigate("/login");
+  useNavigate("/");
 };
 
 // onboarding function for new advisor users.

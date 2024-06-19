@@ -343,4 +343,35 @@ export const myProspectList = [
 
 export const myProspectIdList = [5, 6];
 
+export const myArticleList = [
+  {
+    id: 1,
+    title: "TEst Article",
+    description: "something or other in the body.",
+    category: "Okay",
+    subcategory: "Not Okay",
+    deltas: {
+      ops: [
+        { insert: "Gandalf", attributes: { bold: true } },
+        { insert: " the " },
+        { insert: "Grey", attributes: { color: "#cccccc" } },
+      ],
+    },
+  },
+  {
+    id: 2,
+    title: "TEst Article 22222",
+    description: "boom chickaboom or something other in the body. ",
+    category: "Better",
+    subcategory: "But not really",
+    deltas: {
+      ops: [
+        { insert: "Gandalf", attributes: { bold: true } },
+        { insert: " the " },
+        { insert: "Grey 2222", attributes: { color: "#cccccc" } },
+      ],
+    },
+  },
+];
+
 export const emptyList = [];

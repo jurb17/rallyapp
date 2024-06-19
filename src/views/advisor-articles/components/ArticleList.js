@@ -42,9 +42,7 @@ const ArticleList = (props) => {
         />
       );
     });
-  } else {
-    children.push(<p></p>);
-  }
+  } else children.push(<p></p>);
 
   const breakpointColumnsObj = {
     default: 3,

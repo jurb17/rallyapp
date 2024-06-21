@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
@@ -61,20 +61,18 @@ const NewArticle = () => {
     if (
       newArticle.title.length > 0 &&
       quillEditor.current.getEditor().getText().trim().length > 0
-    ) {
+    )
       setCanContinue(true);
-    } else {
-      setCanContinue(false);
-    }
+    else setCanContinue(false);
   }, [newArticle.title, newArticle.deltas.ops]);
 
   // function to handle missing info and navigation
   const handlePreview = () => {
-    if (newArticle.title.length === 0) {
+    if (newArticle.title.length === 0)
       dispatch(showSnackbar("Article is missing a title.", true, "warning"));
-    } else if (quillEditor.current.getEditor().getText().trim().length === 0) {
+    else if (quillEditor.current.getEditor().getText().trim().length === 0)
       dispatch(showSnackbar("Article is missing content.", true, "warning"));
-    } else {
+    else {
       navigate("/adv/articles/preview", {
         state: {
           draft: {

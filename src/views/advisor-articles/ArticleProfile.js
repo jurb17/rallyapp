@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
@@ -8,7 +8,6 @@ import { Box } from "@material-ui/core";
 import { IconPencil, IconDeviceFloppy, IconEyeOff } from "@tabler/icons";
 
 // local imports
-import advisoryService from "services/advisory.service";
 import QuillContainer from "ui-component/forms/QuillContainer";
 import SubsectionWrapper from "ui-component/wrappers/SubsectionWrapper";
 import GenericPage from "ui-component/pages/GenericPage";
@@ -19,6 +18,10 @@ import InputBaseForm from "ui-component/forms/InputBaseForm";
 import CatsHeader from "ui-component/extended/CatsHeader";
 import ArticleDescription from "./forms/ArticleDescription";
 import QuillPaper from "ui-component/templates/QuillPaper";
+
+// data and functions
+import { myArticleList } from "utils/advisor-dummy-data";
+import { demoMapCategoryDisplayNames } from "utils/DataMapFunctions";
 
 // style constant
 const useStyles = makeStyles((theme) => ({}));
@@ -35,14 +38,10 @@ const ArticleProfile = () => {
   const quillEditor = useRef(null);
 
   const { id } = useParams();
-
-  // request states
-  const [articleid, setArticleid] = useState(id);
+  const idParam = id ? id : null;
 
   // data states
   const [articlePayload, setArticlePayload] = useState({});
-
-  // temp data states
   const [unsavedContent, setUnsavedContent] = useState({});
 
   // mode states
@@ -51,165 +50,93 @@ const ArticleProfile = () => {
   const [deleteMode, setDeleteMode] = useState(false);
   const [hasNewContent, setHasNewContent] = useState(false);
 
-  const getArticleData = async () => {
-    await advisoryService
-      .getArticle({
-        postid: articleid,
-      })
-      .then((response) => {
-        if (!!response.data.payload.success) {
-          const parsedDelta = JSON.parse(response.data.payload.post.deltas);
-          setUnsavedContent(parsedDelta);
-          setArticlePayload({
-            ...response.data.payload,
-            post: {
-              ...response.data.payload.post,
-              deltas: parsedDelta,
-            },
-          });
-        } else {
-          dispatch(showSnackbar(response.data.details.text, true, "error"));
-          navigate(-1);
-          // or show error-related page
-        }
-        setIsLoading(false);
-        return response;
-      })
-      .catch((error) => {
-        dispatch(
-          showSnackbar(
-            "There seems to be an issue. Please contact support if this issue persists.",
-            true,
-            "error"
-          )
-        );
-        console.log("error", error);
-        navigate(-1);
-        setIsLoading(false);
-        // or show error-related page
+  const getArticleData = async (articlelist, id, stateObj) => {
+    // if the idParam is less than the number 100, then use the id to look up article info
+    if (id < 100) {
+      let article = {};
+      articlelist.forEach((item) => {
+        if ((item[id] = id)) article = item;
       });
+      // const parsedDelta = JSON.parse(article.deltas);
+      setUnsavedContent(article.deltas);
+      setArticlePayload({
+        ...article,
+        deltas: article.deltas,
+      });
+    } // Otherwise, use the state data to fill article profile.
+    else {
+      setUnsavedContent(stateObj.deltas);
+      setArticlePayload({
+        ...stateObj,
+        deltas: stateObj.deltas,
+      });
+    }
+    setIsLoading(false);
+    return true;
   };
 
   // get current data from the server
-  useMemo(async () => {
-    if (!!articleid) {
-      getArticleData();
-    } else {
-      dispatch(showSnackbar("No article ID found", true, "error"));
-      setIsLoading(false);
-      if (!!location.state.backlink) {
-        navigate(location.state.backlink);
-      } else {
-        navigate(-1);
-      }
+  useEffect(() => {
+    // if idParam and clientList exist, get current client data
+    if (myArticleList && myArticleList.length) {
+      if (idParam) getArticleData(myArticleList, idParam, location.state);
+      else navigate(-1);
+    }
+    // otherwise, go back
+    else {
+      console.log("No article list found.");
+      navigate(-1);
     }
   }, []);
 
   useEffect(() => {
-    if (!!editMode) {
-      dispatch(showEditBanner(true, "Editing article..."));
-    } else {
-      dispatch(showEditBanner(false, ""));
-    }
+    if (!!editMode) dispatch(showEditBanner(true, "Editing article..."));
+    else dispatch(showEditBanner(false, ""));
   }, [editMode]);
 
   // handle edit cancel
   const handleEditCancel = () => {
     setEditMode(false);
-    setUnsavedContent(articlePayload.post.deltas);
+    setUnsavedContent(articlePayload.deltas);
     dispatch(showSnackbar("No changes were made.", true, "info"));
     setHasNewContent(false);
   };
+
   // when the user is done adding tags and is looking to publish the article
   const handleEditSave = async () => {
     // compare new deltas with old deltas
-    if (!hasNewContent) {
-      // if they are the same, do nothing
+    // if they are the same, do nothing
+    if (!hasNewContent)
       dispatch(showSnackbar("No changes to save.", true, "warning"));
-    } else {
-      // there is no form to validate here.
-      await advisoryService
-        .putArticle({
-          postid: articleid,
-          deltas: unsavedContent.ops,
-          category: articlePayload.post.category,
-          subcategory: articlePayload.post.subcategory,
-          title: articlePayload.post.title,
-          description: articlePayload.post.description,
-        })
-        .then((response) => {
-          if (!!response.data.payload.success) {
-            // set the payload content to the new content
-            setArticlePayload((prevState) => ({
-              ...prevState,
-              post: {
-                ...prevState.post,
-                deltas: unsavedContent.ops,
-              },
-            }));
-            setEditMode(false);
-            setHasNewContent(false);
-            dispatch(
-              showSnackbar("Article updated successfully", true, "success")
-            );
-
-            return response;
-          } else {
-            dispatch(showSnackbar(response.data.details.text, true, "error"));
-          }
-        })
-        .catch((error) => {
-          dispatch(
-            showSnackbar(
-              "There seems to be an issue. Please contact support if this issue persists.",
-              true,
-              "error"
-            )
-          );
-          console.log("uncaught error", error);
-          return error;
-        });
+    // if there are differences, set the payload content to the new content
+    else {
+      setArticlePayload((prevState) => ({
+        ...prevState,
+        deltas: unsavedContent.ops,
+      }));
+      setEditMode(false);
+      setHasNewContent(false);
+      dispatch(showSnackbar("Article updated successfully", true, "success"));
+      return response;
     }
   };
+
   // handle delete confirm
   const handleDeleteConfirm = async () => {
     // there is no form to validate here.
-    await advisoryService
-      .deleteArticle({
-        postid: articleid,
-      })
-      .then((response) => {
-        if (!!response.data.payload.success) {
-          dispatch(
-            showSnackbar("Article delisted successfully.", true, "success")
-          );
-          navigate("/adv/articles");
-          setDeleteMode(false);
-        } else {
-          dispatch(showSnackbar(response.data.details.text, true, "error"));
-        }
-      })
-      .catch((error) => {
-        dispatch(
-          showSnackbar(
-            "There seems to be an issue. Please contact support if this issue persists.",
-            true,
-            "error"
-          )
-        );
-        console.log("uncaught error", error);
-      });
+    dispatch(showSnackbar("Article delisted successfully.", true, "success"));
+    navigate("/adv/articles");
+    setDeleteMode(false);
   };
+
   // handle changes
   const handleTitleChange = (value) => {
     setArticlePayload((prevState) => ({
       ...prevState,
-      post: {
-        ...prevState.post,
-        title: value,
-      },
+      title: value,
     }));
   };
+
   // handle content changes
   const handleContentChange = (content) => {
     setUnsavedContent(content);
@@ -237,7 +164,7 @@ const ArticleProfile = () => {
             pageHeader="Article Overview"
             backlink="/adv/articles"
             buttonlist={
-              !!articlePayload.post.deletedAt
+              !!articlePayload.deletedAt
                 ? [
                     {
                       name: "DELISTED",
@@ -289,25 +216,33 @@ const ArticleProfile = () => {
             >
               <Box width={1} sx={{ mb: 3 }}>
                 <CatsHeader
-                  category={articlePayload.post.category}
-                  subcategory={articlePayload.post.subcategory}
+                  category={
+                    demoMapCategoryDisplayNames(
+                      articlePayload.category,
+                      articlePayload.subcategory
+                    ).categoryDisplayName
+                  }
+                  subcategory={
+                    demoMapCategoryDisplayNames(
+                      articlePayload.category,
+                      articlePayload.subcategory
+                    ).subcategoryDisplayName
+                  }
                 />
               </Box>
               <Box width={1} sx={{ mt: 2 }}>
-                <ArticleDescription
-                  description={articlePayload.post.description}
-                />
+                <ArticleDescription description={articlePayload.description} />
               </Box>
               <InputBaseForm
-                key={articlePayload.post.title}
-                formObj={{ Title: articlePayload.post.title }}
+                key={articlePayload.title}
+                formObj={{ Title: articlePayload.title }}
                 mb={1.5}
                 mt={-2}
               />
               {!editMode ? ( // if NOT in edit mode
                 <QuillPaper
-                  title={articlePayload.post.title}
-                  content={articlePayload.post.deltas}
+                  title={articlePayload.title}
+                  content={articlePayload.deltas}
                   forwardedQuillEditor={quillEditor}
                 />
               ) : (

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
@@ -7,7 +7,6 @@ import { makeStyles, useTheme } from "@material-ui/styles";
 import { Box, Grid } from "@material-ui/core";
 
 // local imports
-import advisoryService from "services/advisory.service";
 import ArticleDescriptionForm from "./forms/ArticleDescriptionForm";
 import FormInputErrorModal from "ui-component/modals/FormInputErrorModal";
 import SubsectionWrapper from "ui-component/wrappers/SubsectionWrapper";
@@ -17,6 +16,9 @@ import { showSnackbar, showEditBanner } from "actions/main";
 import PagePlaceholderText from "ui-component/extended/PagePlaceholderText";
 import CustomButtonGroup from "ui-component/buttons/CustomButtonGroup";
 import QuillPaper from "ui-component/templates/QuillPaper";
+
+// data and function imports
+import { articleCategories, articleSubcategories } from "utils/categories";
 
 // style constant
 const useStyles = makeStyles((theme) => ({
@@ -45,7 +47,7 @@ const PreviewArticle = () => {
 
   // form data states
   const [categoryMap, setCategoryMap] = useState({});
-  const [categoryOptions, setCategoryOptions] = useState([]);
+  const [categoryOptions, setCategoryOptions] = useState({});
   const [subcategoryOptions, setSubcategoryOptions] = useState([]);
 
   // mode states
@@ -54,65 +56,38 @@ const PreviewArticle = () => {
   const [canContinue, setCanContinue] = useState(false);
 
   // get the cats list and subcatMap object together
-  const getAllCats = async () => {
-    return new Promise(async (resolve, reject) => {
-      await advisoryService
-        .getConfigs({})
-        .then((response) => {
-          if (!!response.data.payload.success) {
-            const catmap = response.data.payload["CATEGORY_MAP"];
-            setCategoryOptions(catmap.categories);
-            setCategoryMap(catmap.subcategories);
-            resolve(catmap.subcategories);
-          } else {
-            reject(response.data.details.text);
-          }
-        })
-        .catch((error) => {
-          reject(error.message);
-        });
-    });
+  const getAllCats = (categories, subcategories, draftcat) => {
+    setCategoryOptions(categories);
+    setCategoryMap(subcategories);
+    if (draftcat) setSubcategoryOptions(catmap[draftcat]);
+    return true;
   };
 
-  useEffect(async () => {
+  useEffect(() => {
     // if there is no location state data, route the user back to NewArticle
-    if (!location.state.draft) {
-      navigate("/advisor/articles/new");
-    } else {
+    if (!location.state.draft) navigate("/advisor/articles/new");
+    else {
       dispatch(showEditBanner(true, "Creating new article..."));
       // get the form data
-      await getAllCats()
-        .then((catmap) => {
-          setNewArticle({ ...location.state.draft });
-          if (!!location.state.draft.category) {
-            setSubcategoryOptions(catmap[location.state.draft.category]);
-          }
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          dispatch(
-            showSnackbar(
-              "There seems to be an issue. Please contact support if this issue persists.",
-              true,
-              "error"
-            )
-          );
-          console.log("uncaught error", error);
-          setIsLoading(false);
-        });
+      if (location.state.draft.category)
+        getAllCats(
+          articleCategories,
+          articleSubcategories,
+          location.state.draft.category
+        );
+      else getAllCats(articleCategories, articleSubcategories, null);
+
+      // set new article data for this component
+      setNewArticle({ ...location.state.draft });
+      setIsLoading(false);
     }
   }, []);
+
   // handle canContinue mode
   useEffect(() => {
-    if (
-      !!newArticle.category &&
-      !!newArticle.subcategory &&
-      !!newArticle.description
-    ) {
+    if (newArticle.category && newArticle.subcategory && newArticle.description)
       setCanContinue(true);
-    } else {
-      setCanContinue(false);
-    }
+    else setCanContinue(false);
   }, [newArticle.category, newArticle.subcategory, newArticle.description]);
 
   // #region - The states and functions for tags
@@ -122,52 +97,62 @@ const PreviewArticle = () => {
       state: { draft: { ...newArticle } },
     });
   };
+
+  // handle description change
+  const handleDescriptionInputChange = (value) => {
+    setNewArticle((prevState) => ({ ...prevState, description: value }));
+  };
+
+  // HANDLING CATEGORIES FORM DATA =============================================
+  // handle category selection
+  const handleCategoryChange = (value) => {
+    // convert value to key string
+    let catkey = value.toLowerCase().replace(" ", "-");
+    // assign correct subcategory options
+    setSubcategoryOptions(categoryMap[catkey]);
+    // update article datas
+    setNewArticle((prevState) => ({
+      ...prevState,
+      displayCategory: value,
+      category: catkey,
+      displaySubcategory: "",
+      subcategory: "",
+    }));
+  };
+  // handle subcategory selection
+  const handleSubcategoryChange = (value) => {
+    subcategoryOptions.forEach((pair) => {
+      // find the matching subcategory id
+      if (pair[1] === value) {
+        const optionId = pair[0];
+        setNewArticle((prevState) => ({
+          ...prevState,
+          displaySubcategory: value,
+          subcategory: optionId,
+        }));
+      }
+    });
+  };
+
   // when the user publishes the article
   const handlePublish = async () => {
     if (
-      !!newArticle.category &&
-      !!newArticle.subcategory &&
-      !!newArticle.description
+      newArticle.category &&
+      newArticle.subcategory &&
+      newArticle.description
     ) {
-      await advisoryService
-        .postArticle({
+      // navigate to the article page
+      navigate(`/adv/articles/${100}`, {
+        state: {
           title: newArticle.title,
           description: newArticle.description,
           category: newArticle.category,
           subcategory: newArticle.subcategory,
           deltas: newArticle.deltas.ops,
           tags: [],
-        })
-        .then((response) => {
-          if (!!response.data.payload.success) {
-            let postid = response.data.payload.post.id;
-            // navigate to the article page
-            navigate(`/adv/articles/${postid}`);
-            dispatch(
-              showSnackbar("Article created successfully", true, "success")
-            );
-          } else {
-            dispatch(
-              showSnackbar(
-                "There seems to be an issue. Please contact support if this issue persists.",
-                true,
-                "error"
-              )
-            );
-            console.log("uncaught error", error);
-          }
-        })
-        .catch((error) => {
-          // $$$ change all "error.message" references to user-friendly text
-          dispatch(
-            showSnackbar(
-              "There seems to be an issue. Please contact support if this issue persists.",
-              true,
-              "error"
-            )
-          );
-          console.log("uncaught error", error);
-        });
+        },
+      });
+      dispatch(showSnackbar("Article created successfully", true, "success"));
     } else {
       dispatch(
         showSnackbar(
@@ -177,43 +162,6 @@ const PreviewArticle = () => {
         )
       );
     }
-  };
-  // handle description change
-  const handleDescriptionInputChange = (value) => {
-    setNewArticle((prevState) => ({ ...prevState, description: value }));
-  };
-
-  // HANDLING CATEGORIES FORM DATA =============================================
-  // handle category selection
-  const handleCategoryChange = (value) => {
-    categoryOptions.forEach((pair) => {
-      // find the matching category id
-      if (pair[0] === value) {
-        const optionId = pair[1];
-        setSubcategoryOptions(categoryMap[optionId]); // should be a list of list pairs
-        setNewArticle((prevState) => ({
-          ...prevState,
-          displayCategory: value,
-          category: optionId,
-          displaySubcategory: "",
-          subcategory: "",
-        }));
-      }
-    });
-  };
-  // handle subcategory selection
-  const handleSubcategoryChange = (value) => {
-    subcategoryOptions.forEach((pair) => {
-      // find the matching subcategory id
-      if (pair[0] === value) {
-        const optionId = pair[1];
-        setNewArticle((prevState) => ({
-          ...prevState,
-          displaySubcategory: value,
-          subcategory: optionId,
-        }));
-      }
-    });
   };
 
   return (
@@ -228,7 +176,7 @@ const PreviewArticle = () => {
         handleBack={handleBack}
         buttonlist={[
           {
-            name: "Back To Writing Content",
+            name: "Update Article Content",
             color: "primary",
             variant: "text",
             onClick: handleBack,
@@ -324,40 +272,3 @@ const PreviewArticle = () => {
 };
 
 export default PreviewArticle;
-
-// FOR THE TAGGING SYSTEM
-/* <Box sx={{ display: "flex", pb: 3, marginTop: "-12px", flexWrap: "wrap" }}>
-  {tags.map((tag) => (
-    <Stack direction="row">
-      <Chip
-        key={tag}
-        label={tag}
-        className={classes.chip}
-        variant="outlined"
-        onDelete={handleDelete(tag)}
-      />
-    </Stack>
-  ))}
-</Box>; */
-
-// // handle deleting a tag from the list of tags
-// const handleDelete = (tag) => () => {
-//   if (tags.length === 1) {
-//     setTags([]);
-//   } else if (tags.length > 1) {
-//     setTags((tags) => {
-//       return tags.filter((t) => t !== tag);
-//     });
-//   }
-// };
-// // #endregion
-
-// const [tags, setTags] = useState([]);
-// // adding a tag
-// const handleAddTag = (tag) => {
-//   if (tags.length < 5) {
-//     setTags([...tags, tag]);
-//   } else {
-//     alert("You can only add 5 tags");
-//   }
-// };

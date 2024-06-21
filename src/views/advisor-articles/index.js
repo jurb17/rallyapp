@@ -8,11 +8,13 @@ import { IconWriting } from "@tabler/icons";
 
 // project imports
 import ArticleList from "./components/ArticleList";
-import advisoryService from "services/advisory.service";
 import PagePlaceholderText from "ui-component/extended/PagePlaceholderText";
 import NoteBanner from "ui-component/banners/NoteBanner";
 import GenericPage from "ui-component/pages/GenericPage";
 import { showSnackbar } from "actions/main";
+
+// data and functions
+import { myArticleList } from "utils/advisor-dummy-data";
 
 // ==========================================
 // NO PROPS, LOCATION.STATE ONLY
@@ -27,42 +29,20 @@ const ManageArticles = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   // function with get request to get list of articles
-  const getArticlesData = async () => {
-    await advisoryService
-      .getArticleList({})
-      .then((response) => {
-        if (!!response.data.payload.success) {
-          if (!!response.data.payload.posts) {
-            let articlelist = response.data.payload.posts;
-            for (const article of articlelist) {
-              if (!!article.id) {
-                article.selectionroute = `/adv/articles/${article.id}`;
-              }
-            }
-            setArticles([...articlelist]);
-          } else {
-            dispatch(showSnackbar("No articles found.", true, "warning"));
-          }
-        } else {
-          dispatch(showSnackbar(response.data.details.text, true, "error"));
-        }
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        dispatch(
-          showSnackbar(
-            "There seems to be an issue. Please contact support if this issue persists.",
-            true,
-            "error"
-          )
-        );
-        console.log("uncaught error", error);
-        setIsLoading(false);
-      });
+  const getArticlesData = async (articles) => {
+    for (const article of articles) {
+      if (article.id) article.selectionroute = `/adv/articles/${article.id}`;
+    }
+    setArticles([...articles]);
+    setIsLoading(false);
   };
 
   useEffect(() => {
-    getArticlesData();
+    if (myArticleList.length) getArticlesData(myArticleList);
+    else {
+      setIsLoading(false);
+      dispatch(showSnackbar("No articles found.", true, "warning"));
+    }
   }, []);
 
   // display the ArticleList component.

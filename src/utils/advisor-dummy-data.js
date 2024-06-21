@@ -343,4 +343,274 @@ export const myProspectList = [
 
 export const myProspectIdList = [5, 6];
 
+export const myArticleList = [
+  {
+    id: 1,
+    title: "Navigating the Cryptocurrency Landscape",
+    description:
+      "Cryptocurrencies have emerged as a significant force in the financial world, captivating investors with the promise of high returns and decentralized finance. ",
+    category: "investing",
+    subcategory: "cryptocurrency",
+    deltas: {
+      ops: [
+        {
+          insert:
+            "Cryptocurrencies have emerged as a significant force in the financial world, captivating investors with the promise of high returns and decentralized finance. However, as a financial advisor, it is crucial to approach this volatile market with a balanced perspective, emphasizing both the potential rewards and inherent risks.\n",
+        },
+        { insert: "\n" },
+        {
+          insert: "Understanding Cryptocurrency\n",
+          attributes: { bold: true, header: 2 },
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Cryptocurrencies are digital or virtual currencies that use cryptography for security and operate on decentralized networks based on blockchain technology. Bitcoin, Ethereum, and other altcoins have gained popularity, drawing attention from individual and institutional investors alike.\n",
+        },
+        { insert: "\n" },
+        {
+          insert: "Potential Benefits\n",
+          attributes: { bold: true, header: 2 },
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Diversification: Cryptocurrencies can offer diversification benefits, potentially reducing portfolio risk due to their low correlation with traditional asset classes like stocks and bonds.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "High Returns: Early adopters of successful cryptocurrencies have seen substantial returns, making them an attractive option for those willing to accept higher risk.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Innovation: The underlying blockchain technology promises innovation in various sectors, from finance to supply chain management, presenting long-term growth opportunities.\n",
+        },
+        { insert: "\n" },
+        { insert: "Key Risks\n", attributes: { bold: true, header: 2 } },
+        { insert: "\n" },
+        {
+          insert:
+            "Volatility: Cryptocurrencies are known for their extreme price volatility, which can lead to significant financial losses.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Regulatory Uncertainty: The regulatory environment for cryptocurrencies is still evolving, with potential changes posing risks to investors.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Security Concerns: Cybersecurity threats, such as hacking and fraud, remain significant concerns in the cryptocurrency market.\n",
+        },
+        { insert: "\n" },
+        { insert: "Advising Clients\n", attributes: { bold: true, header: 2 } },
+        { insert: "\n" },
+        {
+          insert:
+            "When advising clients on cryptocurrency investments, it is essential to:\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Assess Risk Tolerance: Ensure that clients understand the high-risk nature of cryptocurrency investments and only allocate a small portion of their portfolio to this asset class.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Stay Informed: Keep abreast of the latest developments in cryptocurrency regulation, technology, and market trends to provide informed advice.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Emphasize Due Diligence: Encourage clients to thoroughly research and understand the specific cryptocurrencies they are considering, including their use cases, development teams, and market positioning.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Focus on Long-Term Goals: Guide clients to view cryptocurrency investments within the context of their overall financial goals and long-term investment strategies, rather than seeking quick profits.\n",
+        },
+        { insert: "\n" },
+        { insert: "Conclusion\n", attributes: { bold: true, header: 2 } },
+        { insert: "\n" },
+        {
+          insert:
+            "Cryptocurrencies present both exciting opportunities and significant risks. As a financial advisor, it is vital to provide balanced, informed guidance, helping clients navigate this complex and rapidly evolving market. By emphasizing a prudent approach and aligning investments with clients' financial goals, advisors can help investors harness the potential of cryptocurrencies while managing the associated risks.\n",
+        },
+      ],
+    },
+  },
+  {
+    id: 2,
+    title: "The Truth About Student Loans",
+    description:
+      "Student loans are a common way for students to finance their education. They can come from federal or private sources and typically need to be repaid with interest after graduation.",
+    category: "personal-finance",
+    subcategory: "student-loans",
+    deltas: {
+      ops: [
+        {
+          insert: "Understanding Student Loans\n",
+          attributes: { bold: true, header: 2 },
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Student loans are a common way for students to finance their education. They can come from federal or private sources and typically need to be repaid with interest after graduation.\n",
+        },
+        { insert: "\n" },
+        {
+          insert: "Types of Student Loans\n",
+          attributes: { bold: true, header: 2 },
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Federal Loans: Often have lower interest rates and more flexible repayment options.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Private Loans: Usually offered by banks or credit unions, often with higher interest rates.\n",
+        },
+        { insert: "\n" },
+        {
+          insert: "Key Considerations\n",
+          attributes: { bold: true, header: 2 },
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Interest Rates: Compare rates to find the most affordable option.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Repayment Terms: Understand the terms, including deferment and forbearance options.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Impact on Credit: Timely payments can build credit, while missed payments can damage it.\n",
+        },
+        { insert: "\n" },
+        { insert: "Advising Clients\n", attributes: { bold: true, header: 2 } },
+        { insert: "\n" },
+        {
+          insert:
+            "Evaluate Financial Aid Packages: Help clients understand the full cost of loans.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Budgeting: Encourage creating a budget to manage loan repayment after graduation.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Explore Forgiveness Programs: Inform clients about potential loan forgiveness programs for certain professions.\n",
+        },
+        { insert: "\n" },
+        { insert: "Conclusion\n", attributes: { bold: true, header: 2 } },
+        { insert: "\n" },
+        {
+          insert:
+            "Navigating student loans requires careful planning and informed decision-making. By understanding the different types of loans and their terms, and by budgeting effectively, students can manage their debt and achieve financial stability.\n",
+        },
+      ],
+    },
+  },
+  {
+    id: 3,
+    title: "Investing in Real Estate: A Financial Advisor's Perspective",
+    description:
+      "Real estate investment involves purchasing properties to generate income or appreciate in value over time. It includes residential, commercial, and industrial properties.",
+    category: "investing",
+    subcategory: "real-estate",
+    deltas: {
+      ops: [
+        {
+          insert: "Understanding Real Estate Investment\n",
+          attributes: { bold: true, header: 2 },
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Real estate investment involves purchasing properties to generate income or appreciate in value over time. It includes residential, commercial, and industrial properties.\n",
+        },
+        { insert: "\n" },
+        {
+          insert: "Types of Real Estate Investments\n",
+          attributes: { bold: true, header: 2 },
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Residential Properties: Houses, apartments, and condos rented to individuals or families.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Commercial Properties: Office buildings, retail spaces, and warehouses rented to businesses.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "REITs: Real Estate Investment Trusts allow investment in real estate portfolios without owning physical property.\n",
+        },
+        { insert: "\n" },
+        {
+          insert: "Key Considerations\n",
+          attributes: { bold: true, header: 2 },
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Location: Property location significantly affects value and rental income.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Market Trends: Stay informed about market conditions and trends.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Financing: Understand mortgage options and interest rates.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Maintenance Costs: Account for ongoing maintenance and management expenses.\n",
+        },
+        { insert: "\n" },
+        { insert: "Advising Clients\n", attributes: { bold: true, header: 2 } },
+        { insert: "\n" },
+        {
+          insert:
+            "Diversify Portfolio: Encourage clients to diversify their investments, including real estate.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Evaluate Cash Flow: Assess the property's potential for generating positive cash flow.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Risk Management: Discuss risks such as market downturns and tenant vacancies.\n",
+        },
+        { insert: "\n" },
+        { insert: "Conclusion\n", attributes: { bold: true, header: 2 } },
+        { insert: "\n" },
+        {
+          insert:
+            "Real estate can be a lucrative investment with proper planning and management. By understanding market dynamics, financing options, and maintenance requirements, investors can maximize returns and achieve long-term financial goals.\n",
+        },
+      ],
+    },
+  },
+];
+
 export const emptyList = [];

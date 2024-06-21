@@ -69,14 +69,14 @@ const advisory = {
     //   icon: icons.IconReceipt2,
     //   breadcrumbs: false,
     // },
-    // {
-    //   id: "adv-articles",
-    //   title: "Articles",
-    //   type: "item",
-    //   url: "/adv/articles",
-    //   icon: icons.IconWriting,
-    //   breadcrumbs: false,
-    // },
+    {
+      id: "adv-articles",
+      title: "Articles",
+      type: "item",
+      url: "/adv/articles",
+      icon: icons.IconWriting,
+      breadcrumbs: false,
+    },
     // {
     //   id: "adv-services",
     //   title: "Services",

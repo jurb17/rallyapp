@@ -56,6 +56,13 @@ export const pageGuideObject = {
       "Details are limited and custom fields cannot be added until the prospect becomes a client. There are quick links at the top right of the page to manage invoices and communications with this prospect.",
     ],
   },
+  "/adv/articles": {
+    title: "The Articles List Page",
+    description: [
+      "The articles feature is provided to advisors so they can share wisdom on the publicly shared Rally Blog and advertise themselves.",
+      "The concept of a shared advisors blog was formed around the importance of social media and online consuption of advice. The shared blog would allow clients to find the advisors speaking about a topic they're interested in knowing more about.",
+    ],
+  },
   // CLIENT PAGES
   "/client/messages": {
     title: "The Messages Page",

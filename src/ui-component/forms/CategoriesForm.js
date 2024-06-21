@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 // material-ui
 import { Grid, Box } from "@material-ui/core";
@@ -28,9 +28,7 @@ const CategoriesForm = (props) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!!props.categoryid) {
-      setCategorySelected(true);
-    }
+    if (props.categoryid) setCategorySelected(true);
     setIsLoading(false);
   }, []);
 
@@ -77,7 +75,7 @@ const CategoriesForm = (props) => {
                       handleCategory(e);
                     }}
                     onBlur={formik.handleBlur}
-                    options={props.categoryOptions.map((cat) => cat[0])}
+                    options={Object.values(props.categoryOptions)}
                   />
                   <MySelectInput
                     xs={12}
@@ -93,7 +91,7 @@ const CategoriesForm = (props) => {
                     disabled={!categorySelected}
                     onBlur={formik.handleBlur}
                     options={props.subcategoryOptions.map(
-                      (subCat) => subCat[0]
+                      (subCat) => subCat[1]
                     )}
                     helpertext={
                       !categorySelected ? "Please select a category first" : ""

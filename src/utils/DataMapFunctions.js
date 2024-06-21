@@ -1,5 +1,6 @@
 import React from "react";
 import advisoryService from "services/advisory.service";
+import { articleCategories, articleSubcategories } from "./categories";
 
 // Given: list of objects with client ids,
 // Function: match the client ids and return the same list of objects, each with a "clientName" attribute.
@@ -125,6 +126,22 @@ export const mapCategoryDisplayNames = async (categoryid, subcategoryid) => {
     .catch((error) => {
       console.log("error", error);
     });
+};
+
+// Given: categoryid and subcategoryid
+// Function: match the ids and return displayable names
+export const demoMapCategoryDisplayNames = (categoryid, subcategoryid) => {
+  let categoryDisplayName = articleCategories[categoryid];
+  let subcategoryDisplayName = "";
+  // Now find the subcategory display name
+  let subcatlist = articleSubcategories[categoryid];
+  subcatlist.forEach((item) => {
+    if (item[0] === subcategoryid) subcategoryDisplayName = item[1];
+  });
+  return {
+    categoryDisplayName: categoryDisplayName,
+    subcategoryDisplayName: subcategoryDisplayName,
+  };
 };
 
 // Given: lowercase state abbreviation,

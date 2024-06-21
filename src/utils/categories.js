@@ -1,11 +1,11 @@
-export const categories = {
+export const articleCategories = {
   "personal-finance": "Personal Finance",
   "financial-planning": "Financial Planning",
   investing: "Investing",
   taxes: "Taxes",
 };
 
-export const subcategories = {
+export const articleSubcategories = {
   "personal-finance": [
     ["budgeting", "Budgeting"],
     ["credit-cards", "Credit Cards"],

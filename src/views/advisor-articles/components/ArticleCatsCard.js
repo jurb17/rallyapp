@@ -12,6 +12,9 @@ import TotalIncomeCard from "ui-component/cards/Skeleton/TotalIncomeCard";
 import CatsHeader from "ui-component/extended/CatsHeader";
 import CatHeader from "ui-component/extended/CatHeader";
 
+// data and function imports
+import { demoMapCategoryDisplayNames } from "utils/DataMapFunctions";
+
 // style constant
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -74,8 +77,18 @@ const ArticleCatsCard = (props, { isLoading }) => {
                 <IconWriting color={theme.palette.grey[400]} size={"28px"} />
               </Box>
               <CatsHeader
-                category={props.article.category}
-                subcategory={props.article.subcategory}
+                category={
+                  demoMapCategoryDisplayNames(
+                    props.article.category,
+                    props.article.subcategory
+                  ).categoryDisplayName
+                }
+                subcategory={
+                  demoMapCategoryDisplayNames(
+                    props.article.category,
+                    props.article.subcategory
+                  ).subcategoryDisplayName
+                }
               />
               {props.deleted && (
                 <Box sx={{ ml: 1 }}>

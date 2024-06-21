@@ -21,6 +21,7 @@ import QuillPaper from "ui-component/templates/QuillPaper";
 
 // data and functions
 import { myArticleList } from "utils/advisor-dummy-data";
+import { demoMapCategoryDisplayNames } from "utils/DataMapFunctions";
 
 // style constant
 const useStyles = makeStyles((theme) => ({}));
@@ -37,7 +38,7 @@ const ArticleProfile = () => {
   const quillEditor = useRef(null);
 
   const { id } = useParams();
-  const idParam = id;
+  const idParam = id ? id : null;
 
   // data states
   const [articlePayload, setArticlePayload] = useState({});
@@ -49,15 +50,27 @@ const ArticleProfile = () => {
   const [deleteMode, setDeleteMode] = useState(false);
   const [hasNewContent, setHasNewContent] = useState(false);
 
-  const getArticleData = async (articlelist, id) => {
-    const article = articlelist[id];
-    console.log(article.deltas);
-    // const parsedDelta = JSON.parse(article.deltas);
-    setUnsavedContent(article.deltas);
-    setArticlePayload({
-      ...article,
-      deltas: article.deltas,
-    });
+  const getArticleData = async (articlelist, id, stateObj) => {
+    // if the idParam is less than the number 100, then use the id to look up article info
+    if (id < 100) {
+      let article = {};
+      articlelist.forEach((item) => {
+        if ((item[id] = id)) article = item;
+      });
+      // const parsedDelta = JSON.parse(article.deltas);
+      setUnsavedContent(article.deltas);
+      setArticlePayload({
+        ...article,
+        deltas: article.deltas,
+      });
+    } // Otherwise, use the state data to fill article profile.
+    else {
+      setUnsavedContent(stateObj.deltas);
+      setArticlePayload({
+        ...stateObj,
+        deltas: stateObj.deltas,
+      });
+    }
     setIsLoading(false);
     return true;
   };
@@ -65,15 +78,15 @@ const ArticleProfile = () => {
   // get current data from the server
   useEffect(() => {
     // if idParam and clientList exist, get current client data
-    if (idParam)
-      if (myArticleList && myArticleList.length)
-        getArticleData(myArticleList, idParam);
-      // otherwise, go back
-      else {
-        console.log("No article list found.");
-        navigate(-1);
-      }
-    else navigate(-1);
+    if (myArticleList && myArticleList.length) {
+      if (idParam) getArticleData(myArticleList, idParam, location.state);
+      else navigate(-1);
+    }
+    // otherwise, go back
+    else {
+      console.log("No article list found.");
+      navigate(-1);
+    }
   }, []);
 
   useEffect(() => {
@@ -203,8 +216,18 @@ const ArticleProfile = () => {
             >
               <Box width={1} sx={{ mb: 3 }}>
                 <CatsHeader
-                  category={articlePayload.category}
-                  subcategory={articlePayload.subcategory}
+                  category={
+                    demoMapCategoryDisplayNames(
+                      articlePayload.category,
+                      articlePayload.subcategory
+                    ).categoryDisplayName
+                  }
+                  subcategory={
+                    demoMapCategoryDisplayNames(
+                      articlePayload.category,
+                      articlePayload.subcategory
+                    ).subcategoryDisplayName
+                  }
                 />
               </Box>
               <Box width={1} sx={{ mt: 2 }}>

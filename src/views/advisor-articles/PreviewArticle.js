@@ -176,7 +176,7 @@ const PreviewArticle = () => {
         handleBack={handleBack}
         buttonlist={[
           {
-            name: "Update Article Content",
+            name: "Back To Draft",
             color: "primary",
             variant: "text",
             onClick: handleBack,

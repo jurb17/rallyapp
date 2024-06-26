@@ -88,7 +88,7 @@ const ServiceForm = (props) => {
                     maxRows={4}
                   />
                 )}
-                {!!props.editMode ? (
+                {props.editMode ? (
                   <MyTextInput
                     xs={12}
                     formik={formik}
@@ -137,17 +137,16 @@ const ServiceForm = (props) => {
                     value={props.serviceInput.price}
                     onChange={(e) => {
                       console.log(e);
-                      if (["e", "E", "+", "-"].includes(e.nativeEvent.data)) {
+                      if (["e", "E", "+", "-"].includes(e.nativeEvent.data))
                         e.preventDefault();
-                      } else {
+                      else {
                         formik.handleChange(e);
                         handlePriceChange(e);
                       }
                     }}
                     onKeyPress={(e) => {
-                      if (["e", "E", "+", "-"].includes(e.key)) {
+                      if (["e", "E", "+", "-"].includes(e.key))
                         e.preventDefault();
-                      }
                     }}
                     onBlur={formik.handleBlur}
                     readOnly={!props.editMode}
@@ -168,21 +167,6 @@ const ServiceForm = (props) => {
                     }
                   />
                 )}
-                {/* <MySelectInput
-                  xs={6}
-                  formik={formik}
-                  id="pricetype"
-                  name="pricetype"
-                  label="Payment Type"
-                  value={props.serviceInput.pricetype}
-                  onChange={(e) => {
-                    formik.handleChange(e);
-                    handleInputChange(e);
-                  }}
-                  onBlur={formik.handleBlur}
-                  options={priceTypes}
-                  readOnly={!props.editMode}
-                /> */}
               </Grid>
             </form>
           )}

@@ -12,6 +12,9 @@ import TotalIncomeCard from "ui-component/cards/Skeleton/TotalIncomeCard";
 import CatsHeader from "ui-component/extended/CatsHeader";
 import CatHeader from "ui-component/extended/CatHeader";
 
+// data and functions
+import { demoMapCategoryDisplayNames } from "utils/DataMapFunctions";
+
 // style constant
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -67,17 +70,13 @@ const ServiceCard = (props, { isLoading }) => {
   const tags = [props.service.category, props.service.subcategory];
   // create wording after price
   let priceWording = "";
-  if (props.service.pricetype === "hourly") {
-    priceWording = " per hour";
-  } else if (props.service.pricetype === "one-time") {
-    priceWording = " (flat fee)";
-  } else if (props.service.pricetype === "monthly subscription") {
+  if (props.service.pricetype === "hourly") priceWording = " per hour";
+  else if (props.service.pricetype === "one-time") priceWording = " (flat fee)";
+  else if (props.service.pricetype === "monthly subscription")
     priceWording = " per month";
-  } else if (props.service.pricetype === "annual subscription") {
+  else if (props.service.pricetype === "annual subscription")
     priceWording = " per year";
-  } else {
-    priceWording = "";
-  }
+  else priceWording = "";
 
   const cardClickHandler = () => {
     props.onClick(props.service);
@@ -96,8 +95,18 @@ const ServiceCard = (props, { isLoading }) => {
               </Box>
               {!!props.service.subcategory ? (
                 <CatsHeader
-                  category={props.service.category}
-                  subcategory={props.service.subcategory}
+                  category={
+                    demoMapCategoryDisplayNames(
+                      props.service.category,
+                      props.service.subcategory
+                    ).categoryDisplayName
+                  }
+                  subcategory={
+                    demoMapCategoryDisplayNames(
+                      props.service.category,
+                      props.service.subcategory
+                    ).subcategoryDisplayName
+                  }
                 />
               ) : (
                 <CatHeader category={props.service.category} />

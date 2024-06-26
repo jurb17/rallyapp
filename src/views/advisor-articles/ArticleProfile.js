@@ -99,7 +99,7 @@ const ArticleProfile = () => {
   const handleEditCancel = () => {
     setEditMode(false);
     setUnsavedContent(articlePayload.deltas);
-    dispatch(showSnackbar("No changes were made.", true, "info"));
+    dispatch(showSnackbar("Changes were not saved.", true, "info"));
     setHasNewContent(false);
   };
 

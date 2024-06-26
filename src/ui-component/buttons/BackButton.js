@@ -30,13 +30,9 @@ const BackButton = (props) => {
       <IconButton
         size={"medium"}
         onClick={() => {
-          if (!!props.handleBack) {
-            props.handleBack();
-          } else if (!!props.backlink) {
-            navigate(props.backlink);
-          } else {
-            navigate(-1);
-          }
+          if (!!props.handleBack) props.handleBack();
+          else if (!!props.backlink) navigate(props.backlink);
+          else navigate(-1);
         }}
       >
         <IconArrowLeft color={theme.palette.primary.main} />

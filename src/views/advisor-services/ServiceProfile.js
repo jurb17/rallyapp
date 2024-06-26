@@ -45,14 +45,6 @@ const ServiceProfile = (props, { ...others }) => {
   const { id } = useParams();
   const idParam = id ? id : null;
 
-  // request states
-  const [categoryid, setCategoryid] = useState(
-    id.indexOf(".") !== -1 ? id.split(".")[0] : id
-  );
-  const [subcategoryid, setSubcategoryid] = useState(
-    id.indexOf(".") !== -1 ? id.split(".")[1] : ""
-  );
-
   // data states
   const [servicePayload, setServicePayload] = useState({});
   const [unsavedService, setUnsavedService] = useState({});
@@ -62,10 +54,6 @@ const ServiceProfile = (props, { ...others }) => {
   const [editMode, setEditMode] = useState(false);
   const [deleteMode, setDeleteMode] = useState(false);
   const [canContinue, setCanContinue] = useState(false);
-  const [backlink, setBacklink] = useState("");
-  const [existingService, setExistingService] = useState(false);
-
-  // const [deleteReroute, setDeleteReroute] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const [formErrorExists, setFormErrorExists] = useState(false);
 
@@ -168,34 +156,33 @@ const ServiceProfile = (props, { ...others }) => {
       setUnsavedService((prevState) => {
         return {
           ...prevState,
-          title: servicePayload.service.title,
-          description: servicePayload.service.description,
-          deltas: servicePayload.service.deltas,
-          price: servicePayload.service.price,
+          title: servicePayload.title,
+          description: servicePayload.description,
+          deltas: servicePayload.deltas,
+          price: servicePayload.price,
         };
       });
-      dispatch(showSnackbar("No changes were made.", true, "info"));
+      dispatch(showSnackbar("Changes were not saved.", true, "info"));
     } // Otherwise, if this is a preview of a new services, return to previous page.
     else navigate(-1);
   };
+
   // save changes
-  const handleEditSave = async () => {
-    serviceFormRef.current.validateForm().then(async () => {
+  const handleEditSave = () => {
+    serviceFormRef.current.validateForm().then(() => {
       if (serviceFormRef.current.isValid) {
-        setBacklink("/adv/services");
         setEditMode(false);
         // update the profile data (this updated state should not be used for the api request)
         setServicePayload((prevState) => ({
-          ...prevState.service,
+          ...prevState,
           title: unsavedService.title,
           description: unsavedService.description,
           deltas: unsavedService.deltas,
-          price: !!unsavedService.price
+          price: unsavedService.price
             ? parseFloat(unsavedService.price).toFixed(2)
             : 0.0,
         }));
         dispatch(showSnackbar("Service updated successfully", true, "success"));
-        setExistingService(true);
       } else {
         // if there are errors when saving changes, modal will appear to notify user.
         setFormErrors(serviceFormRef.current.errors);
@@ -206,7 +193,7 @@ const ServiceProfile = (props, { ...others }) => {
   };
 
   // confirm delete
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = () => {
     // delete service with API request
     setIsLoading(true);
     dispatch(showSnackbar("Service removed successfully", true, "success"));
@@ -243,7 +230,6 @@ const ServiceProfile = (props, { ...others }) => {
       />
       <GenericPage
         pageHeader="Service Details"
-        backlink={backlink}
         buttonlist={
           !editMode
             ? [
@@ -296,13 +282,30 @@ const ServiceProfile = (props, { ...others }) => {
                 <>
                   <Grid container>
                     <Grid item xs={12} sx={{ mb: 3 }}>
-                      {!!subcategoryid ? (
+                      {servicePayload.subcategory ? (
                         <CatsHeader
-                          category={servicePayload.category}
-                          subcategory={servicePayload.subcategory}
+                          category={
+                            demoMapCategoryDisplayNames(
+                              servicePayload.category,
+                              servicePayload.subcategory
+                            ).categoryDisplayName
+                          }
+                          subcategory={
+                            demoMapCategoryDisplayNames(
+                              servicePayload.category,
+                              servicePayload.subcategory
+                            ).subcategoryDisplayName
+                          }
                         />
                       ) : (
-                        <CatHeader category={servicePayload.category} />
+                        <CatHeader
+                          category={
+                            demoMapCategoryDisplayNames(
+                              servicePayload.category,
+                              servicePayload.subcategory
+                            ).categoryDisplayName
+                          }
+                        />
                       )}
                     </Grid>
                   </Grid>
@@ -310,7 +313,7 @@ const ServiceProfile = (props, { ...others }) => {
                     serviceInput={{
                       title: unsavedService.title,
                       description: unsavedService.description,
-                      price: !!unsavedService.price ? unsavedService.price : "",
+                      price: unsavedService.price ? unsavedService.price : "",
                     }}
                     editMode={editMode}
                     forwardedServiceFormRef={serviceFormRef}
@@ -362,6 +365,7 @@ const ServiceProfile = (props, { ...others }) => {
                   direction="row"
                   display="flex"
                   justifyContent={"right"}
+                  paddingTop={2}
                 >
                   <CustomButtonGroup
                     buttonlist={[

@@ -233,7 +233,6 @@ const PreviewArticle = () => {
               tipBody="This is a just a preview of the article. Select the publish button to publish the article or select the back arrow to continue writing."
             >
               <QuillPaper
-                forwardedQuillEditor={quillEditor}
                 title={newArticle.title}
                 content={newArticle.deltas}
                 border={false}

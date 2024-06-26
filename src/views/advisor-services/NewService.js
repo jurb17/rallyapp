@@ -103,11 +103,8 @@ const NewService = () => {
   }, []);
   // handle canContinue mode
   useEffect(() => {
-    if (!!newService.categoryid) {
-      setCanContinue(true);
-    } else {
-      setCanContinue(false);
-    }
+    if (!!newService.categoryid) setCanContinue(true);
+    else setCanContinue(false);
   }, [newService.categoryid, newService.subcategoryid]);
 
   // get service data from the server

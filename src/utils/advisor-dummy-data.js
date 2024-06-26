@@ -613,4 +613,185 @@ export const myArticleList = [
   },
 ];
 
+export const myServiceList = [
+  {
+    id: 1,
+    title: "Service 1",
+    description: "Service 1 is a great service.",
+    category: "investing",
+    subcategory: "real-estate",
+    deltas: {
+      ops: [
+        {
+          insert: "Understanding Real Estate Investment\n",
+          attributes: { bold: true, header: 2 },
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Real estate investment involves purchasing properties to generate income or appreciate in value over time. It includes residential, commercial, and industrial properties.\n",
+        },
+        { insert: "\n" },
+        {
+          insert: "Types of Real Estate Investments\n",
+          attributes: { bold: true, header: 2 },
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Residential Properties: Houses, apartments, and condos rented to individuals or families.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Commercial Properties: Office buildings, retail spaces, and warehouses rented to businesses.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "REITs: Real Estate Investment Trusts allow investment in real estate portfolios without owning physical property.\n",
+        },
+        { insert: "\n" },
+        {
+          insert: "Key Considerations\n",
+          attributes: { bold: true, header: 2 },
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Location: Property location significantly affects value and rental income.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Market Trends: Stay informed about market conditions and trends.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Financing: Understand mortgage options and interest rates.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Maintenance Costs: Account for ongoing maintenance and management expenses.\n",
+        },
+        { insert: "\n" },
+        { insert: "Advising Clients\n", attributes: { bold: true, header: 2 } },
+        { insert: "\n" },
+        {
+          insert:
+            "Diversify Portfolio: Encourage clients to diversify their investments, including real estate.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Evaluate Cash Flow: Assess the property's potential for generating positive cash flow.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Risk Management: Discuss risks such as market downturns and tenant vacancies.\n",
+        },
+        { insert: "\n" },
+        { insert: "Conclusion\n", attributes: { bold: true, header: 2 } },
+        { insert: "\n" },
+        {
+          insert:
+            "Real estate can be a lucrative investment with proper planning and management. By understanding market dynamics, financing options, and maintenance requirements, investors can maximize returns and achieve long-term financial goals.\n",
+        },
+      ],
+    },
+  },
+  {
+    id: 2,
+    title: "Service 2",
+    description: "Even better than service 1.",
+    category: "investing",
+    subcategory: "real-estate",
+    deltas: {
+      ops: [
+        {
+          insert: "Understanding Real Estate Investment\n",
+          attributes: { bold: true, header: 2 },
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Real estate investment involves purchasing properties to generate income or appreciate in value over time. It includes residential, commercial, and industrial properties.\n",
+        },
+        { insert: "\n" },
+        {
+          insert: "Types of Real Estate Investments\n",
+          attributes: { bold: true, header: 2 },
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Residential Properties: Houses, apartments, and condos rented to individuals or families.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Commercial Properties: Office buildings, retail spaces, and warehouses rented to businesses.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "REITs: Real Estate Investment Trusts allow investment in real estate portfolios without owning physical property.\n",
+        },
+        { insert: "\n" },
+        {
+          insert: "Key Considerations\n",
+          attributes: { bold: true, header: 2 },
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Location: Property location significantly affects value and rental income.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Market Trends: Stay informed about market conditions and trends.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Financing: Understand mortgage options and interest rates.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Maintenance Costs: Account for ongoing maintenance and management expenses.\n",
+        },
+        { insert: "\n" },
+        { insert: "Advising Clients\n", attributes: { bold: true, header: 2 } },
+        { insert: "\n" },
+        {
+          insert:
+            "Diversify Portfolio: Encourage clients to diversify their investments, including real estate.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Evaluate Cash Flow: Assess the property's potential for generating positive cash flow.\n",
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Risk Management: Discuss risks such as market downturns and tenant vacancies.\n",
+        },
+        { insert: "\n" },
+        { insert: "Conclusion\n", attributes: { bold: true, header: 2 } },
+        { insert: "\n" },
+        {
+          insert:
+            "Real estate can be a lucrative investment with proper planning and management. By understanding market dynamics, financing options, and maintenance requirements, investors can maximize returns and achieve long-term financial goals.\n",
+        },
+      ],
+    },
+  },
+];
+
 export const emptyList = [];

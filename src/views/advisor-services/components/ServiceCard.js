@@ -93,7 +93,7 @@ const ServiceCard = (props, { isLoading }) => {
               <Box sx={{ position: "absolute", bottom: "12px", right: "12px" }}>
                 <IconPackage color={theme.palette.grey[400]} size={"28px"} />
               </Box>
-              {!!props.service.subcategory ? (
+              {props.service.subcategory ? (
                 <CatsHeader
                   category={
                     demoMapCategoryDisplayNames(

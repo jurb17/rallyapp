@@ -132,6 +132,7 @@ export const mapCategoryDisplayNames = async (categoryid, subcategoryid) => {
 // Function: match the ids and return displayable names
 export const demoMapCategoryDisplayNames = (categoryid, subcategoryid) => {
   let categoryDisplayName = articleCategories[categoryid];
+  if (!subcategoryid) return { categoryDisplayName: categoryDisplayName };
   let subcategoryDisplayName = "";
   // Now find the subcategory display name
   let subcatlist = articleSubcategories[categoryid];

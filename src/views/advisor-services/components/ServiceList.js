@@ -9,7 +9,6 @@ import { Box } from "@material-ui/core";
 import Masonry from "react-masonry-css";
 
 // local imports
-// import "styles/article_styles.css";
 import ServiceCard from "./ServiceCard";
 
 // style constant
@@ -37,9 +36,7 @@ const ServiceList = (props) => {
         <ServiceCard key={index} service={service} onClick={handleCardClick} />
       );
     });
-  } else {
-    children.push(<p></p>);
-  }
+  } else children.push(<p></p>);
 
   const breakpointColumnsObj = {
     default: 3,

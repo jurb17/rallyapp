@@ -33,7 +33,6 @@ const ServiceForm = (props) => {
     <>
       <Grid item xs={12}>
         <Formik
-          innerRef={props.forwardedServiceFormRef}
           initialValues={props.serviceInput}
           validationSchema={yup.object({
             title: yup
@@ -125,8 +124,9 @@ const ServiceForm = (props) => {
                     }
                   />
                 )}
-                {!!props.editMode ? (
+                {props.editMode ? (
                   <MyNumberInput
+                    xs={12}
                     sm={12}
                     md={4}
                     lg={3}

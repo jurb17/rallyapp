@@ -38,7 +38,6 @@ const ServiceProfile = (props, { ...others }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const serviceFormRef = useRef({});
   const quillEditor = useRef(null);
 
   // get path params
@@ -54,8 +53,6 @@ const ServiceProfile = (props, { ...others }) => {
   const [editMode, setEditMode] = useState(false);
   const [deleteMode, setDeleteMode] = useState(false);
   const [canContinue, setCanContinue] = useState(false);
-  const [formErrors, setFormErrors] = useState({});
-  const [formErrorExists, setFormErrorExists] = useState(false);
 
   // #region --- all functions
   // get current data from the server
@@ -63,10 +60,8 @@ const ServiceProfile = (props, { ...others }) => {
     // if the id is equal to "preview, then display the data from the stateObj and fill in the blanks."
     if (id === "preview") {
       setServicePayload({
-        service: {
-          category: location.state.category,
-          subcategory: location.state.subcategory,
-        },
+        category: location.state.category,
+        subcategory: location.state.subcategory,
       });
       setUnsavedService({
         title: "",
@@ -84,25 +79,19 @@ const ServiceProfile = (props, { ...others }) => {
         if (item.id === idInteger) service = { ...item };
       });
       // const parsedDelta = JSON.parse(article.deltas);
-      setUnsavedService({
-        ...service,
-        deltas: service.deltas,
-      });
-      setServicePayload({
-        ...service,
-        deltas: service.deltas,
-      });
+      setUnsavedService({ ...service });
+      setServicePayload({ ...service });
       setEditMode(false);
     } // Otherwise, use the state data to fill the article profile.
     else {
-      setUnsavedService({
+      setUnsavedService((prevState) => ({
+        ...prevState,
         ...stateObj,
-        deltas: stateObj.deltas,
-      });
-      setServicePayload({
+      }));
+      setServicePayload((prevState) => ({
+        ...prevState,
         ...stateObj,
-        deltas: stateObj.deltas,
-      });
+      }));
       setEditMode(false);
     }
     setIsLoading(false);
@@ -121,7 +110,7 @@ const ServiceProfile = (props, { ...others }) => {
       console.log("No article list found.");
       navigate(-1);
     }
-  }, []);
+  }, [idParam]);
 
   // handle edit banner
   useEffect(() => {
@@ -169,26 +158,33 @@ const ServiceProfile = (props, { ...others }) => {
 
   // save changes
   const handleEditSave = () => {
-    serviceFormRef.current.validateForm().then(() => {
-      if (serviceFormRef.current.isValid) {
-        setEditMode(false);
-        // update the profile data (this updated state should not be used for the api request)
-        setServicePayload((prevState) => ({
-          ...prevState,
+    if (idParam && idParam !== "preview") {
+      setEditMode(false);
+      // update the profile data (this updated state should not be used for the api request)
+      setServicePayload((prevState) => ({
+        ...prevState,
+        title: unsavedService.title,
+        description: unsavedService.description,
+        deltas: unsavedService.deltas,
+        price: unsavedService.price
+          ? parseFloat(unsavedService.price).toFixed(2)
+          : 0.0,
+      }));
+      dispatch(showSnackbar("Service updated successfully", true, "success"));
+    }
+    // if there are errors when saving changes, modal will appear to notify user.
+    else
+      navigate("/adv/services/100", {
+        state: {
           title: unsavedService.title,
           description: unsavedService.description,
           deltas: unsavedService.deltas,
           price: unsavedService.price
             ? parseFloat(unsavedService.price).toFixed(2)
             : 0.0,
-        }));
-        dispatch(showSnackbar("Service updated successfully", true, "success"));
-      } else {
-        // if there are errors when saving changes, modal will appear to notify user.
-        setFormErrors(serviceFormRef.current.errors);
-        setFormErrorExists(true);
-      }
-    });
+        },
+      });
+
     return true;
   };
 
@@ -196,9 +192,10 @@ const ServiceProfile = (props, { ...others }) => {
   const handleDeleteConfirm = () => {
     // delete service with API request
     setIsLoading(true);
+    setDeleteMode(false);
     dispatch(showSnackbar("Service removed successfully", true, "success"));
     setTimeout(() => {
-      navigate(-1);
+      navigate("/adv/services");
     }, 2000);
   };
 
@@ -214,11 +211,6 @@ const ServiceProfile = (props, { ...others }) => {
 
   return (
     <>
-      <FormInputErrorModal
-        open={editMode && formErrorExists}
-        errorInfo={formErrors}
-        handleErrorConfirmation={() => setFormErrorExists(false)}
-      />
       <ConfirmDeleteModal
         open={deleteMode}
         handleConfirm={handleDeleteConfirm}
@@ -316,7 +308,6 @@ const ServiceProfile = (props, { ...others }) => {
                       price: unsavedService.price ? unsavedService.price : "",
                     }}
                     editMode={editMode}
-                    forwardedServiceFormRef={serviceFormRef}
                     handleTitleInputChange={(value) => {
                       setUnsavedService((prevState) => ({
                         ...prevState,

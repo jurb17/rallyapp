@@ -1,7 +1,6 @@
 import React from "react";
 
 // mui imports
-import { makeStyles } from "@material-ui/styles";
 import { useTheme } from "@emotion/react";
 import { Chip } from "@material-ui/core";
 
@@ -22,10 +21,7 @@ const SubcategoryButton = (props) => {
       label={props.label}
       onClick={props.onClick}
       sx={{
-        mr: 1,
-        ml: 1,
-        mt: 1,
-        mb: 1,
+        m: 1,
         backgroundColor: theme.palette.secondary.main,
         fontSize: "1rem",
         fontWeight: "bold",
@@ -37,7 +33,7 @@ const SubcategoryButton = (props) => {
         },
       }}
       style={
-        !!props.selected
+        props.selected
           ? {
               backgroundColor: theme.palette.secondary.dark,
             }

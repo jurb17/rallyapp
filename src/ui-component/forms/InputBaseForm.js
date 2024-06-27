@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 
 // material-ui
 import { makeStyles } from "@material-ui/styles";
@@ -22,29 +22,23 @@ const useStyles = makeStyles((theme) => ({
 // =============================================================
 /* PROPS MAP
 key = key prop for avoiding that one error
-formObj = object with form keys and values
+formobj = object with form keys and values
 */
 
 const InputBaseForm = (props, { ...others }) => {
   const classes = useStyles();
   const formRef = useRef({});
 
-  const formlength = Object.keys(props.formObj).length;
+  const formlength = Object.keys(props.formobj).length;
   let inputwidth = 3;
   // if the length of the form is less than 4, divide 12 by the length of the form for the width of an input
-  if (formlength < 4) {
-    inputwidth = 12 / formlength;
-  }
+  if (formlength < 4) inputwidth = 12 / formlength;
 
   let initialValues = {};
-  Object.entries(props.formObj).map(([key, value]) => {
-    if (!!value) {
-      initialValues[key] = value;
-    }
+  Object.entries(props.formobj).map(([key, value]) => {
+    if (!!value) initialValues[key] = value;
     // if there is no value, provide a string
-    else {
-      initialValues[key] = value;
-    }
+    else initialValues[key] = value;
   });
 
   return (
@@ -52,8 +46,8 @@ const InputBaseForm = (props, { ...others }) => {
       <Formik initialValues={initialValues} innerRef={formRef}>
         {(formik) => (
           <form noValidate onSubmit={formik.handleSubmit} {...others}>
-            <Grid container spacing={2} {...props}>
-              {Object.entries(props.formObj).map(([key, value]) => {
+            <Grid container spacing={4} {...props}>
+              {Object.entries(props.formobj).map(([key, value]) => {
                 return (
                   <MyInputBase
                     xs={12}
@@ -62,7 +56,7 @@ const InputBaseForm = (props, { ...others }) => {
                     key={key}
                     id={key}
                     label={key}
-                    value={props.formObj[key] ? props.formObj[key] : "--"}
+                    value={props.formobj[key] ? props.formobj[key] : "--"}
                     readOnly={true}
                   />
                 );

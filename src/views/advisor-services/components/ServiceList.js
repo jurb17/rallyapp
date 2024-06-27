@@ -9,7 +9,6 @@ import { Box } from "@material-ui/core";
 import Masonry from "react-masonry-css";
 
 // local imports
-// import "styles/article_styles.css";
 import ServiceCard from "./ServiceCard";
 
 // style constant
@@ -25,22 +24,19 @@ const ServiceList = (props) => {
   const navigate = useNavigate();
 
   // STATE OBJECT MUST HAVE AN "ID" KEY!
-  const handleCardClick = (data) => {
-    let serviceid = data.id.replace("/", ".");
-    navigate(`/adv/services/${serviceid}`, { state: { serviceExists: true } });
+  const handleCardClick = (card) => {
+    navigate(`/adv/services/${card.id}`, { state: { serviceExists: true } });
   };
 
   // generate list of articles
   const children = [];
-  if (!!props.services && Object.entries(props.services).length > 0) {
+  if (!!props.services && Object.keys(props.services).length > 0) {
     props.services.map((service, index) => {
       children.push(
         <ServiceCard key={index} service={service} onClick={handleCardClick} />
       );
     });
-  } else {
-    children.push(<p></p>);
-  }
+  } else children.push(<p></p>);
 
   const breakpointColumnsObj = {
     default: 3,

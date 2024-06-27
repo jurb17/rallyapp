@@ -613,4 +613,281 @@ export const myArticleList = [
   },
 ];
 
+export const myServiceList = [
+  {
+    id: 1,
+    title: "Plan Your NJ Retirement with a Certified Pro!",
+    description:
+      "Are you dreaming of a comfortable, worry-free retirement? Whether you're just starting your career or are nearing retirement age, planning for your future is crucial.",
+    price: 1200,
+    category: "financial-planning",
+    subcategory: "retirement",
+    deltas: {
+      ops: [
+        {
+          insert: "Secure Your Future with Expert Retirement Planning\n",
+          attributes: { header: 1 },
+        },
+        {
+          insert:
+            "\nAre you dreaming of a comfortable, worry-free retirement? Whether you're just starting your career or are nearing retirement age, planning for your future is crucial. As a seasoned financial advisor, I specialize in crafting personalized retirement plans that ensure financial stability and peace of mind for my clients.\n\n",
+        },
+        {
+          insert: "Why Retirement Planning is Essential\n",
+          attributes: { header: 2 },
+        },
+        {
+          insert:
+            "\nRetirement planning is not just about saving money—it's about making strategic financial decisions that will support your desired lifestyle in the years to come. Without a well-thought-out plan, you might face uncertainties that could affect your quality of life during retirement.\n\n",
+        },
+        {
+          insert: "Our Comprehensive Retirement Planning Services\n",
+          attributes: { header: 2 },
+        },
+        {
+          insert:
+            "\nAt [Your Financial Advisory Firm], we offer a range of services designed to help you build a secure financial future:\n\n",
+        },
+        {
+          insert: "Personalized Financial Assessment\n",
+          attributes: { header: 3 },
+        },
+        {
+          insert:
+            "We begin with a thorough analysis of your current financial situation, including income, expenses, savings, and investments. This helps us understand where you stand and what steps are needed to achieve your retirement goals.\n\n",
+        },
+        {
+          insert: "Customized Retirement Strategies\n",
+          attributes: { header: 3 },
+        },
+        {
+          insert:
+            "Based on your financial assessment, we develop a tailored retirement plan that aligns with your goals. Whether you aim to travel the world, start a new hobby, or simply enjoy a comfortable lifestyle, we create a strategy that works for you.\n\n",
+        },
+        { insert: "Investment Management\n", attributes: { header: 3 } },
+        {
+          insert:
+            "Our team of experts will guide you in making wise investment choices that maximize your returns while minimizing risks. We stay updated with market trends and economic shifts to ensure your portfolio remains robust and resilient.\n\n",
+        },
+        { insert: "Tax Planning\n", attributes: { header: 3 } },
+        {
+          insert:
+            "Effective tax planning is crucial for preserving your wealth. We help you navigate complex tax laws and identify opportunities for tax savings, so you keep more of your hard-earned money.\n\n",
+        },
+        { insert: "Regular Plan Reviews\n", attributes: { header: 3 } },
+        {
+          insert:
+            "Life is full of changes, and your retirement plan should be flexible enough to adapt. We offer regular reviews to ensure your plan remains on track and adjusts to any new circumstances or financial goals.\n\n",
+        },
+        {
+          insert: "Why Choose [Your Financial Advisory Firm]?\n",
+          attributes: { header: 2 },
+        },
+        {
+          insert:
+            "\nExperience and Expertise: With over [X] years of experience in the financial industry, we have the knowledge and skills to guide you towards a secure retirement.\nClient-Centric Approach: We put your needs and goals at the heart of everything we do, providing personalized service and expert advice.\nProven Track Record: Our clients trust us for our commitment to their financial well-being and our history of delivering successful retirement plans.\n\n",
+        },
+        {
+          insert: "Start Planning Your Dream Retirement Today!\n",
+          attributes: { header: 2 },
+        },
+        {
+          insert:
+            "\nDon't leave your retirement to chance. Let us help you build a solid foundation for your future. Contact [Your Financial Advisory Firm] today to schedule a consultation and take the first step towards a financially secure retirement.\n\n",
+        },
+        { insert: "---\n\n" },
+        { insert: "[Your Name]\n", attributes: { bold: true } },
+        {
+          insert:
+            "Certified Financial Planner™\n[Your Financial Advisory Firm]\n[Contact Information]\n[Website URL]\n\n",
+        },
+        { insert: "---\n\n" },
+        {
+          insert:
+            "Secure your tomorrow with smart planning today. We're here to help you every step of the way.",
+        },
+      ],
+    },
+  },
+  {
+    id: 2,
+    title: "Strategic Philanthropy and Tax Planning",
+    description:
+      "If you want to give back to the community while enhancing your tax situation, let me guide you towards the best outcome for your case.",
+    price: 2500,
+    category: "taxes",
+    subcategory: "philanthropy",
+    deltas: {
+      ops: [
+        {
+          insert:
+            "Maximize Your Impact: Strategic Philanthropy and Tax Planning\n",
+          attributes: { header: 1 },
+        },
+        {
+          insert:
+            "\nGiving back to the community is a noble endeavor that not only benefits others but can also provide significant tax advantages. As a financial advisor with expertise in philanthropic tax planning, I help clients maximize their charitable impact while optimizing their tax situation.\n\n",
+        },
+        {
+          insert: "Why Philanthropy and Tax Planning Matter\n",
+          attributes: { header: 2 },
+        },
+        {
+          insert:
+            "\nPhilanthropy is about more than just donating money; it's about making a meaningful difference in the causes you care about. By integrating strategic tax planning into your charitable giving, you can enhance the effectiveness of your contributions and enjoy financial benefits as well.\n\n",
+        },
+        {
+          insert: "Our Philanthropy and Tax Planning Services\n",
+          attributes: { header: 2 },
+        },
+        {
+          insert:
+            "\nAt [Your Financial Advisory Firm], we offer comprehensive services to help you navigate the complexities of charitable giving and tax planning:\n\n",
+        },
+        { insert: "Charitable Giving Strategies\n", attributes: { header: 3 } },
+        {
+          insert:
+            "We assist you in selecting the right charitable giving strategies that align with your values and financial goals. Whether it's setting up a donor-advised fund, creating a charitable trust, or making direct donations, we ensure your contributions are impactful.\n\n",
+        },
+        { insert: "Tax-Efficient Giving\n", attributes: { header: 3 } },
+        {
+          insert:
+            "Our team will guide you on how to make tax-efficient donations, such as giving appreciated securities, which can provide greater tax benefits compared to cash donations. We help you understand the tax implications and optimize your charitable deductions.\n\n",
+        },
+        { insert: "Planned Giving\n", attributes: { header: 3 } },
+        {
+          insert:
+            "For those looking to leave a lasting legacy, we offer planned giving strategies that integrate your philanthropic goals with your estate planning. This includes bequests, charitable remainder trusts, and other vehicles that ensure your legacy endures.\n\n",
+        },
+        { insert: "Corporate Philanthropy\n", attributes: { header: 3 } },
+        {
+          insert:
+            "If you are a business owner, we help you design and implement corporate philanthropy programs that reflect your company's values and foster community engagement. We also ensure these initiatives are tax-efficient.\n\n",
+        },
+        {
+          insert: "Why Choose [Your Financial Advisory Firm]?\n",
+          attributes: { header: 2 },
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Expertise and Experience: Our team has extensive experience in both tax planning and philanthropy, providing you with knowledgeable guidance.\nCustomized Solutions: We offer personalized strategies that align with your unique financial situation and philanthropic goals.\nComprehensive Approach: We integrate your charitable giving with your overall financial plan, ensuring a holistic approach to your wealth management.\n\n",
+        },
+        {
+          insert: "Start Maximizing Your Charitable Impact Today!\n",
+          attributes: { header: 2 },
+        },
+        {
+          insert:
+            "\nDon't just give—give wisely. Let us help you create a philanthropic strategy that benefits both the causes you care about and your financial well-being. Contact [Your Financial Advisory Firm] today to schedule a consultation and take the first step towards strategic philanthropy.\n\n",
+        },
+        { insert: "---\n\n" },
+        { insert: "[Your Name]\n", attributes: { bold: true } },
+        {
+          insert:
+            "Certified Financial Planner™\n[Your Financial Advisory Firm]\n[Contact Information]\n[Website URL]\n\n",
+        },
+        { insert: "---\n\n" },
+        {
+          insert:
+            "Maximize your impact with thoughtful philanthropy and strategic tax planning. We're here to guide you every step of the way.",
+        },
+      ],
+    },
+  },
+  {
+    id: 3,
+    title: "Financial Planning For New Families",
+    description:
+      "Securing your family's financial future is paramount and the earlier you get started, the better. Reach out today and I'll help guide you towards financial decisions that will benefit your family for the future to come.",
+    category: "financial-planning",
+    subcategory: "family-planning",
+    deltas: {
+      ops: [
+        {
+          insert:
+            "Secure Your Family's Future: Comprehensive Financial Planning\n",
+          attributes: { header: 1 },
+        },
+        {
+          insert:
+            "\nWhen it comes to your family, ensuring their financial security is paramount. Whether you're planning for your children's education, saving for a new home, or preparing for unexpected events, a solid financial plan is essential. As an experienced financial advisor, I specialize in helping families create and implement strategies that safeguard their financial future.\n\n",
+        },
+        {
+          insert: "Why Family Financial Planning is Crucial\n",
+          attributes: { header: 2 },
+        },
+        {
+          insert:
+            "\nFamily financial planning is about more than just saving money; it's about making informed decisions that provide stability and peace of mind. A comprehensive plan addresses your family's unique needs and goals, ensuring that you are prepared for every stage of life.\n\n",
+        },
+        {
+          insert: "Our Family Financial Planning Services\n",
+          attributes: { header: 2 },
+        },
+        {
+          insert:
+            "\nAt [Your Financial Advisory Firm], we offer a range of services designed to help you build a secure financial foundation for your family:\n\n",
+        },
+        { insert: "Education Planning\n", attributes: { header: 3 } },
+        {
+          insert:
+            "We help you plan for your children's education by setting up tax-advantaged savings accounts, such as 529 plans, and developing strategies to cover tuition and other expenses without compromising your financial health.\n\n",
+        },
+        { insert: "Home Buying Guidance\n", attributes: { header: 3 } },
+        {
+          insert:
+            "Purchasing a home is a significant financial decision. We provide expert advice on saving for a down payment, understanding mortgage options, and ensuring that your home purchase aligns with your overall financial plan.\n\n",
+        },
+        {
+          insert: "Insurance and Risk Management\n",
+          attributes: { header: 3 },
+        },
+        {
+          insert:
+            "Protecting your family from unforeseen events is critical. We assist in evaluating and selecting the right insurance policies, including life, health, and disability insurance, to provide comprehensive coverage and peace of mind.\n\n",
+        },
+        { insert: "Retirement Planning\n", attributes: { header: 3 } },
+        {
+          insert:
+            "A secure retirement for you and your spouse is a key component of family financial planning. We develop tailored retirement strategies that ensure you can maintain your desired lifestyle and support your family throughout your retirement years.\n\n",
+        },
+        { insert: "Estate Planning\n", attributes: { header: 3 } },
+        {
+          insert:
+            "Ensuring that your assets are distributed according to your wishes is essential for your family's future. We work with you to create a comprehensive estate plan that includes wills, trusts, and other tools to protect your legacy.\n\n",
+        },
+        {
+          insert: "Why Choose [Your Financial Advisory Firm]?\n",
+          attributes: { header: 2 },
+        },
+        { insert: "\n" },
+        {
+          insert:
+            "Holistic Approach: We consider all aspects of your family's financial well-being to create a comprehensive plan.\nCustomized Solutions: Every family is unique, and so are our financial strategies. We tailor our services to meet your specific needs and goals.\nOngoing Support: Our relationship doesn't end with the creation of your financial plan. We provide continuous support and adjustments to ensure your plan evolves with your family's changing circumstances.\n\n",
+        },
+        {
+          insert: "Start Securing Your Family's Future Today!\n",
+          attributes: { header: 2 },
+        },
+        {
+          insert:
+            "\nDon't leave your family's financial security to chance. Let us help you build a robust plan that ensures a bright future for your loved ones. Contact [Your Financial Advisory Firm] today to schedule a consultation and take the first step towards comprehensive family financial planning.\n\n",
+        },
+        { insert: "---\n\n" },
+        { insert: "[Your Name]\n", attributes: { bold: true } },
+        {
+          insert:
+            "Certified Financial Planner™\n[Your Financial Advisory Firm]\n[Contact Information]\n[Website URL]\n\n",
+        },
+        { insert: "---\n\n" },
+        {
+          insert:
+            "Secure your family's future with thoughtful financial planning. We're here to guide you every step of the way.",
+        },
+      ],
+    },
+  },
+];
+
 export const emptyList = [];

@@ -31,6 +31,7 @@ const ManageArticles = () => {
   // function with get request to get list of articles
   const getArticlesData = async (articles) => {
     for (const article of articles) {
+      // add selection route for each article card.
       if (article.id) article.selectionroute = `/adv/articles/${article.id}`;
     }
     setArticles([...articles]);

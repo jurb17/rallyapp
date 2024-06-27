@@ -5,12 +5,11 @@ import { useDispatch } from "react-redux";
 // material-ui
 import { makeStyles } from "@material-ui/styles";
 import { Grid, Box } from "@material-ui/core";
-import { IconPencil } from "@tabler/icons";
+import { IconPencil, IconDeviceFloppy } from "@tabler/icons";
 
 // project imports
 import FormInputErrorModal from "ui-component/modals/FormInputErrorModal";
 import ServiceForm from "./forms/ServiceForm";
-import advisoryService from "services/advisory.service";
 import ConfirmDeleteModal from "ui-component/modals/ConfirmDeleteModal";
 import CatsHeader from "ui-component/extended/CatsHeader";
 import QuillContainer from "ui-component/forms/QuillContainer";
@@ -22,6 +21,10 @@ import CatHeader from "ui-component/extended/CatHeader";
 import QuillPaper from "ui-component/templates/QuillPaper";
 import CustomButtonGroup from "ui-component/buttons/CustomButtonGroup";
 import { serviceOutline } from "utils/quill-placeholder";
+
+// data and functions
+import { myServiceList } from "utils/advisor-dummy-data";
+import { demoMapCategoryDisplayNames } from "utils/DataMapFunctions";
 
 // style constant
 const useStyles = makeStyles((theme) => ({}));
@@ -35,19 +38,11 @@ const ServiceProfile = (props, { ...others }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const serviceFormRef = useRef({});
   const quillEditor = useRef(null);
 
   // get path params
   const { id } = useParams();
-
-  // request states
-  const [categoryid, setCategoryid] = useState(
-    id.indexOf(".") !== -1 ? id.split(".")[0] : id
-  );
-  const [subcategoryid, setSubcategoryid] = useState(
-    id.indexOf(".") !== -1 ? id.split(".")[1] : ""
-  );
+  const idParam = id ? id : null;
 
   // data states
   const [servicePayload, setServicePayload] = useState({});
@@ -58,110 +53,15 @@ const ServiceProfile = (props, { ...others }) => {
   const [editMode, setEditMode] = useState(false);
   const [deleteMode, setDeleteMode] = useState(false);
   const [canContinue, setCanContinue] = useState(false);
-  const [backlink, setBacklink] = useState("");
-  const [existingService, setExistingService] = useState(false);
-
-  // const [deleteReroute, setDeleteReroute] = useState(false);
-  const [formErrors, setFormErrors] = useState({});
-  const [formErrorExists, setFormErrorExists] = useState(false);
 
   // #region --- all functions
   // get current data from the server
-  const getServiceData = async () => {
-    if (!!subcategoryid) {
-      await advisoryService
-        .getServiceNiche({ category: categoryid, subcategory: subcategoryid })
-        .then((response) => {
-          if (!!response.data.payload.success) {
-            const parsedDelta = JSON.parse(
-              response.data.payload.service.deltas
-            );
-            setServicePayload({
-              ...response.data.payload,
-              service: {
-                ...response.data.payload.service,
-                deltas: { ops: [...parsedDelta] },
-              },
-            });
-            setUnsavedService({
-              title: response.data.payload.service.title,
-              description: response.data.payload.service.description,
-              deltas: { ops: [...parsedDelta] },
-              // if the price exists, set it to the value and fix to 2 decimal places.
-              // otherwise set it to zero (falsey value).
-              price: !!response.data.payload.service.price
-                ? response.data.payload.service.price.toFixed(2)
-                : 0.0,
-            });
-            setIsLoading(false);
-          } else {
-            dispatch(showSnackbar(response.data.details.text, true, "error"));
-            navigate(-1);
-            // or show error-related page
-            setIsLoading(false);
-          }
-        })
-        .catch((error) => {
-          dispatch(
-            showSnackbar(
-              "There seems to be an issue. Please contact support if this issue persists.",
-              true,
-              "error"
-            )
-          );
-          console.log("uncaught error", error);
-          navigate(-1);
-          // or show error-related page
-          setIsLoading(false);
-        });
-    } else {
-      await advisoryService
-        .getService({ category: categoryid })
-        .then((response) => {
-          if (!!response.data.payload.success) {
-            const parsedDelta = JSON.parse(
-              response.data.payload.service.deltas
-            );
-            setServicePayload({
-              ...response.data.payload,
-              service: {
-                ...response.data.payload.service,
-                deltas: { ops: [...parsedDelta] },
-              },
-            });
-            setUnsavedService({
-              title: response.data.payload.service.title,
-              description: response.data.payload.service.description,
-              deltas: { ops: [...parsedDelta] },
-              price: !!response.data.payload.service.price
-                ? response.data.payload.service.price.toFixed(2)
-                : 0.0,
-            });
-            setIsLoading(false);
-          } else {
-            dispatch(showSnackbar(response.data.details.text, true, "error"));
-            navigate(-1);
-            // or show error-related page
-            setIsLoading(false);
-          }
-        });
-    }
-  };
-
-  // handle retrieving data from the server
-  useEffect(() => {
-    // coming to this page with a service that already exists
-    if (!!location.state.serviceExists) {
-      getServiceData();
-      setExistingService(true);
-    }
-    // coming to this page with a new service
-    else {
+  const getServiceData = async (services, id, stateObj) => {
+    // if the id is equal to "preview, then display the data from the stateObj and fill in the blanks."
+    if (id === "preview") {
       setServicePayload({
-        service: {
-          category: location.state.category,
-          subcategory: location.state.subcategory,
-        },
+        category: location.state.category,
+        subcategory: location.state.subcategory,
       });
       setUnsavedService({
         title: "",
@@ -169,32 +69,65 @@ const ServiceProfile = (props, { ...others }) => {
         deltas: serviceOutline,
         price: 0.0,
       });
-      setIsLoading(false);
       setEditMode(true);
     }
-  }, []);
+    // if the idParam is less than the number 100, then use the id to look up article info
+    else if (parseInt(id, 10) < 100) {
+      const idInteger = parseInt(id, 10);
+      let service = {};
+      services.forEach((item, index) => {
+        if (item.id === idInteger) service = { ...item };
+      });
+      // const parsedDelta = JSON.parse(article.deltas);
+      setUnsavedService({ ...service });
+      setServicePayload({ ...service });
+      setEditMode(false);
+    } // Otherwise, use the state data to fill the article profile.
+    else {
+      setUnsavedService((prevState) => ({
+        ...prevState,
+        ...stateObj,
+      }));
+      setServicePayload((prevState) => ({
+        ...prevState,
+        ...stateObj,
+      }));
+      setEditMode(false);
+    }
+    setIsLoading(false);
+    return true;
+  };
+
+  // handle retrieving data from the server
+  useEffect(() => {
+    // if idParam and articleList exist, get current article data
+    if (!!myServiceList && myServiceList.length) {
+      if (idParam) getServiceData(myServiceList, idParam, location.state);
+      else navigate(-1);
+    }
+    // otherwise, go back
+    else {
+      console.log("No article list found.");
+      navigate(-1);
+    }
+  }, [idParam]);
 
   // handle edit banner
   useEffect(() => {
-    if (!!editMode) {
-      dispatch(showEditBanner(true, "Editing service..."));
-    } else {
-      dispatch(showEditBanner(false, ""));
-    }
+    if (!!editMode) dispatch(showEditBanner(true, "Editing service..."));
+    else dispatch(showEditBanner(false, ""));
   }, [editMode]);
 
   // handle save button enablement
   useEffect(() => {
     if (!isLoading) {
       if (
-        !!unsavedService.title &&
-        !!unsavedService.description &&
+        unsavedService.title &&
+        unsavedService.description &&
         Object.entries(unsavedService.deltas).length > 0
-      ) {
+      )
         setCanContinue(true);
-      } else {
-        setCanContinue(false);
-      }
+      else setCanContinue(false);
     }
   }, [
     unsavedService.title,
@@ -207,200 +140,65 @@ const ServiceProfile = (props, { ...others }) => {
   // cancel changes
   const handleEditCancel = () => {
     setEditMode(false);
-    if (!!existingService) {
+    // if this is not a preview
+    if (idParam && idParam !== "preview") {
       setUnsavedService((prevState) => {
         return {
           ...prevState,
-          title: servicePayload.service.title,
-          description: servicePayload.service.description,
-          deltas: servicePayload.service.deltas,
-          price: servicePayload.service.price,
+          title: servicePayload.title,
+          description: servicePayload.description,
+          deltas: servicePayload.deltas,
+          price: servicePayload.price,
         };
       });
-      dispatch(showSnackbar("No changes were made.", true, "info"));
-    } else {
-      navigate(-1);
-    }
+      dispatch(showSnackbar("Changes were not saved.", true, "info"));
+    } // Otherwise, if this is a preview of a new services, return to previous page.
+    else navigate(-1);
   };
+
   // save changes
-  const handleEditSave = async () => {
-    serviceFormRef.current.validateForm().then(async () => {
-      if (serviceFormRef.current.isValid) {
-        setBacklink("/adv/services");
-        // send api request
-        console.log(
-          "check price before sending it to the server",
-          unsavedService.price,
-          !!unsavedService.price,
-          parseFloat(unsavedService.price).toFixed(2)
-        );
-        if (!!subcategoryid) {
-          await advisoryService
-            .postServiceNiche({
-              category: categoryid,
-              subcategory: subcategoryid,
-              title: unsavedService.title,
-              description: unsavedService.description,
-              deltas: unsavedService.deltas.ops,
-              price: !!unsavedService.price
-                ? parseFloat(unsavedService.price).toFixed(2)
-                : 0.0,
-            })
-            .then((response) => {
-              if (!!response.data.payload.success) {
-                setEditMode(false);
-                // update the profile data (this updated state should not be used for the api request)
-                setServicePayload((prevState) => ({
-                  ...prevState,
-                  service: {
-                    ...prevState.service,
-                    title: unsavedService.title,
-                    description: unsavedService.description,
-                    deltas: unsavedService.deltas,
-                    price: !!unsavedService.price
-                      ? parseFloat(unsavedService.price).toFixed(2)
-                      : 0.0,
-                  },
-                }));
-                // $$$ add successful snackbar messages for put and post requests.
-                dispatch(
-                  showSnackbar("Service updated successfully", true, "success")
-                );
-                setExistingService(true);
-              } else {
-                dispatch(
-                  showSnackbar(response.data, details.text, true, "error")
-                );
-              }
-            })
-            .catch((error) => {
-              dispatch(
-                showSnackbar(
-                  "There seems to be an issue. Please contact support if this issue persists.",
-                  true,
-                  "error"
-                )
-              );
-              console.log("uncaught error", error);
-            });
-        } else {
-          await advisoryService
-            .postService({
-              category: categoryid,
-              title: unsavedService.title,
-              description: unsavedService.description,
-              deltas: unsavedService.deltas.ops,
-              price: !!unsavedService.price
-                ? parseFloat(unsavedService.price).toFixed(2)
-                : 0.0,
-            })
-            .then((response) => {
-              if (!!response.data.payload.success) {
-                setEditMode(false);
-                // update the profile data (this updated state should not be used for the api request)
-                setServicePayload((prevState) => ({
-                  ...prevState,
-                  service: {
-                    ...prevState.service,
-                    title: unsavedService.title,
-                    description: unsavedService.description,
-                    deltas: unsavedService.deltas,
-                    price: !!unsavedService.price
-                      ? parseFloat(unsavedService.price).toFixed(2)
-                      : 0.0,
-                  },
-                }));
-                // $$$ add successful snackbar messages for put and post requests.
-                dispatch(
-                  showSnackbar("Service updated successfully", true, "success")
-                );
-                setExistingService(true);
-              } else {
-                dispatch(
-                  showSnackbar(response.data, details.text, true, "error")
-                );
-              }
-            })
-            .catch((error) => {
-              dispatch(
-                showSnackbar(
-                  "There seems to be an issue. Please contact support if this issue persists.",
-                  true,
-                  "error"
-                )
-              );
-              console.log("uncaught error", error);
-            });
-        }
-      } else {
-        // if there are errors when saving changes, modal will appear to notify user.
-        setFormErrors(serviceFormRef.current.errors);
-        setFormErrorExists(true);
-      }
-    });
+  const handleEditSave = () => {
+    if (idParam && idParam !== "preview") {
+      setEditMode(false);
+      // update the profile data (this updated state should not be used for the api request)
+      setServicePayload((prevState) => ({
+        ...prevState,
+        title: unsavedService.title,
+        description: unsavedService.description,
+        deltas: unsavedService.deltas,
+        price: unsavedService.price
+          ? parseFloat(unsavedService.price).toFixed(2)
+          : 0.0,
+      }));
+      dispatch(showSnackbar("Service updated successfully", true, "success"));
+    }
+    // if there are errors when saving changes, modal will appear to notify user.
+    else
+      navigate("/adv/services/100", {
+        state: {
+          title: unsavedService.title,
+          description: unsavedService.description,
+          deltas: unsavedService.deltas,
+          price: unsavedService.price
+            ? parseFloat(unsavedService.price).toFixed(2)
+            : 0.0,
+        },
+      });
+
     return true;
   };
+
   // confirm delete
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = () => {
     // delete service with API request
     setIsLoading(true);
-    if (!!subcategoryid) {
-      await advisoryService
-        .deleteServiceNiche({
-          category: categoryid,
-          subcategory: subcategoryid,
-        })
-        .then((response) => {
-          if (!!response.data.payload.success) {
-            dispatch(
-              showSnackbar("Service removed successfully", true, "success")
-            );
-            setTimeout(() => {
-              navigate(-1);
-            }, 2000);
-          } else {
-            dispatch(showSnackbar(response.data.details.text, true, "error"));
-          }
-        })
-        .catch((error) => {
-          dispatch(
-            showSnackbar(
-              "There seems to be an issue. Please contact support if this issue persists.",
-              true,
-              "error"
-            )
-          );
-          console.log("uncaught error", error);
-        });
-    } else {
-      await advisoryService
-        .deleteService({
-          category: categoryid,
-        })
-        .then((response) => {
-          if (!!response.data.payload.success) {
-            dispatch(
-              showSnackbar("Service removed successfully", true, "success")
-            );
-            setTimeout(() => {
-              navigate(-1);
-            }, 2000);
-          } else {
-            dispatch(showSnackbar(response.data.details.text, true, "error"));
-          }
-        })
-        .catch((error) => {
-          dispatch(
-            showSnackbar(
-              "There seems to be an issue. Please contact support if this issue persists.",
-              true,
-              "error"
-            )
-          );
-          console.log("uncaught error", error);
-        });
-    }
+    setDeleteMode(false);
+    dispatch(showSnackbar("Service removed successfully", true, "success"));
+    setTimeout(() => {
+      navigate("/adv/services");
+    }, 2000);
   };
+
   // handle content changes
   const handleContentChange = (content) => {
     setUnsavedService((prevState) => ({
@@ -413,11 +211,6 @@ const ServiceProfile = (props, { ...others }) => {
 
   return (
     <>
-      <FormInputErrorModal
-        open={editMode && formErrorExists}
-        errorInfo={formErrors}
-        handleErrorConfirmation={() => setFormErrorExists(false)}
-      />
       <ConfirmDeleteModal
         open={deleteMode}
         handleConfirm={handleDeleteConfirm}
@@ -429,7 +222,6 @@ const ServiceProfile = (props, { ...others }) => {
       />
       <GenericPage
         pageHeader="Service Details"
-        backlink={backlink}
         buttonlist={
           !editMode
             ? [
@@ -455,7 +247,7 @@ const ServiceProfile = (props, { ...others }) => {
                   onClick: handleEditCancel,
                 },
                 {
-                  name: "Save Changes",
+                  name: "Save",
                   color: "secondary",
                   variant: "contained",
                   onClick: handleEditSave,
@@ -482,13 +274,30 @@ const ServiceProfile = (props, { ...others }) => {
                 <>
                   <Grid container>
                     <Grid item xs={12} sx={{ mb: 3 }}>
-                      {!!subcategoryid ? (
+                      {servicePayload.subcategory ? (
                         <CatsHeader
-                          category={servicePayload.service.category}
-                          subcategory={servicePayload.service.subcategory}
+                          category={
+                            demoMapCategoryDisplayNames(
+                              servicePayload.category,
+                              servicePayload.subcategory
+                            ).categoryDisplayName
+                          }
+                          subcategory={
+                            demoMapCategoryDisplayNames(
+                              servicePayload.category,
+                              servicePayload.subcategory
+                            ).subcategoryDisplayName
+                          }
                         />
                       ) : (
-                        <CatHeader category={servicePayload.service.category} />
+                        <CatHeader
+                          category={
+                            demoMapCategoryDisplayNames(
+                              servicePayload.category,
+                              servicePayload.subcategory
+                            ).categoryDisplayName
+                          }
+                        />
                       )}
                     </Grid>
                   </Grid>
@@ -496,10 +305,9 @@ const ServiceProfile = (props, { ...others }) => {
                     serviceInput={{
                       title: unsavedService.title,
                       description: unsavedService.description,
-                      price: !!unsavedService.price ? unsavedService.price : "",
+                      price: unsavedService.price ? unsavedService.price : "",
                     }}
                     editMode={editMode}
-                    forwardedServiceFormRef={serviceFormRef}
                     handleTitleInputChange={(value) => {
                       setUnsavedService((prevState) => ({
                         ...prevState,
@@ -527,8 +335,8 @@ const ServiceProfile = (props, { ...others }) => {
                   >
                     {!editMode ? (
                       <QuillPaper
-                        title={servicePayload.service.title}
-                        content={servicePayload.service.deltas}
+                        title={servicePayload.title}
+                        content={servicePayload.deltas}
                       />
                     ) : (
                       <QuillContainer
@@ -548,6 +356,7 @@ const ServiceProfile = (props, { ...others }) => {
                   direction="row"
                   display="flex"
                   justifyContent={"right"}
+                  paddingTop={2}
                 >
                   <CustomButtonGroup
                     buttonlist={[
@@ -561,6 +370,7 @@ const ServiceProfile = (props, { ...others }) => {
                         name: "Save Changes",
                         color: "secondary",
                         variant: "contained",
+                        startIcon: <IconDeviceFloppy stroke={1.25} />,
                         onClick: handleEditSave,
                         disabled: !canContinue,
                       },

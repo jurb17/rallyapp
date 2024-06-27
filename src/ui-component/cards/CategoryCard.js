@@ -2,9 +2,8 @@ import React from "react";
 
 // material-ui
 import { makeStyles } from "@material-ui/styles";
-import { Box, Typography, Button, Chip, Paper } from "@material-ui/core";
+import { Box, Typography, Paper } from "@material-ui/core";
 import { useTheme } from "@emotion/react";
-import { IconWallet } from "@tabler/icons";
 
 const useStyles = makeStyles((theme) => ({
   catCard: {
@@ -43,10 +42,7 @@ const CategoryCard = (props) => {
       icon={props.icon}
       onClick={props.onClick}
       sx={{
-        mr: 1,
-        ml: 1,
-        mt: 1,
-        mb: 1,
+        m: 1,
         width: "144px",
         fontSize: "1rem",
         fontWeight: "bold",
@@ -67,11 +63,13 @@ const CategoryCard = (props) => {
         alignItems="center"
         justifyContent={"center"}
         marginBottom={1}
+        id={props.id}
       >
         {props.icon}
       </Box>
       <Typography
         variant="h4"
+        id={props.id}
         sx={{
           color: theme.palette.text.hint,
           textAlign: "center",
@@ -80,49 +78,6 @@ const CategoryCard = (props) => {
         {props.label}
       </Typography>
     </Paper>
-    // <Box sx={{ margin: 1.5, marginTop: 1 }}>
-    //   <Button
-    //     id={props.id}
-    //     className={classes.cardButton}
-    //     onClick={props.onClick}
-    //     value={props.text}
-    //     style={
-    //       !!props.selected
-    //         ? {
-    //             backgroundColor: theme.palette.primary.dark,
-    //             border: "2px solid white",
-    //           }
-    //         : {}
-    //     }
-    //   >
-    //     <Box className={classes.catCard}>
-    //       <Box
-    //         sx={{
-    //           display: "flex",
-    //           flexGrow: 1,
-    //           justifyContent: "center",
-    //           mb: 1.5,
-    //         }}
-    //       >
-    //         {/* for icon component */}
-    //         {props.children}
-    //       </Box>
-    //       <Box sx={{ display: "flex", flexGrow: 1, justifyContent: "center" }}>
-    //         {/* for text component */}
-    //         <Typography
-    //           id={props.id}
-    //           variant="h4"
-    //           color={theme.palette.text.hint}
-    //           fontStyle="normal"
-    //           textAlign="center"
-    //           {...props.textStyle}
-    //         >
-    //           {props.text}
-    //         </Typography>
-    //       </Box>
-    //     </Box>
-    //   </Button>
-    // </Box>
   );
 };
 

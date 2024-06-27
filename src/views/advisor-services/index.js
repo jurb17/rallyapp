@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, createSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
 // material-ui
@@ -9,11 +9,13 @@ import { IconPackage } from "@tabler/icons";
 
 // project imports
 import ServiceList from "./components/ServiceList";
-import advisoryService from "services/advisory.service";
 import PagePlaceholderText from "ui-component/extended/PagePlaceholderText";
 import NoteBanner from "ui-component/banners/NoteBanner";
 import GenericPage from "ui-component/pages/GenericPage";
 import { showSnackbar } from "actions/main";
+
+// data and fucntions
+import { myServiceList } from "utils/advisor-dummy-data";
 
 // style constant
 const useStyles = makeStyles((theme) => ({}));
@@ -35,47 +37,25 @@ const ManageServices = (props) => {
   const [emptyList, setEmptyList] = useState(true);
 
   // get service list data
-  const getServicesData = async () => {
-    await advisoryService
-      .getServiceList({})
-      .then((response) => {
-        if (!!response.data.payload.success) {
-          if (!!response.data.payload.services) {
-            // set emptyList state so when user creates a new service, they have the option to add a niche.
-            setEmptyList(false);
-            let servicelist = response.data.payload.services;
-            for (const service of servicelist) {
-              if (!!service.id) {
-                // add selection route for each service card.
-                service.selectionroute = `/adv/services/${service.id}`;
-              }
-            }
-            setServices([...servicelist]);
-          } else {
-            setEmptyList(true);
-            dispatch(showSnackbar("No services found.", true, "warning"));
-          }
-        } else {
-          dispatch(showSnackbar(response.data.details.text, true, "error"));
-        }
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        dispatch(
-          showSnackbar(
-            "There seems to be an issue. Please contact support if this issue persists.",
-            true,
-            "error"
-          )
-        );
-        console.log("uncaught error", error);
-        setIsLoading(false);
-      });
+  const getServicesData = async (services) => {
+    // set emptyList state so when user creates a new service, they have the option to add a niche.
+    setEmptyList(false);
+    let servicelist = services;
+    for (const service of servicelist) {
+      // add selection route for each service card.
+      if (service.id) service.selectionroute = `/adv/services/${service.id}`;
+    }
+    setServices([...servicelist]);
+    setIsLoading(false);
   };
 
   // retrieve service list data from backend
   useEffect(() => {
-    getServicesData();
+    if (myServiceList.length) getServicesData(myServiceList);
+    else {
+      setIsLoading(false);
+      dispatch(showSnackbar("No services found.", true, "warning"));
+    }
   }, []);
 
   return (

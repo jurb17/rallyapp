@@ -52,10 +52,11 @@ const ArticleProfile = () => {
 
   const getArticleData = async (articlelist, id, stateObj) => {
     // if the idParam is less than the number 100, then use the id to look up article info
-    if (id < 100) {
+    const idInteger = parseInt(id, 10);
+    if (idInteger < 100) {
       let article = {};
-      articlelist.forEach((item) => {
-        if ((item[id] = id)) article = item;
+      articlelist.forEach((item, index) => {
+        if (item.id === idInteger) article = { ...item };
       });
       // const parsedDelta = JSON.parse(article.deltas);
       setUnsavedContent(article.deltas);
@@ -77,8 +78,8 @@ const ArticleProfile = () => {
 
   // get current data from the server
   useEffect(() => {
-    // if idParam and clientList exist, get current client data
-    if (myArticleList && myArticleList.length) {
+    // if idParam and articleList exist, get current article data
+    if (!!myArticleList && myArticleList.length) {
       if (idParam) getArticleData(myArticleList, idParam, location.state);
       else navigate(-1);
     }
@@ -98,7 +99,7 @@ const ArticleProfile = () => {
   const handleEditCancel = () => {
     setEditMode(false);
     setUnsavedContent(articlePayload.deltas);
-    dispatch(showSnackbar("No changes were made.", true, "info"));
+    dispatch(showSnackbar("Changes were not saved.", true, "info"));
     setHasNewContent(false);
   };
 
@@ -117,7 +118,7 @@ const ArticleProfile = () => {
       setEditMode(false);
       setHasNewContent(false);
       dispatch(showSnackbar("Article updated successfully", true, "success"));
-      return response;
+      return true;
     }
   };
 
@@ -235,7 +236,7 @@ const ArticleProfile = () => {
               </Box>
               <InputBaseForm
                 key={articlePayload.title}
-                formObj={{ Title: articlePayload.title }}
+                formobj={{ Title: articlePayload.title }}
                 mb={1.5}
                 mt={-2}
               />
@@ -243,7 +244,6 @@ const ArticleProfile = () => {
                 <QuillPaper
                   title={articlePayload.title}
                   content={articlePayload.deltas}
-                  forwardedQuillEditor={quillEditor}
                 />
               ) : (
                 // if in edit mode

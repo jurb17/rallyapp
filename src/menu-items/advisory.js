@@ -77,14 +77,14 @@ const advisory = {
       icon: icons.IconWriting,
       breadcrumbs: false,
     },
-    // {
-    //   id: "adv-services",
-    //   title: "Services",
-    //   type: "item",
-    //   url: "/adv/services",
-    //   icon: icons.IconBuildingStore,
-    //   breadcrumbs: false,
-    // },
+    {
+      id: "adv-services",
+      title: "Services",
+      type: "item",
+      url: "/adv/services",
+      icon: icons.IconBuildingStore,
+      breadcrumbs: false,
+    },
   ],
 };
 

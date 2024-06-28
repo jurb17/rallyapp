@@ -17,7 +17,7 @@ import PagePlaceholderText from "ui-component/extended/PagePlaceholderText";
 import CustomButtonGroup from "ui-component/buttons/CustomButtonGroup";
 import QuillPaper from "ui-component/templates/QuillPaper";
 
-// data and function imports
+// data and functions
 import { articleCategories, articleSubcategories } from "utils/categories";
 
 // style constant

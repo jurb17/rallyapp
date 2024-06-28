@@ -21,7 +21,7 @@ import { showEditBanner } from "actions/main";
 import CategoryCard from "ui-component/cards/CategoryCard";
 import SubcategoryButton from "ui-component/buttons/SubcategoryButton";
 
-// data and function imports
+// data and functions
 import { articleCategories, articleSubcategories } from "utils/categories";
 import { demoMapCategoryDisplayNames } from "utils/DataMapFunctions";
 

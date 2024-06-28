@@ -53,13 +53,16 @@ const ManageClients = () => {
     setIsLoading(false);
   };
 
-  useEffect(async () => {
+  useEffect(() => {
+    // if the advisor doesn't have a merchant account, then they can't process payments
     if (attributes.MERCHANT < 0) {
       setPlaceholder(
         "You do not have a merchant account. Please go to the Settings page and create a merchant account with Stripe."
       );
       setIsLoading(false);
-    } else {
+    }
+    // Otherwise, retrieve clients data
+    else {
       setPlaceholder("");
       getClientsData(myClientList);
     }

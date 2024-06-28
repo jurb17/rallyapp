@@ -24,7 +24,7 @@ import PagePlaceholderText from "ui-component/extended/PagePlaceholderText";
 import SupportRequest from "ui-component/modals/SupportRequest";
 import ReportAbuseCard from "ui-component/cards/ReportAbuseCard";
 
-// data and functions imports
+// data and functions
 import { clientChatList } from "utils/client-dummy-data";
 
 // style constant

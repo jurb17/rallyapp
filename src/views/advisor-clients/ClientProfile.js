@@ -22,7 +22,7 @@ import {
   IconMessage,
 } from "@tabler/icons";
 
-// data and functions imports
+// data and functions
 import { myClientList } from "utils/advisor-dummy-data";
 import ClientForm from "./forms/ClientForm";
 

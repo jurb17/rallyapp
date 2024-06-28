@@ -22,7 +22,7 @@ import PagePlaceholderText from "ui-component/extended/PagePlaceholderText";
 import SupportRequest from "ui-component/modals/SupportRequest";
 import ReportAbuseCard from "ui-component/cards/ReportAbuseCard";
 
-// data and functions imports
+// data and functions
 import { showSnackbar } from "actions/main";
 import { advisorChatList, myClientIdList } from "utils/advisor-dummy-data";
 

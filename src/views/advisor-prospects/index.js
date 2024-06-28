@@ -11,7 +11,7 @@ import NoteBanner from "ui-component/banners/NoteBanner";
 import GenericPage from "ui-component/pages/GenericPage";
 import { showSnackbar } from "actions/main";
 
-// data and functions imports
+// data and functions
 import { myProspectList } from "utils/advisor-dummy-data";
 
 // =====================================================

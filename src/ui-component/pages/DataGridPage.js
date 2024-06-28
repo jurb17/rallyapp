@@ -38,14 +38,10 @@ const DataGridPage = (props) => {
   // define function to handle row click -> navigate to payment profile.
   const rowSelectHandler = (data) => {
     let newData = data;
-    if (props.addStateData) {
-      newData = { ...newData, ...props.addStateData };
-    }
-    if (data.selectionroute.indexOf("https://www.rally.markets") > -1) {
+    if (props.addStateData) newData = { ...newData, ...props.addStateData };
+    if (data.selectionroute.indexOf("https://www.rally.markets") > -1)
       window.location.href = data.selectionroute;
-    } else {
-      navigate(data.selectionroute);
-    }
+    else navigate(data.selectionroute);
   };
 
   // display button to create new user and table of payments.

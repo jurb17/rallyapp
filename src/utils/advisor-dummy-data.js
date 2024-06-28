@@ -890,4 +890,42 @@ export const myServiceList = [
   },
 ];
 
+export const myInvoiceList = [
+  {
+    id: 1,
+    adviceid: 1,
+    clientname: "Goofy Dog",
+    createdate: 1709995350000,
+    status: "open",
+    subtotal: 500,
+    total: 540,
+    fee: 40,
+    refunddate: null,
+    refundamount: null,
+    feerefund: null,
+    canceldate: null,
+    items: [
+      { id: 1, amount: 100, description: "initial fee" },
+      { id: 2, amount: 400, description: "actual service" },
+    ],
+  },
+  {
+    id: 2,
+    adviceid: 1,
+    clientname: "Goofy Dog",
+    status: "unpaid",
+    subtotal: 700,
+    createdate: 1709995350000,
+    refunddate: null,
+    items: [
+      { id: 1, amount: 350, description: "initial fee" },
+      { id: 2, amount: 350, description: "actual service" },
+    ],
+  },
+];
+
+export const myProfileInfo = {
+  something: "something",
+};
+
 export const emptyList = [];

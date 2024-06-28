@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
@@ -22,8 +22,15 @@ import ConfirmDeleteModal from "ui-component/modals/ConfirmDeleteModal";
 import DynamicButton from "ui-component/buttons/DynamicButton";
 import { showSnackbar } from "actions/main";
 import InvoiceTemplate from "ui-component/templates/InvoiceTemplate";
-import accountService from "services/account.service";
 import CustomLabel from "ui-component/extended/CustomLabel";
+
+// data and functions
+import {
+  myClientList,
+  myInvoiceList,
+  myProfileInfo,
+  myProspectList,
+} from "utils/advisor-dummy-data";
 
 // style constant
 const useStyles = makeStyles((theme) => ({
@@ -81,20 +88,16 @@ const InvoiceProfile = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location = useLocation();
-  const invoiceFormRef = useRef({});
-  const taskListRef = useRef([]);
 
   const { adviceid, id } = useParams();
-
-  // request states
-  const [paymentid, setPaymentid] = useState(id);
-  const [clientid, setClientid] = useState(adviceid);
+  const idParam = adviceid;
+  const paymentid = id;
 
   // data states
   const [paymentPayload, setPaymentPayload] = useState({});
-  const [clientPayload, setClientPayload] = useState({});
+  const [adviseePayload, setAdviseePayload] = useState({});
   const [calcData, setCalcData] = useState({});
-  const [account, setAccount] = useState({});
+  const [accountInfo, setAccountInfo] = useState({});
 
   // mode states
   const [refundMode, setRefundMode] = useState(false);
@@ -103,12 +106,10 @@ const InvoiceProfile = () => {
   const [isProspect, setIsProspect] = useState(false);
 
   // function to set the calcData states
-  const getCalcData = (paymentLoad, clientLoad) => {
+  const getTimeData = (paymentLoad) => {
     // fill in all missing amounts with zero
-    paymentLoad.payment.items.forEach((item) => {
-      if (!item.amount) {
-        item.amount = 0;
-      }
+    paymentLoad.items.forEach((item) => {
+      if (!item.amount) item.amount = 0;
     });
     // format dates and times
     let formattedCreateDate = null;
@@ -119,12 +120,12 @@ const InvoiceProfile = () => {
     let formattedCompleteTime = null;
     let formattedRefundDate = null;
     let formattedRefundTime = null;
-    if (paymentLoad.payment.createdate) {
+    if (paymentLoad.createdate) {
       formattedCreateDate = new Date(
-        parseInt(paymentLoad.payment.createdate)
+        parseInt(paymentLoad.createdate)
       ).toLocaleDateString("en-US");
       formattedCreateTime = new Date(
-        parseInt(paymentLoad.payment.createdate)
+        parseInt(paymentLoad.createdate)
       ).toLocaleTimeString("en-US");
       setCalcData((prevState) => ({
         ...prevState,
@@ -132,12 +133,12 @@ const InvoiceProfile = () => {
         createTime: formattedCreateTime,
       }));
     }
-    if (paymentLoad.payment.canceldate) {
+    if (paymentLoad.canceldate) {
       formattedCancelDate = new Date(
-        parseInt(paymentLoad.payment.canceldate)
+        parseInt(paymentLoad.canceldate)
       ).toLocaleDateString("en-US");
       formattedCancelTime = new Date(
-        parseInt(paymentLoad.payment.canceldate)
+        parseInt(paymentLoad.canceldate)
       ).toLocaleTimeString("en-US");
       setCalcData((prevState) => ({
         ...prevState,
@@ -145,12 +146,12 @@ const InvoiceProfile = () => {
         cancelTime: formattedCancelTime,
       }));
     }
-    if (paymentLoad.payment.completedate) {
+    if (paymentLoad.completedate) {
       formattedCompleteDate = new Date(
-        parseInt(paymentLoad.payment.completedate)
+        parseInt(paymentLoad.completedate)
       ).toLocaleDateString("en-US");
       formattedCompleteTime = new Date(
-        parseInt(paymentLoad.payment.completedate)
+        parseInt(paymentLoad.completedate)
       ).toLocaleTimeString("en-US");
       setCalcData((prevState) => ({
         ...prevState,
@@ -158,12 +159,12 @@ const InvoiceProfile = () => {
         completeTime: formattedCompleteTime,
       }));
     }
-    if (paymentLoad.payment.refunddate) {
+    if (paymentLoad.refunddate) {
       formattedRefundDate = new Date(
-        parseInt(paymentLoad.payment.refunddate)
+        parseInt(paymentLoad.refunddate)
       ).toLocaleDateString("en-US");
       formattedRefundTime = new Date(
-        parseInt(paymentLoad.payment.refunddate)
+        parseInt(paymentLoad.refunddate)
       ).toLocaleTimeString("en-US");
       setCalcData((prevState) => ({
         ...prevState,
@@ -172,137 +173,59 @@ const InvoiceProfile = () => {
       }));
     }
     // set the client name state
-    if (paymentLoad.client.name) {
+    if (paymentLoad.name)
       setCalcData((prevState) => ({
         ...prevState,
-        clientname: paymentLoad.client.name,
+        clientname: paymentLoad.name,
       }));
-    }
   };
 
-  // function to set the paymentPayload and clientPayload states
-  const getInvoiceData = async () => {
-    // get invoice payload
-    await advisoryService
-      .getPayment({
-        clientid: clientid,
-        paymentid: paymentid,
-      })
-      .then(async (paymentResponse) => {
-        if (!!paymentResponse.data.payload.success) {
-          setPaymentPayload({ ...paymentResponse.data.payload });
-          // get client payload
-          await advisoryService
-            .getClient({
-              clientid: clientid,
-            })
-            .then(async (clientResponse) => {
-              if (!!clientResponse.data.payload.success) {
-                // check the client object in the payload, then determine if the client is a prospect.
-                if (
-                  Object.entries(clientResponse.data.payload.client).length > 0
-                ) {
-                  setClientPayload({ ...clientResponse.data.payload });
-                  // get calc data
-                  getCalcData(
-                    paymentResponse.data.payload,
-                    clientResponse.data.payload
-                  );
-                } else {
-                  setIsProspect(true);
-                }
-                setIsLoading(false);
-                // }
-              } else {
-                dispatch(
-                  showSnackbar(clientResponse.data.details.text, true, "error")
-                );
-                navigate(-1);
-                // or show error-related page
-                setIsLoading(false);
-              }
-            })
-            .catch((error) => {
-              dispatch(
-                showSnackbar(
-                  "There seems to be an issue. Please contact support if this issue persists.",
-                  true,
-                  "error"
-                )
-              );
-              console.log("uncaught error", error);
-              navigate(-1);
-              // or show error-related page
-              setIsLoading(false);
-            });
-        } else {
-          dispatch(
-            showSnackbar(paymentResponse.data.details.text, true, "error")
-          );
-          navigate(-1);
-          // or show error-related page
-          setIsLoading(false);
-        }
-      })
-      .catch((error) => {
-        dispatch(
-          showSnackbar(
-            "There seems to be an issue. Please contact support if this issue persists.",
-            true,
-            "error"
-          )
-        );
-        console.log("uncaught error", error);
-        navigate(-1);
-        // or show error-related page
-        setIsLoading(false);
-      });
+  // function to set the paymentPayload and adviseePayload states
+  const getInvoiceData = (paymentid, invoicelist) => {
+    // get the specific invoice details and pass to state
+    invoicelist.forEach((invoice) => {
+      if (invoice.id.toString() === paymentid) {
+        setPaymentPayload({ ...invoice });
+        getTimeData({ ...invoice });
+        return { ...invoice };
+      }
+    });
   };
 
-  // get account details
-  const getAccountDetails = () => {
-    return new Promise(async (resolve, reject) => {
-      setIsLoading(true);
-      await accountService
-        .getAccount({})
-        .then((response) => {
-          if (!!response.data.payload.success) {
-            resolve(response.data.payload.user);
-          }
-        })
-        .catch((error) => {
-          reject(error);
-        });
+  // function to get client or prospect data
+  const getAdviseeData = (adviceid, clientlist, prospectlist) => {
+    prospectlist.forEach((prospect) => {
+      if (prospect.id.toString() === adviceid) {
+        setAdviseePayload({ ...prospect });
+        setIsProspect(true);
+        return { ...prospect };
+      }
+    });
+    clientlist.forEach((client) => {
+      if (client.id.toString() === adviceid) {
+        setAdviseePayload({ ...client });
+        setIsProspect(false);
+        return { ...client };
+      }
     });
   };
 
   // get current data from the server
-  useEffect(async () => {
-    // logic of the useEffect request
-    if (!!clientid && !!paymentid) {
-      getAccountDetails()
-        .then((data) => {
-          setAccount(data);
-          getInvoiceData();
-        })
-        .catch((error) => {
-          console.log("uncaught error", error);
-          dispatch(
-            showSnackbar("Unable to get account details", true, "error")
-          );
-          navigate(-1);
-        });
-    } else {
-      dispatch(
-        showSnackbar("No advice ID or payment ID found", true, "warning")
-      );
-      setIsLoading(false);
-      if (!!location.state.backlink) {
-        navigate(location.state.backlink);
-      } else {
+  useEffect(() => {
+    // if there is an adviceid and paymentid, and the invoice list exists, then retrieve invoice data
+    if (idParam && paymentid)
+      if (myInvoiceList && myInvoiceList.length) {
+        getInvoiceData(paymentid, myInvoiceList);
+        getAdviseeData(idParam, myClientList, myProspectList);
+        setAccountInfo(myProfileInfo);
+        setIsLoading(false);
+      }
+      // otherwise, go back
+      else {
+        console.log("No client list found.");
         navigate(-1);
       }
-    }
+    else navigate(-1);
   }, []);
 
   // #region - handle data changes
@@ -321,12 +244,12 @@ const InvoiceProfile = () => {
           setPaymentPayload((prevState) => ({
             ...prevState,
             payment: {
-              ...paymentPayload.payment,
+              ...paymentPayload,
               status: "refunded",
               refundamount: (
                 parseFloat(
-                  paymentPayload.payment.refundamount
-                    ? paymentPayload.payment.refundamount
+                  paymentPayload.refundamount
+                    ? paymentPayload.refundamount
                     : 0.0
                 ) - parseFloat(refundObj.amount)
               ).toFixed(2),
@@ -368,7 +291,7 @@ const InvoiceProfile = () => {
         if (!!response.data.payload.success) {
           // if the user has opened checkout
           if (
-            paymentPayload.payment.status === "open" &&
+            paymentPayload.status === "open" &&
             response.data.payload.text === "Cannot Retract Accepted Payment" // is Justin still returning this string value?
           ) {
             dispatch(
@@ -382,7 +305,7 @@ const InvoiceProfile = () => {
             setPaymentPayload((prevState) => ({
               ...prevState,
               payment: {
-                ...paymentPayload.payment,
+                ...paymentPayload,
                 status: "cancelled",
               },
             }));
@@ -415,26 +338,22 @@ const InvoiceProfile = () => {
 
   // calculate remaining total after refund
   const calcRemainingTotal = () => {
-    if (
-      !!paymentPayload.payment.refundamount &&
-      !!paymentPayload.payment.feerefund
-    ) {
+    if (paymentPayload.refundamount && paymentPayload.feerefund) {
       return (
-        parseFloat(paymentPayload.payment.total) -
-        parseFloat(paymentPayload.payment.fee) -
-        parseFloat(paymentPayload.payment.refundamount * -1) +
-        parseFloat(paymentPayload.payment.feerefund * -1)
+        parseFloat(paymentPayload.total) -
+        parseFloat(paymentPayload.fee) -
+        parseFloat(paymentPayload.refundamount * -1) +
+        parseFloat(paymentPayload.feerefund * -1)
       ).toFixed(2);
-    } else if (!!paymentPayload.payment.refundamount) {
+    } else if (!!paymentPayload.refundamount) {
       return (
-        parseFloat(paymentPayload.payment.total) -
-        parseFloat(paymentPayload.payment.fee) -
-        parseFloat(paymentPayload.payment.refundamount * -1)
+        parseFloat(paymentPayload.total) -
+        parseFloat(paymentPayload.fee) -
+        parseFloat(paymentPayload.refundamount * -1)
       ).toFixed(2);
     }
     return (
-      parseFloat(paymentPayload.payment.total) -
-      parseFloat(paymentPayload.payment.fee)
+      parseFloat(paymentPayload.total) - parseFloat(paymentPayload.fee)
     ).toFixed(2);
   };
 
@@ -461,11 +380,11 @@ const InvoiceProfile = () => {
           <RefundForm
             open={refundMode}
             subtotalAfterRefund={
-              !!paymentPayload.payment.refundamount
+              !!paymentPayload.refundamount
                 ? Math.max(calcRemainingTotal(), 0).toFixed(2)
                 : (
-                    parseFloat(paymentPayload.payment.total) -
-                    parseFloat(paymentPayload.payment.fee)
+                    parseFloat(paymentPayload.total) -
+                    parseFloat(paymentPayload.fee)
                   ).toFixed(2)
             }
             handleRefundSubmit={handleRefundSubmit}
@@ -479,7 +398,7 @@ const InvoiceProfile = () => {
                 : null
             }
             buttonlist={
-              paymentPayload.payment.status === "open"
+              paymentPayload.status === "open"
                 ? [
                     {
                       name: "Cancel Invoice",
@@ -489,8 +408,8 @@ const InvoiceProfile = () => {
                       onClick: () => setDeleteMode(true),
                     },
                   ]
-                : paymentPayload.payment.status === "complete" ||
-                  (paymentPayload.payment.status === "refunded" &&
+                : paymentPayload.status === "complete" ||
+                  (paymentPayload.status === "refunded" &&
                     calcRemainingTotal() > 0)
                 ? [
                     {
@@ -504,16 +423,6 @@ const InvoiceProfile = () => {
                 : []
             }
           >
-            <Box sx={{ display: "flex", alignItems: "center", mt: 1, mb: 1 }}>
-              <Typography variant="h4" sx={{ fontWeight: "normal" }}>
-                Status:
-              </Typography>
-              <CustomLabel
-                text={paymentPayload.payment.status}
-                textStyle={{ fontSize: "1rem", fontWeight: "bold" }}
-              />
-            </Box>
-
             <SubsectionWrapper
               title="Detailed Report"
               tipBody="This is the report of invoice information, including parties involved and the itemized list of deliverables. Please direct all communication with the client to the chat."
@@ -540,6 +449,15 @@ const InvoiceProfile = () => {
                 },
               ]}
             >
+              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <Typography variant="h4" sx={{ fontWeight: "normal" }}>
+                  Status:
+                </Typography>
+                <CustomLabel
+                  text={paymentPayload.status}
+                  textStyle={{ fontSize: "1rem", fontWeight: "bold" }}
+                />
+              </Box>
               <Box sx={{ mb: 2 }}>
                 <Paper
                   variant="outlined"
@@ -549,11 +467,11 @@ const InvoiceProfile = () => {
                   }}
                 >
                   <InvoiceTemplate
-                    billto={{ ...clientPayload.client }}
-                    billfrom={{ ...account }}
-                    lineitems={[...paymentPayload.payment.items]}
-                    subtotal={paymentPayload.payment.subtotal}
-                    invoiceid={paymentPayload.payment.id}
+                    billto={{ ...adviseePayload.client }}
+                    billfrom={{ ...accountInfo }}
+                    lineitems={[...paymentPayload.items]}
+                    subtotal={paymentPayload.subtotal}
+                    invoiceid={paymentPayload.id}
                     createdate={calcData.createDate}
                     canceldate={calcData.cancelDate}
                     completedate={calcData.completeDate}
@@ -562,7 +480,7 @@ const InvoiceProfile = () => {
                 </Paper>
               </Box>{" "}
             </SubsectionWrapper>
-            {!["open"].includes(paymentPayload.payment.status) && (
+            {!["open"].includes(paymentPayload.status) && (
               <SubsectionWrapper
                 pt={0}
                 mb={1.5}
@@ -570,22 +488,22 @@ const InvoiceProfile = () => {
                 tipBody="This is a log of the events that have taken place during the life of this invoice."
               >
                 <Grid container>
-                  {!!paymentPayload.payment.fee && (
+                  {paymentPayload.fee && (
                     <Grid item xs={12}>
                       <Typography className={classes.feeLine}>
                         <em>
                           Platform Fee:{" "}
                           <span style={{ fontWeight: "bold" }}>
-                            ${parseFloat(paymentPayload.payment.fee).toFixed(2)}
+                            ${parseFloat(paymentPayload.fee).toFixed(2)}
                           </span>
                         </em>
-                        {!!paymentPayload.payment.feerefund && (
+                        {!!paymentPayload.feerefund && (
                           <em>
                             {" ("}Refunded:{" "}
                             <span style={{ fontWeight: "bold" }}>
                               $
                               {parseFloat(
-                                paymentPayload.payment.feerefund * -1
+                                paymentPayload.feerefund * -1
                               ).toFixed(2)}
                             </span>
                             {")"}
@@ -594,7 +512,7 @@ const InvoiceProfile = () => {
                       </Typography>
                     </Grid>
                   )}
-                  {!!paymentPayload.payment.refundamount && (
+                  {paymentPayload.refundamount && (
                     <Grid item xs={12}>
                       <Typography className={classes.refundLine}>
                         <em>
@@ -602,7 +520,7 @@ const InvoiceProfile = () => {
                           <span style={{ fontWeight: "bold" }}>
                             $
                             {parseFloat(
-                              paymentPayload.payment.refundamount * -1
+                              paymentPayload.refundamount * -1
                             ).toFixed(2)}
                           </span>
                         </em>
@@ -610,19 +528,18 @@ const InvoiceProfile = () => {
                     </Grid>
                   )}
                   {!["open", "cancelled", "declined"].includes(
-                    paymentPayload.payment.status
+                    paymentPayload.status
                   ) && (
                     <Grid item xs={12}>
                       <Typography className={classes.finalTotalAmount}>
                         {"Total Received: "}
                         <span style={{ fontWeight: "bold" }}>
-                          {!!paymentPayload.payment.refundamount
+                          {!!paymentPayload.refundamount
                             ? "$" + Math.max(calcRemainingTotal(), 0).toFixed(2)
                             : "$" +
                               Math.max(
                                 parseFloat(
-                                  paymentPayload.payment.subtotal -
-                                    paymentPayload.payment.fee
+                                  paymentPayload.subtotal - paymentPayload.fee
                                 ),
                                 0
                               ).toFixed(2)}
@@ -630,7 +547,7 @@ const InvoiceProfile = () => {
                       </Typography>
                     </Grid>
                   )}
-                  {paymentPayload.payment.status === "cancelled" && (
+                  {paymentPayload.status === "cancelled" && (
                     <Grid item xs={12}>
                       <Typography className={classes.cancelledText}>
                         <em>
@@ -640,7 +557,7 @@ const InvoiceProfile = () => {
                       </Typography>
                     </Grid>
                   )}
-                  {paymentPayload.payment.status === "complete" ? (
+                  {paymentPayload.status === "complete" ? (
                     <Grid item xs={12}>
                       <Typography className={classes.completeText}>
                         <em>
@@ -649,7 +566,7 @@ const InvoiceProfile = () => {
                         </em>
                       </Typography>
                     </Grid>
-                  ) : paymentPayload.payment.status === "refunded" ? (
+                  ) : paymentPayload.status === "refunded" ? (
                     <Grid item xs={12}>
                       <Typography className={classes.refundLine}>
                         <em>
@@ -673,7 +590,7 @@ const InvoiceProfile = () => {
                 justifyContent: "end",
               }}
             >
-              {paymentPayload.payment.status === "open" ? (
+              {paymentPayload.status === "open" ? (
                 <>
                   <Grid item display="flex" justifyContent={"end"}>
                     <DynamicButton
@@ -685,13 +602,13 @@ const InvoiceProfile = () => {
                     />
                   </Grid>
                 </>
-              ) : (paymentPayload.payment.status === "complete" ||
-                  paymentPayload.payment.status === "refunded") &&
+              ) : (paymentPayload.status === "complete" ||
+                  paymentPayload.status === "refunded") &&
                 (
-                  parseFloat(paymentPayload.payment.total) -
-                  parseFloat(paymentPayload.payment.fee) -
-                  parseFloat(paymentPayload.payment.refundamount * -1) +
-                  parseFloat(paymentPayload.payment.feerefund * -1)
+                  parseFloat(paymentPayload.total) -
+                  parseFloat(paymentPayload.fee) -
+                  parseFloat(paymentPayload.refundamount * -1) +
+                  parseFloat(paymentPayload.feerefund * -1)
                 ).toFixed(2) > 0 ? (
                 <>
                   <Grid item display="flex" justifyContent={"end"}>

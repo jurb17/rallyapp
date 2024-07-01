@@ -295,6 +295,7 @@ export const myClientList = [
     name: "Goofy Dog",
     firstname: "Goofy",
     lastname: "Dog",
+    city: "Seaside Heights",
     state: "NJ",
     phone: "555-555-5555",
     email: "gdog@fake.com",
@@ -893,7 +894,7 @@ export const myServiceList = [
 export const myInvoiceList = [
   {
     id: 1,
-    adviceid: 1,
+    adviceid: 2,
     clientname: "Goofy Dog",
     createdate: 1709995350000,
     status: "open",
@@ -905,7 +906,7 @@ export const myInvoiceList = [
     feerefund: null,
     canceldate: null,
     items: [
-      { id: 1, amount: 100, description: "initial fee" },
+      { id: 1, amount: 100, description: "start up fee" },
       { id: 2, amount: 400, description: "actual service" },
     ],
   },
@@ -925,7 +926,11 @@ export const myInvoiceList = [
 ];
 
 export const myProfileInfo = {
-  something: "something",
+  firstname: "Arnold",
+  lastname: "McDonald",
+  city: "Sarasota",
+  state: "FL",
+  email: "amcdonald@advisor.com",
 };
 
 export const emptyList = [];

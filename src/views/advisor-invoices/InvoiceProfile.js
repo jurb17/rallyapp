@@ -13,7 +13,6 @@ import {
 } from "@tabler/icons";
 
 // project imports
-import advisoryService from "services/advisory.service";
 import RefundForm from "./forms/RefundForm";
 import SubsectionWrapper from "ui-component/wrappers/SubsectionWrapper";
 import PagePlaceholderText from "ui-component/extended/PagePlaceholderText";
@@ -97,7 +96,7 @@ const InvoiceProfile = () => {
   const [paymentPayload, setPaymentPayload] = useState({});
   const [adviseePayload, setAdviseePayload] = useState({});
   const [calcData, setCalcData] = useState({});
-  const [accountInfo, setAccountInfo] = useState({});
+  const [profileInfo, setProfileInfo] = useState({});
 
   // mode states
   const [refundMode, setRefundMode] = useState(false);
@@ -217,7 +216,7 @@ const InvoiceProfile = () => {
       if (myInvoiceList && myInvoiceList.length) {
         getInvoiceData(paymentid, myInvoiceList);
         getAdviseeData(idParam, myClientList, myProspectList);
-        setAccountInfo(myProfileInfo);
+        setProfileInfo(myProfileInfo);
         setIsLoading(false);
       }
       // otherwise, go back
@@ -231,109 +230,57 @@ const InvoiceProfile = () => {
   // #region - handle data changes
   // confirm refund
   const handleRefundSubmit = async (refundObj) => {
+    // !!! A LOT OF STATE CHANGES THAT WILL INSTIGATE PAGE RELOADING.
     setIsLoading(true);
+    const newdate = new Date();
+    setPaymentPayload((prevState) => ({
+      ...prevState,
+      payment: {
+        ...paymentPayload,
+        status: "refunded",
+        refundamount: (
+          parseFloat(
+            paymentPayload.refundamount ? paymentPayload.refundamount : 0.0
+          ) - parseFloat(refundObj.amount)
+        ).toFixed(2),
+      },
+    }));
+    setCalcData((prevState) => ({
+      ...prevState,
+      refundDate: newdate.toLocaleDateString("en-US"),
+      refundTime: newdate.toLocaleTimeString("en-US"),
+    }));
+    dispatch(showSnackbar("Refund submitted successfully", true, "success"));
     setRefundMode(false);
-    await advisoryService
-      .postPaymentRefund({
-        paymentid: paymentid,
-        amount: parseFloat(parseFloat(refundObj.amount).toFixed(2)),
-      })
-      .then((response) => {
-        if (!!response.data.payload.success) {
-          const newdate = new Date();
-          setPaymentPayload((prevState) => ({
-            ...prevState,
-            payment: {
-              ...paymentPayload,
-              status: "refunded",
-              refundamount: (
-                parseFloat(
-                  paymentPayload.refundamount
-                    ? paymentPayload.refundamount
-                    : 0.0
-                ) - parseFloat(refundObj.amount)
-              ).toFixed(2),
-            },
-          }));
-          setCalcData((prevState) => ({
-            ...prevState,
-            refundDate: newdate.toLocaleDateString("en-US"),
-            refundTime: newdate.toLocaleTimeString("en-US"),
-          }));
-          dispatch(
-            showSnackbar("Refund submitted successfully", true, "success")
-          );
-        } else {
-          dispatch(showSnackbar(response.data.details.text, true, "error"));
-          console.log("caught error", response.data.details.text);
-        }
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        dispatch(
-          showSnackbar(
-            "There seems to be an issue. Please contact support if this issue persists.",
-            true,
-            "error"
-          )
-        );
-        console.log("uncaught error", error);
-        setIsLoading(false);
-      });
   };
 
   // confirm delete
   const handleCancelConfirm = async () => {
-    // there is no form to validate here.
-    await advisoryService
-      .deletePayment({ paymentid: paymentid })
-      .then((response) => {
-        if (!!response.data.payload.success) {
-          // if the user has opened checkout
-          if (
-            paymentPayload.status === "open" &&
-            response.data.payload.text === "Cannot Retract Accepted Payment" // is Justin still returning this string value?
-          ) {
-            dispatch(
-              showSnackbar(
-                "Client has opened the checkout page. Cannot retract payment while checkout page is in use.",
-                true
-              )
-            );
-          } else {
-            const newdate = new Date();
-            setPaymentPayload((prevState) => ({
-              ...prevState,
-              payment: {
-                ...paymentPayload,
-                status: "cancelled",
-              },
-            }));
-            setCalcData((prevState) => ({
-              ...prevState,
-              cancelDate: newdate.toLocaleDateString("en-US"),
-              cancelTime: newdate.toLocaleTimeString("en-US"),
-            }));
-            dispatch(
-              showSnackbar("Invoice Cancelled Successfully", true, "success")
-            );
-          }
-        } else {
-          dispatch(showSnackbar(response.data.details.text, true, "error"));
-          console.log("caught error", response.data.details.text);
-        }
-        setDeleteMode(false);
-      })
-      .catch((error) => {
-        dispatch(
-          showSnackbar(
-            "There seems to be an issue. Please contact support if this issue persists.",
-            true,
-            "error"
-          )
-        );
-        console.log("uncaught error", error);
-      });
+    // if the user has opened checkout
+    if (paymentPayload.status === "open")
+      dispatch(
+        showSnackbar(
+          "Client has opened the checkout page. Cannot retract payment while checkout page is in use.",
+          true
+        )
+      );
+    else {
+      const newdate = new Date();
+      setPaymentPayload((prevState) => ({
+        ...prevState,
+        payment: {
+          ...paymentPayload,
+          status: "cancelled",
+        },
+      }));
+      setCalcData((prevState) => ({
+        ...prevState,
+        cancelDate: newdate.toLocaleDateString("en-US"),
+        cancelTime: newdate.toLocaleTimeString("en-US"),
+      }));
+      dispatch(showSnackbar("Invoice Cancelled Successfully", true, "success"));
+    }
+    setDeleteMode(false);
   };
 
   // calculate remaining total after refund
@@ -435,9 +382,9 @@ const InvoiceProfile = () => {
                   startIcon: <IconUser stroke={1.25} />,
                   onClick: () =>
                     navigate(
-                      !!isProspect
-                        ? `/adv/prospects/${clientid}`
-                        : `/adv/clients/${clientid}`
+                      isProspect
+                        ? `/adv/prospects/${adviseePayload.id}`
+                        : `/adv/clients/${adviseePayload.id}`
                     ),
                 },
                 {
@@ -445,7 +392,8 @@ const InvoiceProfile = () => {
                   color: "primary",
                   variant: "text",
                   startIcon: <IconMessage stroke={1.25} />,
-                  onClick: () => navigate(`/adv/messages/?id=${clientid}`),
+                  onClick: () =>
+                    navigate(`/adv/messages/?id=${adviseePayload.id}`),
                 },
               ]}
             >
@@ -467,11 +415,11 @@ const InvoiceProfile = () => {
                   }}
                 >
                   <InvoiceTemplate
-                    billto={{ ...adviseePayload.client }}
-                    billfrom={{ ...accountInfo }}
+                    adviceid={adviseePayload.id}
+                    billto={{ ...adviseePayload }}
+                    billfrom={{ ...profileInfo }}
                     lineitems={[...paymentPayload.items]}
                     subtotal={paymentPayload.subtotal}
-                    invoiceid={paymentPayload.id}
                     createdate={calcData.createDate}
                     canceldate={calcData.cancelDate}
                     completedate={calcData.completeDate}
@@ -497,7 +445,7 @@ const InvoiceProfile = () => {
                             ${parseFloat(paymentPayload.fee).toFixed(2)}
                           </span>
                         </em>
-                        {!!paymentPayload.feerefund && (
+                        {paymentPayload.feerefund && (
                           <em>
                             {" ("}Refunded:{" "}
                             <span style={{ fontWeight: "bold" }}>
@@ -534,7 +482,7 @@ const InvoiceProfile = () => {
                       <Typography className={classes.finalTotalAmount}>
                         {"Total Received: "}
                         <span style={{ fontWeight: "bold" }}>
-                          {!!paymentPayload.refundamount
+                          {paymentPayload.refundamount
                             ? "$" + Math.max(calcRemainingTotal(), 0).toFixed(2)
                             : "$" +
                               Math.max(

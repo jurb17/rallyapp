@@ -2,19 +2,19 @@ export const clientChatList = [
   {
     adviceid: 1,
     token: 1,
-    name: "Donald Duck",
-    advisorname: "Mister McDonald",
+    name: "Arnold McDonald",
+    advisorname: "Arnold McDonald",
     body: "When you're ready, click the button in the message above to move forward with payment. I'm ready when you are!",
     timestamp: "1718030609000",
     state: "FL",
     advisorstate: "NJ",
     firmslug: "alphatax",
-    advisorslug: "mistermcdonald",
+    advisorslug: "arnoldmcdonald",
     messages: [
       {
         id: 1,
         advisor: 1,
-        body: "Hey there, Donald. Nice to meet you on Rally.",
+        body: "Hey there, Arnold. Nice to meet you on Rally.",
         timestamp: "1718029523000",
       },
       {
@@ -82,8 +82,8 @@ export const clientChatList = [
 ];
 
 export const myAdvisorList = [
-  { id: 1, name: "Donald Duck" },
-  { id: 2, name: "Goofy Dog" },
-  { id: 3, name: "Mickey Mouse" },
-  { id: 4, name: "Minney Mouse" },
+  { id: 1, name: "Arnold McDonald" },
+  // { id: 2, name: "Goofy Dog" },
+  // { id: 3, name: "Mickey Mouse" },
+  // { id: 4, name: "Minney Mouse" },
 ];

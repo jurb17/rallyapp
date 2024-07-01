@@ -48,15 +48,11 @@ const TaskForm = (props, { ...others }) => {
 
   const handleDescriptionChange = (event) => {
     setDescription(event.target.value);
-    if (event.target.value > 0 && event.target.value > 0) {
-      setCanSubmit(true);
-    }
+    if (event.target.value > 0 && event.target.value > 0) setCanSubmit(true);
   };
   const handleAttributeChange = (event) => {
     setAttribute(event.target.value);
-    if (event.target.value > 0 && event.target.value > 0) {
-      setCanSubmit(true);
-    }
+    if (event.target.value > 0 && event.target.value > 0) setCanSubmit(true);
   };
 
   const onSubmitHandler = (event) => {
@@ -66,9 +62,7 @@ const TaskForm = (props, { ...others }) => {
       props.handleAddTaskSave(description, attribute);
       props.forwardedTaskFormRef.current.resetForm();
       setCanSubmit(false);
-    } else {
-      console.log("error: task form is invalid.");
-    }
+    } else console.log("error: task form is invalid.");
   };
 
   return (

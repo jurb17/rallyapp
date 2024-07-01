@@ -25,34 +25,47 @@ import HtmlTipButton from "ui-component/extended/HtmlTipButton";
 
 // ==============================================================
 /* PROPS MAP
+adviceid = number
 billto: {
   firstname: "",
   lastname: "",
   city: "",
   state: "",
   email: "",
-}
+},
 billfrom: {
   firstname: "",
   lastname: "",
   city: "",
   state: "",
   email: "",
-}
+},
 lineitems: [
   {
     description: "",
     amount: "",
   },
-]
+],
 subtotal: "",
-invoiceid: "",
+createdate = timestamp
+canceldate = timestamp
+completedate = timestamp
+refunddate = timestamp
 */
 
-const InvoiceTemplate = (props) => {
+const InvoiceTemplate = ({
+  adviceid,
+  billto,
+  billfrom,
+  lineitems,
+  subtotal,
+  createdate,
+  canceldate,
+  completedate,
+  refunddate,
+}) => {
   const theme = useTheme();
   const matchDownSM = useMediaQuery(theme.breakpoints.down("sm"));
-  const { billto, billfrom, lineitems, subtotal, invoiceid } = props;
 
   return (
     <>
@@ -73,17 +86,17 @@ const InvoiceTemplate = (props) => {
             </Typography>
             <Typography variant="body1">
               Name:{" "}
-              {!!billto.firstname && !!billto.lastname
+              {billto.firstname && billto.lastname
                 ? billto.firstname + " " + billto.lastname
                 : "Not Found"}
             </Typography>
             <Typography variant="body1">
               Location:{" "}
-              {!!billto.city && !!billto.state
+              {billto.city && billto.state
                 ? billto.city + ", " + String(billto.state).toUpperCase()
-                : !!billto.city && !billto.state
+                : billto.city && !billto.state
                 ? billto.city
-                : !!billto.state && !billto.city
+                : billto.state && !billto.city
                 ? String(billto.state).toUpperCase()
                 : "Not Found"}
             </Typography>
@@ -112,11 +125,11 @@ const InvoiceTemplate = (props) => {
             {(billfrom.city || billfrom.state) && (
               <Typography variant="body1">
                 Location:{" "}
-                {!!billfrom.city && !!billfrom.state
+                {billfrom.city && billfrom.state
                   ? billfrom.city + ", " + String(billfrom.state).toUpperCase()
-                  : !!billfrom.city && !billfrom.state
+                  : billfrom.city && !billfrom.state
                   ? billfrom.city
-                  : !!billfrom.state && !billfrom.city
+                  : billfrom.state && !billfrom.city
                   ? String(billfrom.state).toUpperCase()
                   : "Not Found"}
               </Typography>
@@ -129,29 +142,23 @@ const InvoiceTemplate = (props) => {
       </Grid>
       <Divider sx={{ borderColor: theme.palette.grey[300], mt: 1 }} />
       <Box sx={{ mt: 2, mb: 2 }}>
-        {!!props.createdate ? (
-          <Typography variant="body1">
-            Date Created: {props.createdate}
-          </Typography>
+        {createdate ? (
+          <Typography variant="body1">Date Created: {createdate}</Typography>
         ) : (
           <Typography variant="body1">
             Date Created: {new Date().toLocaleDateString()}
           </Typography>
         )}
-        {!!props.canceldate && (
+        {canceldate && (
+          <Typography variant="body1">Date Cancelled: {canceldate}</Typography>
+        )}
+        {completedate && (
           <Typography variant="body1">
-            Date Cancelled: {props.canceldate}
+            Date Completed: {completedate}
           </Typography>
         )}
-        {!!props.completedate && (
-          <Typography variant="body1">
-            Date Completed: {props.completedate}
-          </Typography>
-        )}
-        {!!props.refunddate && (
-          <Typography variant="body1">
-            Date Refunded: {props.refunddate}
-          </Typography>
+        {refunddate && (
+          <Typography variant="body1">Date Refunded: {refunddate}</Typography>
         )}
       </Box>
       <Divider sx={{ borderColor: theme.palette.grey[300], mt: 1, mb: 1 }} />

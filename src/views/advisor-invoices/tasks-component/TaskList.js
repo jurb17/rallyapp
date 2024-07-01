@@ -6,12 +6,8 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 const TaskList = (props) => {
   if (props.tasks && props.tasks.length > 0) {
     props.tasks.map((task) => {
-      if (!task.id) {
-        task.id = Math.random();
-      }
-      if (props.attributeId) {
-        task.attribute = task[props.attributeId];
-      }
+      if (!task.id) task.id = Math.random();
+      if (props.attributeId) task.attribute = task[props.attributeId];
       return task;
     });
   }

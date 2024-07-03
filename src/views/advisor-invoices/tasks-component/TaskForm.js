@@ -86,10 +86,9 @@ const TaskForm = (props, { ...others }) => {
           validationSchema={props.validationSchema}
         >
           {(formik) => (
-            <form noValidate>
+            <form noValidate onSubmit={formik.handleSubmit} {...others}>
               <Grid
                 container
-                fullWidth
                 flex="true"
                 justifyItems="center"
                 spacing={gridSpacing}
@@ -172,10 +171,7 @@ const TaskForm = (props, { ...others }) => {
                   <SecondaryActionButton
                     name="Add"
                     disabled={!canSubmit}
-                    onClick={() => {
-                      formik.handleSubmit();
-                      onSubmitHandler();
-                    }}
+                    onClick={() => onSubmitHandler()}
                     mt={0.5}
                   />
                 </Grid>

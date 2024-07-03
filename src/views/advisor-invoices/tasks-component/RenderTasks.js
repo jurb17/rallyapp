@@ -55,6 +55,7 @@ const RenderTasks = (props) => {
     return (
       <TaskCard
         key={card.id}
+        id={card.id}
         task={taskData}
         startAdornment={props.startAdornment}
         editMode="false"

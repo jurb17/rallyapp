@@ -905,7 +905,7 @@ export const myInvoiceList = [
     refundamount: null,
     feerefund: null,
     canceldate: null,
-    items: [
+    lineitems: [
       { id: 1, amount: 100, description: "start up fee" },
       { id: 2, amount: 400, description: "actual service" },
     ],
@@ -914,11 +914,11 @@ export const myInvoiceList = [
     id: 2,
     adviceid: 1,
     clientname: "Goofy Dog",
-    status: "unpaid",
+    status: "in process",
     subtotal: 700,
     createdate: 1709995350000,
     refunddate: null,
-    items: [
+    lineitems: [
       { id: 1, amount: 350, description: "initial fee" },
       { id: 2, amount: 350, description: "actual service" },
     ],

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 
 // material-ui
 import { makeStyles } from "@material-ui/styles";
@@ -33,7 +33,6 @@ const ManageInvoices = (props) => {
   const classes = useStyles();
   const location = useLocation();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const { attributes } = useSelector((state) => state.auth);
 
   // extract query params from url
@@ -79,13 +78,12 @@ const ManageInvoices = (props) => {
     return temp;
   };
 
-  // get invoice list data
+  // get invoice list data into state variable
   const getInvoiceListData = async (adviceid, invoicelist) => {
-    // alter the data within the request response to a more useful format.
     let payments = [];
     invoicelist.forEach((invoice) => {
       if (adviceid) {
-        if (adviceid === invoice.adviceid)
+        if (adviceid.toString() === invoice.adviceid.toString())
           payments.push(calculateData(invoice));
       } else payments.push(calculateData(invoice));
     });
@@ -97,7 +95,7 @@ const ManageInvoices = (props) => {
   const getClientData = (adviceid, clientlist, prospectlist) => {
     const combinedList = [...clientlist, ...prospectlist];
     combinedList.forEach((item) => {
-      if (adviceid === item.id) {
+      if (adviceid.toString() === item.id.toString()) {
         setClientName(item.name);
         return item;
       }

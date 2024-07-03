@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 
 // material-ui
 import { makeStyles, useTheme } from "@material-ui/styles";
@@ -31,13 +31,16 @@ textStyle: css class for text
 const CustomLabel = (props) => {
   const classes = useStyles();
   const theme = useTheme();
-  const boxRef = useRef(null);
 
   let backColor = "";
   let textColor = "";
   switch (props.text) {
     case "open":
-      backColor = theme.palette.background.paper; // white
+      backColor = theme.palette.background.paper; // grey
+      textColor = theme.palette.grey[900]; // black
+      break;
+    case "in process":
+      backColor = theme.palette.grey[200]; // grey
       textColor = theme.palette.grey[900]; // black
       break;
     case "complete":
@@ -45,11 +48,11 @@ const CustomLabel = (props) => {
       textColor = theme.palette.background.paper; // white
       break;
     case "declined":
-      backColor = theme.palette.warning.main; // yellow
+      backColor = theme.palette.error.main; // red
       textColor = theme.palette.grey[900]; // white
       break;
     case "disputed":
-      backColor = theme.palette.orange.main; // orange
+      backColor = theme.palette.warning.main; // yellow
       textColor = theme.palette.background.paper; // white
       break;
     case "refunded":

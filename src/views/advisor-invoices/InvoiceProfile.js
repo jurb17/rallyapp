@@ -107,7 +107,7 @@ const InvoiceProfile = () => {
   // function to set the calcData states
   const getTimeData = (paymentLoad) => {
     // fill in all missing amounts with zero
-    paymentLoad.items.forEach((item) => {
+    paymentLoad.lineitems.forEach((item) => {
       if (!item.amount) item.amount = 0;
     });
     // format dates and times
@@ -180,15 +180,25 @@ const InvoiceProfile = () => {
   };
 
   // function to set the paymentPayload and adviseePayload states
-  const getInvoiceData = (paymentid, invoicelist) => {
-    // get the specific invoice details and pass to state
-    invoicelist.forEach((invoice) => {
-      if (invoice.id.toString() === paymentid) {
-        setPaymentPayload({ ...invoice });
-        getTimeData({ ...invoice });
-        return { ...invoice };
-      }
-    });
+  const getInvoiceData = (paymentid, invoicelist, statedata) => {
+    // if payment id is less than 100, get the specific invoice details and pass to state
+    if (paymentid < 100) {
+      invoicelist.forEach((invoice) => {
+        if (invoice.id.toString() === paymentid) {
+          setPaymentPayload({ ...invoice });
+          getTimeData({ ...invoice });
+          return { ...invoice };
+        }
+      });
+    } else {
+      setPaymentPayload((prevState) => ({
+        ...prevState,
+        ...statedata,
+        status: "open",
+      }));
+      getTimeData({ ...statedata });
+      return { ...statedata };
+    }
   };
 
   // function to get client or prospect data
@@ -214,17 +224,20 @@ const InvoiceProfile = () => {
     // if there is an adviceid and paymentid, and the invoice list exists, then retrieve invoice data
     if (idParam && paymentid)
       if (myInvoiceList && myInvoiceList.length) {
-        getInvoiceData(paymentid, myInvoiceList);
+        getInvoiceData(paymentid, myInvoiceList, location.state);
         getAdviseeData(idParam, myClientList, myProspectList);
         setProfileInfo(myProfileInfo);
         setIsLoading(false);
       }
       // otherwise, go back
       else {
-        console.log("No client list found.");
+        console.log("No invoice list found.");
         navigate(-1);
       }
-    else navigate(-1);
+    else {
+      console.log("No advice id and payment id found");
+      navigate(-1);
+    }
   }, []);
 
   // #region - handle data changes
@@ -257,7 +270,7 @@ const InvoiceProfile = () => {
   // confirm delete
   const handleCancelConfirm = async () => {
     // if the user has opened checkout
-    if (paymentPayload.status === "open")
+    if (paymentPayload.status === "in process")
       dispatch(
         showSnackbar(
           "Client has opened the checkout page. Cannot retract payment while checkout page is in use.",
@@ -418,7 +431,7 @@ const InvoiceProfile = () => {
                     adviceid={adviseePayload.id}
                     billto={{ ...adviseePayload }}
                     billfrom={{ ...profileInfo }}
-                    lineitems={[...paymentPayload.items]}
+                    lineitems={[...paymentPayload.lineitems]}
                     subtotal={paymentPayload.subtotal}
                     createdate={calcData.createDate}
                     canceldate={calcData.cancelDate}

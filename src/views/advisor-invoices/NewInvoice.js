@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate, useLocation, createSearchParams } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
 // material-ui
@@ -11,10 +11,9 @@ import {
   IconButton,
   useMediaQuery,
 } from "@material-ui/core";
-import { IconInfoCircle, IconSend } from "@tabler/icons";
+import { IconInfoCircle } from "@tabler/icons";
 
 // local imports
-import advisoryService from "services/advisory.service";
 import InvoiceForm from "./forms/InvoiceForm";
 import TaskForm from "./tasks-component/TaskForm";
 import TaskList from "./tasks-component/TaskList";
@@ -28,6 +27,7 @@ import PagePlaceholderText from "ui-component/extended/PagePlaceholderText";
 import DynamicButton from "ui-component/buttons/DynamicButton";
 import HtmlTipButton from "ui-component/extended/HtmlTipButton";
 import ConfirmPrimaryModal from "ui-component/modals/ConfirmPrimaryModal";
+import { myClientList, myProspectList } from "utils/advisor-dummy-data";
 
 // style constant
 const useStyles = makeStyles((theme) => ({}));
@@ -49,12 +49,12 @@ const NewInvoice = () => {
 
   // extract query params from url
   const queryParams = new URLSearchParams(location.search);
-  const id = queryParams.get("id");
+  const idParam = queryParams.get("id");
 
   // input data states (information from user)
   const [newInvoice, setNewInvoice] = useState({
-    clientid: id ? id : "",
-    clientName: "",
+    adviceid: idParam ? idParam : "",
+    adviseeName: "",
     subtotal: 0,
     status: "",
     lineitems: [],
@@ -68,109 +68,82 @@ const NewInvoice = () => {
   const [canContinue, setCanContinue] = useState(false);
   const [formErrorsExist, setFormErrorsExist] = useState(false);
   const [formErrors, setFormErrors] = useState({});
-  const [isClient, setIsClient] = useState(null);
+  const [isProspect, setIsProspect] = useState(false);
 
-  // get client profile data from server
-  const getClientData = async (cid) => {
-    await advisoryService
-      .getClient({ clientid: cid })
-      .then(async (response) => {
-        if (!!response.data.payload.success) {
-          if (Object.entries(response.data.payload.client).length > 0) {
-            setIsClient(true);
-            setNewInvoice({
-              ...newInvoice,
-              subtotal: location.state?.subtotal || 0,
-              lineitems: location.state?.returnitems || [],
-              clientName: response.data.payload.client.name,
-              feeRate: !!response.data.payload.client.invited ? 0.0495 : 0.15,
-              invitedClient: !!response.data.payload.client.invited
-                ? true
-                : false,
-            });
-            setEditMode(true);
-          } else {
-            await advisoryService
-              .getProspect({ clientid: cid })
-              .then((response) => {
-                if (!!response.data.payload.success) {
-                  setIsClient(false);
-                  let pendingPay = false;
-                  if (
-                    !!response.data.payload.payments &&
-                    response.data.payload.payments.length > 0
-                  ) {
-                    response.data.payload.payments.forEach((payment) => {
-                      if (payment.status === "open") {
-                        pendingPay = true;
-                      }
-                    });
-                  }
-                  setNewInvoice({
-                    ...newInvoice,
-                    subtotal: location.state?.subtotal || 0,
-                    lineitems: location.state?.returnitems || [],
-                    pendingInvoice: pendingPay,
-                    invoiceid: !!response.data.payload.payments
-                      ? response.data.payload.payments[0]?.id
-                      : "",
-                    clientName: response.data.payload.client.name,
-                    feeRate: 0.15,
-                    invitedClient: false,
-                  });
-                }
-              })
-              .catch((error) => {
-                dispatch(
-                  showSnackbar(
-                    "There seems to be an issue. Please contact support if this issue persists.",
-                    true,
-                    "error"
-                  )
-                );
-                console.log("uncaught error", error);
-                setIsLoading(false);
-              });
-            setEditMode(false);
-          }
-        } else {
-          dispatch(showSnackbar(response.data.details.text, true, "error"));
-          console.log(response.data.details.text);
-        }
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        dispatch(
-          showSnackbar(
-            "There seems to be an issue. Please contact support if this issue persists.",
-            true,
-            "error"
-          )
-        );
-        console.log("uncaught error", error);
-        setIsLoading(false);
-      });
+  // function to get client or prospect data
+  const getAdviseeData = (adviceid, clientlist, prospectlist) => {
+    prospectlist.forEach((prospect) => {
+      if (prospect.id.toString() === adviceid) {
+        setNewInvoice((prevState) => ({
+          ...prevState,
+          adviseeName: prospect.name,
+          feeRate: prospect.invited ? 0.0495 : 0.15,
+          invited: prospect.invited ? true : false,
+        }));
+        setEditMode(true);
+        setIsProspect(true);
+        return { ...prospect };
+      }
+    });
+    clientlist.forEach((client) => {
+      if (client.id.toString() === adviceid) {
+        setNewInvoice((prevState) => ({
+          ...prevState,
+          adviseeName: client.name,
+          feeRate: client.invited ? 0.0495 : 0.15,
+          invited: client.invited ? true : false,
+        }));
+        setIsProspect(false);
+        return { ...client };
+      }
+    });
+  };
+
+  // function to load draft data when returning from preview
+  const loadDraftData = (draftdata) => {
+    setNewInvoice((prevState) => ({
+      ...prevState,
+      subtotal: draftdata?.subtotal || 0,
+      lineitems: draftdata?.returnitems || [],
+      adviseeName: draftdata.adviseeName,
+      feeRate: draftdata.invited ? 0.0495 : 0.15,
+      invited: draftdata.invited ? true : false,
+    }));
+    setEditMode(true);
   };
 
   useEffect(() => {
     dispatch(showEditBanner(true, "Creating new invoice..."));
-    // if there is a client id, get the client name and the fee rate
-    if (newInvoice.clientid) {
-      getClientData(newInvoice.clientid);
-    } else {
-      console.log("No clientid provided.");
-      setIsLoading(false);
+    // if there is an advice id, get the client or prospect name and fee rate
+    if (idParam) getAdviseeData(idParam, myClientList, myProspectList);
+    // if there is a location state (draft), then ppass the data to the state
+    if (location.state && location.state.adviceid) {
+      console.log("location.state", location.state);
+      loadDraftData({ ...location.state });
     }
+    setIsLoading(false);
   }, []);
+
+  // validate form before enabling the "Continue" button.
+  useEffect(() => {
+    if (
+      newInvoice.adviceid &&
+      newInvoice.lineitems &&
+      newInvoice.lineitems.length > 0
+    )
+      setCanContinue(true);
+    else setCanContinue(false);
+  }, [newInvoice]);
 
   // handle client selection
   const handleClientSelectInput = async (cid, value) => {
     setNewInvoice((prevState) => ({
       ...prevState,
-      clientid: cid,
-      clientName: value,
+      adviceid: cid,
+      adviseeName: value,
     }));
   };
+
   // reorder task list (update with new list)
   const reorderTaskList = (newList) => {
     setNewInvoice((prevState) => ({
@@ -178,6 +151,7 @@ const NewInvoice = () => {
       lineitems: newList,
     }));
   };
+
   // submit new task
   const handleAddTaskSave = () => {
     setNewInvoice((prevState) => ({
@@ -193,6 +167,7 @@ const NewInvoice = () => {
       ],
     }));
   };
+
   // delete task
   const handleDeleteTask = (taskId) => {
     const newTasks = newInvoice.lineitems.filter((task) => task.id !== taskId);
@@ -201,6 +176,7 @@ const NewInvoice = () => {
       lineitems: newTasks,
     }));
   };
+
   // submit new invoice
   const handlePreview = () => {
     invoiceFormRef.current.validateForm().then(async () => {
@@ -216,10 +192,10 @@ const NewInvoice = () => {
         navigate("/adv/invoices/preview", {
           state: {
             lineitems: lines,
-            clientName: newInvoice.clientName,
+            adviseeName: newInvoice.adviseeName,
             subtotal: newInvoice.subtotal,
-            clientid: newInvoice.clientid,
-            invitedClient: newInvoice.invitedClient,
+            adviceid: newInvoice.adviceid,
+            invited: newInvoice.invited,
             returnitems: newInvoice.lineitems,
           },
         });
@@ -233,6 +209,7 @@ const NewInvoice = () => {
       }
     });
   };
+
   // get total amount
   const getTotalAmount = (list) => {
     let total = 0.0;
@@ -245,6 +222,7 @@ const NewInvoice = () => {
       amount: total.toFixed(2),
     };
   };
+
   // get total amount when task list changes
   useEffect(() => {
     const { amount } = getTotalAmount(newInvoice.lineitems);
@@ -253,18 +231,6 @@ const NewInvoice = () => {
       subtotal: amount,
     }));
   }, [newInvoice.lineitems]);
-  // validate form before enabling the "Continue" button.
-  useEffect(() => {
-    if (
-      !!newInvoice.clientid &&
-      !!newInvoice.lineitems &&
-      newInvoice.lineitems.length > 0
-    ) {
-      setCanContinue(true);
-    } else {
-      setCanContinue(false);
-    }
-  }, [newInvoice]);
 
   return (
     <>
@@ -292,7 +258,7 @@ const NewInvoice = () => {
         ) : (
           <>
             <ConfirmPrimaryModal
-              open={!isClient && !!newInvoice.pendingInvoice}
+              open={isProspect && !!newInvoice.pendingInvoice}
               heading="Pending Invoice"
               body="This prospect has a pending quote. The quote must be accepted before a second invoice can be sent. Would you like to review the quote?"
               action="Review Quote"
@@ -301,7 +267,7 @@ const NewInvoice = () => {
               }}
               handleConfirm={() => {
                 navigate(
-                  `/adv/invoices/${newInvoice.clientid}/${newInvoice.invoiceid}`
+                  `/adv/invoices/${newInvoice.adviceid}/${newInvoice.invoiceid}`
                 );
               }}
               nonaction="Go Back"
@@ -315,8 +281,8 @@ const NewInvoice = () => {
               <Box sx={{ mb: 2 }}>
                 <InvoiceForm
                   editMode={editMode}
-                  clientid={newInvoice.clientid}
-                  clientName={newInvoice.clientName}
+                  adviceid={newInvoice.adviceid}
+                  adviseeName={newInvoice.adviseeName}
                   forwardedInvoiceFormRef={invoiceFormRef}
                   handleClientSelectInput={handleClientSelectInput}
                 />

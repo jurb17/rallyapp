@@ -8,7 +8,6 @@ const ItemTypes = {
 };
 
 const Task = ({
-  key,
   id,
   index,
   description,
@@ -85,7 +84,7 @@ const Task = ({
   return (
     <div id={id} ref={ref} data-handler-id={handlerId}>
       <TaskCard
-        key={key}
+        key={id}
         id={id}
         task={taskData}
         editMode="true"

@@ -51,9 +51,7 @@ const NewArticle = () => {
     if (!!location.state.draft) {
       setNewArticle({ ...location.state.draft });
       setIsLoading(false);
-    } else {
-      setIsLoading(false);
-    }
+    } else setIsLoading(false);
   }, []);
 
   // handle canContinue mode

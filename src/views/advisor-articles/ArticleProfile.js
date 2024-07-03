@@ -79,7 +79,7 @@ const ArticleProfile = () => {
   // get current data from the server
   useEffect(() => {
     // if idParam and articleList exist, get current article data
-    if (!!myArticleList && myArticleList.length) {
+    if (myArticleList && myArticleList.length) {
       if (idParam) getArticleData(myArticleList, idParam, location.state);
       else navigate(-1);
     }

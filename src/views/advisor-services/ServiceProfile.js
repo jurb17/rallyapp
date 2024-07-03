@@ -8,7 +8,6 @@ import { Grid, Box } from "@material-ui/core";
 import { IconPencil, IconDeviceFloppy } from "@tabler/icons";
 
 // project imports
-import FormInputErrorModal from "ui-component/modals/FormInputErrorModal";
 import ServiceForm from "./forms/ServiceForm";
 import ConfirmDeleteModal from "ui-component/modals/ConfirmDeleteModal";
 import CatsHeader from "ui-component/extended/CatsHeader";

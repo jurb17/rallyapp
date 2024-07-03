@@ -63,9 +63,15 @@ const ClientProfile = () => {
       if (client.id.toString() === idParam) {
         setClientPayload({ ...client });
         setTempCustomFields({ ...client.customfields });
+        setIsLoading(false);
+        return { ...client };
+      } else {
+        alert(
+          "Client id does not match existing client list. You will be routed back to the previous page."
+        );
+        navigate(-1);
       }
     }
-    setIsLoading(false);
   };
 
   // get current data from the server

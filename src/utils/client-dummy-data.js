@@ -82,8 +82,60 @@ export const clientChatList = [
 ];
 
 export const myAdvisorList = [
-  { id: 1, name: "Arnold McDonald" },
+  {
+    id: 1,
+    name: "Arnold McDonald",
+    firstname: "Arnold",
+    lastname: "McDonald",
+    city: "Sarasota",
+    state: "FL",
+    email: "amcdonald@advisor.com",
+  },
   // { id: 2, name: "Goofy Dog" },
   // { id: 3, name: "Mickey Mouse" },
   // { id: 4, name: "Minney Mouse" },
 ];
+
+export const clientInvoiceList = [
+  {
+    id: 1,
+    adviceid: 2,
+    clientname: "Goofy Dog",
+    createdate: 1709995350000,
+    status: "open",
+    subtotal: 500,
+    total: 540,
+    fee: 40,
+    refunddate: null,
+    refundamount: null,
+    feerefund: null,
+    canceldate: null,
+    lineitems: [
+      { id: 1, amount: 100, description: "start up fee" },
+      { id: 2, amount: 400, description: "actual service" },
+    ],
+  },
+  {
+    id: 2,
+    adviceid: 1,
+    clientname: "Goofy Dog",
+    status: "in process",
+    subtotal: 700,
+    createdate: 1709995350000,
+    refunddate: null,
+    lineitems: [
+      { id: 1, amount: 350, description: "initial fee" },
+      { id: 2, amount: 350, description: "actual service" },
+    ],
+  },
+];
+
+export const clientProfileInfo = {
+  name: "Donald Duck",
+  firstname: "Donald",
+  lastname: "Duck",
+  city: "Orlando",
+  state: "FL",
+  phone: "555-555-5555",
+  email: "dduck@fake.com",
+};

@@ -221,7 +221,7 @@ const ManageInvoices = (props) => {
                   color: "primary",
                   variant: "outlined",
                   onClick: () => {
-                    getInvoiceListData("");
+                    getInvoiceListData("", myInvoiceList);
                     setClientName("");
                   },
                 },

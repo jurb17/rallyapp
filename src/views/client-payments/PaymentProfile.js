@@ -18,8 +18,14 @@ import ConfirmDeleteModal from "ui-component/modals/ConfirmDeleteModal";
 import DynamicButton from "ui-component/buttons/DynamicButton";
 import { IconAlertOctagon, IconExternalLink, IconMessage } from "@tabler/icons";
 import InvoiceTemplate from "ui-component/templates/InvoiceTemplate";
-import accountService from "services/account.service";
 import CustomLabel from "ui-component/extended/CustomLabel";
+
+// data and functions
+import {
+  clientInvoiceList,
+  clientProfileInfo,
+  myAdvisorList,
+} from "utils/client-dummy-data";
 
 // style constant
 const useStyles = makeStyles((theme) => ({
@@ -63,15 +69,14 @@ const InvoiceProfile = () => {
 
   // get params from url
   const { adviceid, id } = useParams();
-
-  // request states
-  const [paymentid, setPaymentid] = useState(id);
+  const idParam = adviceid;
+  const paymentid = id;
 
   // data states
   const [paymentPayload, setPaymentPayload] = useState({});
   const [advisorPayload, setAdvisorPayload] = useState({});
   const [calcData, setCalcData] = useState({});
-  const [account, setAccount] = useState({});
+  const [profileInfo, setProfileInfo] = useState({});
 
   // mode states
   const [isComplete, setIsComplete] = useState(false);
@@ -81,12 +86,10 @@ const InvoiceProfile = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   // function to set the calcData states
-  const getCalcData = (paymentLoad) => {
+  const getTimeData = (paymentLoad) => {
     // fill in all missing amounts with zero
-    paymentLoad.payment.items.forEach((item) => {
-      if (!item.amount) {
-        item.amount = 0;
-      }
+    paymentLoad.items.forEach((item) => {
+      if (!item.amount) item.amount = 0;
     });
     // format dates and times
     let formattedCancelDate;
@@ -96,28 +99,28 @@ const InvoiceProfile = () => {
     let formattedRefundDate;
     let formattedRefundTime;
     let clientName;
-    if (paymentLoad.payment.canceldate) {
+    if (paymentLoad.canceldate) {
       formattedCancelDate = new Date(
-        parseInt(paymentLoad.payment.canceldate)
+        parseInt(paymentLoad.canceldate)
       ).toLocaleDateString("en-US");
       formattedCancelTime = new Date(
-        parseInt(paymentLoad.payment.canceldate)
+        parseInt(paymentLoad.canceldate)
       ).toLocaleTimeString("en-US");
     }
-    if (paymentLoad.payment.completedate) {
+    if (paymentLoad.completedate) {
       formattedCompleteDate = new Date(
-        parseInt(paymentLoad.payment.completedate)
+        parseInt(paymentLoad.completedate)
       ).toLocaleDateString("en-US");
       formattedCompleteTime = new Date(
-        parseInt(paymentLoad.payment.completedate)
+        parseInt(paymentLoad.completedate)
       ).toLocaleTimeString("en-US");
     }
-    if (paymentLoad.payment.refunddate) {
+    if (paymentLoad.refunddate) {
       formattedRefundDate = new Date(
-        parseInt(paymentLoad.payment.refunddate)
+        parseInt(paymentLoad.refunddate)
       ).toLocaleDateString("en-US");
       formattedRefundTime = new Date(
-        parseInt(paymentLoad.payment.refunddate)
+        parseInt(paymentLoad.refunddate)
       ).toLocaleTimeString("en-US");
     }
     setCalcData((prevState) => ({
@@ -132,152 +135,54 @@ const InvoiceProfile = () => {
     }));
   };
 
-  // get Advisor profile data
-  const getAdvisorListData = (advid) => {
-    return new Promise(async (resolve, reject) => {
-      await adviceService
-        .getChatList({})
-        .then(async (response) => {
-          if (response.data.payload.success) {
-            if (
-              !!response.data.payload.messages &&
-              response.data.payload.messages.length > 0
-            ) {
-              // get the name of the advisor when the advisor id matches the id in the url
-              let advisors = response.data.payload.messages;
-              let advisormap = {};
-              const advisor = advisors.find(
-                (advisor) => advisor.adviceid === advid
-              );
-              if (!!advisor) {
-                // name is split by a forward slash
-                const firmslug = advisor.name.split("/")[0];
-                const advisorslug = advisor.name.split("/")[1];
-                // get more advisor data to reach the name of the advisor
-                const advisordata = await getAdvisorData(firmslug, advisorslug);
-                advisormap[advisor.adviceid] = {
-                  ...advisor,
-                  ...advisordata,
-                  firmslug: firmslug,
-                  advisorslug: advisorslug,
-                };
-              }
-              resolve(advisormap);
-            }
-          } else {
-            dispatch(showSnackbar(response.data.details.text, true, "error"));
-            console.log("caught error", response.data.details.text);
-            reject(error);
-          }
-        })
-        .catch((error) => {
-          dispatch(
-            showSnackbar(
-              "There seems to be an issue. Please contact support if this issue persists.",
-              true,
-              "error"
-            )
-          );
-          console.log("uncaught error", error);
-          reject(error);
-        });
-    });
+  // get payment data
+  const getPaymentData = async (paymentid, invoicelist, statedata) => {
+    // if payment id is less than 100, get the specific invoice details and pass to state
+    if (paymentid < 100) {
+      invoicelist.forEach((invoice) => {
+        if (invoice.id.toString() === paymentid) {
+          setPaymentPayload({ ...invoice });
+          getTimeData({ ...invoice });
+          return { ...invoice };
+        }
+      });
+    } else {
+      setPaymentPayload((prevState) => ({
+        ...prevState,
+        ...statedata,
+        status: "open",
+      }));
+      getTimeData({ ...statedata });
+      return { ...statedata };
+    }
   };
 
   // handle retrieving chat/advisor data
-  const getAdvisorData = async (firmslug, advisorslug) => {
-    return new Promise(async (resolve, reject) => {
-      await adviceService
-        .getAdvisor({ firmslug: firmslug }, { advisor: advisorslug })
-        .then((response) => {
-          if (!!response.data.payload.success) {
-            const advisor = response.data.payload.advisor;
-            advisor.firstname = advisor.name.split(" ")[0];
-            advisor.lastname = advisor.name.split(" ")[1];
-            advisor.city = advisor.location.split(", ")[0];
-            advisor.state = advisor.location.split(", ")[1];
-            setAdvisorPayload((prevState) => ({
-              ...prevState,
-              ...advisor,
-            }));
-            resolve({ ...advisor });
-          } else {
-            dispatch(showSnackbar(response.data.details.text, true, "error"));
-            console.log("caught error", response.data.details.text);
-          }
-        })
-        .catch((error) => {
-          dispatch(
-            showSnackbar(
-              "There seems to be an issue. Please contact support if this issue persists.",
-              true,
-              "error"
-            )
-          );
-          console.log("uncaught error", error);
-        });
-    });
-  };
-
-  // get payment data
-  const getPaymentData = async (advid, advisormap) => {
-    adviceService
-      .getPayment({ paymentid: paymentid })
-      .then((response) => {
-        if (!!response.data.payload.success) {
-          let paymentLoad = { ...response.data.payload, ...advisormap[advid] };
-          setPaymentPayload(paymentLoad);
-          // get calc data
-          getCalcData(paymentLoad);
-        } else {
-          dispatch(showSnackbar(response.data.details.text, true, "error"));
-        }
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        dispatch(
-          showSnackbar(
-            "There seems to be an issue. Please contact support if this issue persists.",
-            true,
-            "error"
-          )
-        );
-        console.log("uncaught error", error);
-        setIsLoading(false);
-      });
-  };
-
-  // get account details
-  const getAccountDetails = () => {
-    return new Promise(async (resolve, reject) => {
-      setIsLoading(true);
-      await accountService
-        .getAccount({})
-        .then((response) => {
-          if (!!response.data.payload.success) {
-            setAccount(response.data.payload.user);
-            resolve(response.data.payload.user);
-          }
-        })
-        .catch((error) => {
-          console.log("uncaught error", error);
-          dispatch(
-            showSnackbar("Unable to get account details", true, "error")
-          );
-          reject(error);
-        });
+  const getAdvisorData = async (adviceid, advisorlist) => {
+    advisorlist.forEach((advisor) => {
+      if (advisor.id.toString() === adviceid) {
+        setAdvisorPayload({ ...advisor });
+        return { ...advisor };
+      }
     });
   };
 
   useEffect(async () => {
-    // if the request data is available, send the request
-    if (!!paymentid && !!adviceid) {
-      await getAccountDetails();
-      getAdvisorListData(adviceid).then((advisormap) => {
-        getPaymentData(adviceid, advisormap);
-      });
-    } else {
-      dispatch(showSnackbar("No payment id found", true, "warning"));
+    // if there is an adviceid and paymentid, and the invoice list exists, then retrieve invoice data
+    if (idParam && paymentid)
+      if (clientInvoiceList && clientInvoiceList.length) {
+        getPaymentData(paymentid, clientInvoiceList);
+        getAdvisorData(idParam, myAdvisorList);
+        setProfileInfo(clientProfileInfo);
+        setIsLoading(false);
+      }
+      // otherwise, go back
+      else {
+        console.log("No invoice list found.");
+        navigate(-1);
+      }
+    else {
+      console.log("No advice id and payment id found");
       navigate(-1);
     }
   }, []);
@@ -288,46 +193,13 @@ const InvoiceProfile = () => {
   // #region --- all functions
   // select complete payment
   const handleCompletePayment = () => {
-    if (attributes.CUSTOMER !== 1) {
+    if (attributes.CUSTOMER !== 1)
       alert(
         "You are not authorized to complete this payment without a verified Stripe account. Please go to account settings and set up your Stripe account before making any payments."
       );
-    } else {
-      adviceService
-        .postPayment({
-          paymentid: paymentid,
-          adviceid: adviceid,
-        })
-        .then((response) => {
-          if (!!response.data.payload.success) {
-            if (!!response.data.payload.payment.url) {
-              window.location.href = response.data.payload.payment.url;
-            } else {
-              setPaymentPayload((prevState) => ({
-                ...prevState,
-                payment: {
-                  ...prevState.payment,
-                  status: "complete",
-                },
-              }));
-              dispatch(showSnackbar("Payment is complete.", true, "success"));
-              setIsComplete(true);
-            }
-          } else {
-            dispatch(showSnackbar(response.data.details.text, true, "error"));
-          }
-          setIsLoading(false);
-        })
-        .catch((error) => {
-          dispatch(
-            showSnackbar(
-              "There seems to be an issue. Please contact support if this issue persists.",
-              true,
-              "error"
-            )
-          );
-          console.log("uncaught error", error);
-        });
+    else {
+      dispatch(showSnackbar("Payment is complete.", true, "success"));
+      setIsComplete(true);
     }
   };
 
@@ -354,7 +226,7 @@ const InvoiceProfile = () => {
           setPaymentPayload((prevState) => ({
             ...prevState,
             payment: {
-              ...prevState.payment,
+              ...prevState,
               status: "disputed",
             },
           }));
@@ -385,7 +257,7 @@ const InvoiceProfile = () => {
           setPaymentPayload((prevState) => ({
             ...prevState,
             payment: {
-              ...prevState.payment,
+              ...prevState,
               status: "declined",
             },
           }));
@@ -441,7 +313,7 @@ const InvoiceProfile = () => {
                 : ""
             }
             buttonlist={
-              paymentPayload.payment.status === "open"
+              paymentPayload.status === "open"
                 ? [
                     {
                       name: "Decline Payment",
@@ -456,9 +328,7 @@ const InvoiceProfile = () => {
                       onClick: handleCompletePayment,
                     },
                   ]
-                : ["complete", "refunded"].includes(
-                    paymentPayload.payment.status
-                  )
+                : ["complete", "refunded"].includes(paymentPayload.status)
                 ? [
                     {
                       name: "Dispute Payment",
@@ -476,7 +346,7 @@ const InvoiceProfile = () => {
                 Status:
               </Typography>
               <CustomLabel
-                text={paymentPayload.payment.status}
+                text={paymentPayload.status}
                 textStyle={{ fontSize: "1rem", fontWeight: "bold" }}
               />
             </Box>
@@ -521,11 +391,11 @@ const InvoiceProfile = () => {
                   }}
                 >
                   <InvoiceTemplate
-                    billto={{ ...account }}
+                    billto={{ ...profileInfo }}
                     billfrom={{ ...advisorPayload }}
-                    lineitems={[...paymentPayload.payment.items]}
-                    subtotal={paymentPayload.payment.subtotal}
-                    invoiceid={paymentPayload.payment.id}
+                    lineitems={[...paymentPayload.items]}
+                    subtotal={paymentPayload.subtotal}
+                    invoiceid={paymentPayload.id}
                   />
                 </Paper>
               </Box>
@@ -537,7 +407,7 @@ const InvoiceProfile = () => {
               <Grid container>
                 {/* <Grid item xs={12}>
                   <TaskList
-                    tasks={paymentPayload.payment.items}
+                    tasks={paymentPayload.items}
                     editMode={false}
                     forwardedTaskListRef={taskListRef}
                     noneMessage="Line items did not load properly."
@@ -545,23 +415,23 @@ const InvoiceProfile = () => {
                     attributeId="amount"
                   />
                 </Grid> */}
-                {paymentPayload.payment.status === "open" && (
+                {paymentPayload.status === "open" && (
                   <Grid item xs={12}>
                     <Typography variant="body1">
                       <em>Payment is pending a response.</em>
                     </Typography>
                   </Grid>
                 )}
-                {!!paymentPayload.payment.refundamount ? (
+                {!!paymentPayload.refundamount ? (
                   <Grid item xs={12}>
                     <Typography className={classes.refundLine}>
                       <em>
                         Total Refunded:{" "}
                         <span style={{ fontWeight: "bold" }}>
                           $
-                          {parseFloat(
-                            paymentPayload.payment.refundamount * -1
-                          ).toFixed(2)}
+                          {parseFloat(paymentPayload.refundamount * -1).toFixed(
+                            2
+                          )}
                         </span>
                       </em>
                     </Typography>
@@ -569,7 +439,7 @@ const InvoiceProfile = () => {
                 ) : (
                   <p></p>
                 )}
-                {paymentPayload.payment.status === "cancelled" && (
+                {paymentPayload.status === "cancelled" && (
                   <Grid item xs={12}>
                     <Typography className={classes.cancelledText}>
                       <em>
@@ -579,7 +449,7 @@ const InvoiceProfile = () => {
                     </Typography>
                   </Grid>
                 )}
-                {paymentPayload.payment.status === "complete" ? (
+                {paymentPayload.status === "complete" ? (
                   <Grid item xs={12}>
                     <Typography className={classes.completeText}>
                       <em>
@@ -588,7 +458,7 @@ const InvoiceProfile = () => {
                       </em>
                     </Typography>
                   </Grid>
-                ) : paymentPayload.payment.status === "refunded" ? (
+                ) : paymentPayload.status === "refunded" ? (
                   <Grid item xs={12}>
                     <Typography className={classes.refundLine}>
                       <em>
@@ -611,7 +481,7 @@ const InvoiceProfile = () => {
                 justifyContent: "end",
               }}
             >
-              {paymentPayload.payment.status === "open" ? (
+              {paymentPayload.status === "open" ? (
                 <>
                   <Grid item display="flex" justifyContent={"end"}>
                     <DynamicButton

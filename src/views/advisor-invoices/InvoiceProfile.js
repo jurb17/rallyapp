@@ -281,10 +281,7 @@ const InvoiceProfile = () => {
       const newdate = new Date();
       setPaymentPayload((prevState) => ({
         ...prevState,
-        payment: {
-          ...paymentPayload,
-          status: "cancelled",
-        },
+        status: "cancelled",
       }));
       setCalcData((prevState) => ({
         ...prevState,
@@ -441,7 +438,7 @@ const InvoiceProfile = () => {
                 </Paper>
               </Box>{" "}
             </SubsectionWrapper>
-            {!["open"].includes(paymentPayload.status) && (
+            {!["open", "in process"].includes(paymentPayload.status) && (
               <SubsectionWrapper
                 pt={0}
                 mb={1.5}
@@ -488,7 +485,7 @@ const InvoiceProfile = () => {
                       </Typography>
                     </Grid>
                   )}
-                  {!["open", "cancelled", "declined"].includes(
+                  {!["open", "in process", "cancelled", "declined"].includes(
                     paymentPayload.status
                   ) && (
                     <Grid item xs={12}>

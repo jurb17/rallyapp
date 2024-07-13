@@ -8,7 +8,6 @@ import { useTheme } from "@material-ui/core/styles";
 import { Box, Grid, Typography, Paper, Divider } from "@material-ui/core";
 
 // project imports
-import adviceService from "services/advice.service";
 import ErrorModal from "ui-component/modals/ErrorModal";
 import SubsectionWrapper from "ui-component/wrappers/SubsectionWrapper";
 import GenericPage from "ui-component/pages/GenericPage";
@@ -26,6 +25,7 @@ import {
   clientProfileInfo,
   myAdvisorList,
 } from "utils/client-dummy-data";
+import ConfirmPrimaryModal from "ui-component/modals/ConfirmPrimaryModal";
 
 // style constant
 const useStyles = makeStyles((theme) => ({
@@ -64,7 +64,6 @@ const InvoiceProfile = () => {
   const location = useLocation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const taskListRef = useRef([]);
   const { attributes } = useSelector((state) => state.auth);
 
   // get params from url
@@ -79,16 +78,19 @@ const InvoiceProfile = () => {
   const [profileInfo, setProfileInfo] = useState({});
 
   // mode states
+  const [isLoading, setIsLoading] = useState(true);
+  const [profileView, setProfileView] = useState(false);
+  const [completeMode, setCompleteMode] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [declineMode, setDeclineMode] = useState(false);
-  const [disputeMode, setDisputeMode] = useState(false);
   const [isDeclined, setIsDeclined] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [disputeMode, setDisputeMode] = useState(false);
+  const [isDisputed, setIsDisputed] = useState(false);
 
   // function to set the calcData states
   const getTimeData = (paymentLoad) => {
     // fill in all missing amounts with zero
-    paymentLoad.items.forEach((item) => {
+    paymentLoad.lineitems.forEach((item) => {
       if (!item.amount) item.amount = 0;
     });
     // format dates and times
@@ -191,20 +193,33 @@ const InvoiceProfile = () => {
   // HANDLING USER ACTIONS (below) =============================================================
 
   // #region --- all functions
-  // select complete payment
+  // select complete payment button and offer user option to confirm.
   const handleCompletePayment = () => {
     if (attributes.CUSTOMER !== 1)
       alert(
         "You are not authorized to complete this payment without a verified Stripe account. Please go to account settings and set up your Stripe account before making any payments."
       );
-    else {
-      dispatch(showSnackbar("Payment is complete.", true, "success"));
-      setIsComplete(true);
-    }
+    else setCompleteMode(true);
+  };
+
+  // select "OK" to confirm payment.
+  const handleCompleteConfirm = () => {
+    setCompleteMode(false);
+    const newdate = new Date();
+    dispatch(showSnackbar("Payment is complete.", true, "success"));
+    setPaymentPayload((prevState) => ({
+      ...prevState,
+      status: "complete",
+    }));
+    setCalcData((prevState) => ({
+      ...prevState,
+      completeDate: newdate.toLocaleDateString("en-US"),
+      completeTime: newdate.toLocaleTimeString("en-US"),
+    }));
   };
 
   // handle confirm notification modal
-  const handlePaymentNotification = () => {
+  const handleDeclineNotification = () => {
     setIsDeclined(false);
     setIsComplete(false);
     navigate("/client/payments");
@@ -212,71 +227,31 @@ const InvoiceProfile = () => {
 
   // when submit button is selected.
   const handleSubmitDispute = async (title, message) => {
-    // send email to the user with a link to reset their password
-    await adviceService
-      .postDispute({
-        title: title,
-        message: message,
-        paymentid: paymentid,
-        adviceid: adviceid,
-      })
-      .then((response) => {
-        if (!!response.data.payload.success) {
-          setDisputeMode(false);
-          setPaymentPayload((prevState) => ({
-            ...prevState,
-            payment: {
-              ...prevState,
-              status: "disputed",
-            },
-          }));
-        } else {
-          dispatch(showSnackbar(response.data.details.text, true, "error"));
-        }
-      })
-      .catch((error) => {
-        dispatch(
-          showSnackbar(
-            "There seems to be an issue. Please contact support if this issue persists.",
-            true,
-            "error"
-          )
-        );
-        console.log("uncaught error", error);
-      });
+    setDisputeMode(false);
+    setPaymentPayload((prevState) => ({
+      ...prevState,
+      status: "disputed",
+    }));
+    dispatch(
+      showSnackbar(
+        "Dispute recorded. Please check your email for updates.",
+        true,
+        "success"
+      )
+    );
   };
 
   // handle declining payment
   const handleDeclineConfirm = async () => {
-    await adviceService
-      .deletePayment({ paymentid: paymentid, adviceid: adviceid })
-      .then((response) => {
-        if (!!response.data.payload.success) {
-          setIsDeclined(true);
-          setIsComplete(false);
-          setPaymentPayload((prevState) => ({
-            ...prevState,
-            payment: {
-              ...prevState,
-              status: "declined",
-            },
-          }));
-          dispatch(showSnackbar("Payment has been declined.", true, "success"));
-        } else {
-          dispatch(showSnackbar(response.data.details.text, true, "error"));
-        }
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        dispatch(
-          showSnackbar(
-            "There seems to be an issue. Please contact support if this issue persists.",
-            true,
-            "error"
-          )
-        );
-        console.log("uncaught error", error);
-      });
+    setIsComplete(false);
+    setDeclineMode(false);
+    setIsDeclined(true);
+    setPaymentPayload((prevState) => ({
+      ...prevState,
+      status: "declined",
+    }));
+    dispatch(showSnackbar("Payment has been declined.", true, "success"));
+    setIsLoading(false);
   };
 
   // #endregion
@@ -297,7 +272,25 @@ const InvoiceProfile = () => {
             open={isDeclined}
             heading="Payment Declined"
             body="The payment has been successfully declined. Select 'OK' to return to the payment list."
-            handleErrorConfirmation={handlePaymentNotification}
+            handleErrorConfirmation={handleDeclineNotification}
+          />
+          <ConfirmPrimaryModal
+            open={completeMode}
+            heading="Please confirm payment"
+            body="This is not an official payment. This is simply a demo. Please select the OK button to continue with completing the payment."
+            action="OK"
+            handleCancel={() => setCompleteMode(false)}
+            handleConfirm={handleCompleteConfirm}
+            nonaction={"Cancel"}
+          />
+          <ConfirmPrimaryModal
+            open={profileView}
+            heading="Online Advisor Profile Are Unavaiable"
+            body="Advisor profiles are not currently available on the www.rally.markets website. The "
+            action="OK"
+            handleCancel={() => setCompleteMode(false)}
+            handleConfirm={handleCompleteConfirm}
+            nonaction={"Cancel"}
           />
           <SupportRequest
             open={disputeMode}
@@ -361,7 +354,8 @@ const InvoiceProfile = () => {
                   variant: "text",
                   startIcon: <IconExternalLink stroke={1.25} />,
                   onClick: () => {
-                    window.location.href = `https://rally.markets/firm/${paymentPayload.firmslug}`;
+                    // window.location.href = `https://rally.markets/firm/${paymentPayload.firmslug}`;
+                    setProfileView(true);
                   },
                 },
                 {
@@ -370,7 +364,8 @@ const InvoiceProfile = () => {
                   variant: "text",
                   startIcon: <IconExternalLink stroke={1.25} />,
                   onClick: () => {
-                    window.location.href = `https://rally.markets/firm/${paymentPayload.firmslug}/advisor/${paymentPayload.advisorslug}`;
+                    // window.location.href = `https://rally.markets/firm/${paymentPayload.firmslug}/advisor/${paymentPayload.advisorslug}`;
+                    setProfileView(true);
                   },
                 },
                 {
@@ -378,7 +373,7 @@ const InvoiceProfile = () => {
                   color: "primary",
                   variant: "text",
                   startIcon: <IconMessage stroke={1.25} />,
-                  onClick: () => navigate(`/client/messages/?id=${adviceid}`),
+                  onClick: () => navigate(`/client/messages?id=${adviceid}`),
                 },
               ]}
             >
@@ -393,7 +388,7 @@ const InvoiceProfile = () => {
                   <InvoiceTemplate
                     billto={{ ...profileInfo }}
                     billfrom={{ ...advisorPayload }}
-                    lineitems={[...paymentPayload.items]}
+                    lineitems={[...paymentPayload.lineitems]}
                     subtotal={paymentPayload.subtotal}
                     invoiceid={paymentPayload.id}
                   />
@@ -422,7 +417,7 @@ const InvoiceProfile = () => {
                     </Typography>
                   </Grid>
                 )}
-                {!!paymentPayload.refundamount ? (
+                {paymentPayload.refundamount ? (
                   <Grid item xs={12}>
                     <Typography className={classes.refundLine}>
                       <em>
@@ -452,6 +447,9 @@ const InvoiceProfile = () => {
                 {paymentPayload.status === "complete" ? (
                   <Grid item xs={12}>
                     <Typography className={classes.completeText}>
+                      {console.log(
+                        `${calcData.completeDate} ${calcData.completeTime}`
+                      )}
                       <em>
                         Payment Complete (
                         {`${calcData.completeDate} ${calcData.completeTime}`})

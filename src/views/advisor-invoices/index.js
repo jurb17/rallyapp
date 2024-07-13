@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({}));
 // NO PROPS, LOCATION.STATE ONLY
 // this page can be accessed from the side menu
 
-const ManageInvoices = (props) => {
+const ManageInvoices = () => {
   const classes = useStyles();
   const location = useLocation();
   const navigate = useNavigate();
@@ -118,7 +118,7 @@ const ManageInvoices = (props) => {
         getInvoiceListData(idParam, myInvoiceList);
       } else getInvoiceListData("", myInvoiceList);
     }
-    // Otherwise, retrieve payments data
+    // Otherwise, show message about lack of payments data
     else
       setPlaceholder(
         "No invoice data found. Send a new invoice to a prospect to start earning revenue on the Rally platform."

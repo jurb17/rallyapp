@@ -14,7 +14,7 @@ export const clientChatList = [
       {
         id: 1,
         advisor: 1,
-        body: "Hey there, Arnold. Nice to meet you on Rally.",
+        body: "Hey there, Donald. Nice to meet you on Rally.",
         timestamp: "1718029523000",
       },
       {

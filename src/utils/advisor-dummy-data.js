@@ -894,8 +894,8 @@ export const myServiceList = [
 export const myInvoiceList = [
   {
     id: 1,
-    adviceid: 2,
-    clientname: "Goofy Dog",
+    adviceid: 1,
+    clientname: "Donald Duck",
     createdate: 1709995350000,
     status: "open",
     subtotal: 500,
@@ -913,7 +913,7 @@ export const myInvoiceList = [
   {
     id: 2,
     adviceid: 1,
-    clientname: "Goofy Dog",
+    clientname: "Donald Duck",
     status: "in process",
     subtotal: 700,
     createdate: 1709995350000,

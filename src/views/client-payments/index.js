@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router";
 
 // material-ui
 import { makeStyles } from "@material-ui/styles";
@@ -9,8 +8,6 @@ import { Box } from "@material-ui/core";
 // project imports
 import DataGridPage from "ui-component/pages/DataGridPage";
 import GenericPage from "ui-component/pages/GenericPage";
-
-import { showSnackbar } from "actions/main";
 import PagePlaceholderText from "ui-component/extended/PagePlaceholderText";
 import NoteBanner from "ui-component/banners/NoteBanner";
 import SubsectionWrapper from "ui-component/wrappers/SubsectionWrapper";
@@ -26,7 +23,6 @@ const useStyles = makeStyles((theme) => ({}));
 
 const PaymentManagement = () => {
   const classes = useStyles();
-  const dispatch = useDispatch();
   const { attributes } = useSelector((state) => state.auth);
 
   // extract query params from url
@@ -36,10 +32,10 @@ const PaymentManagement = () => {
   // data states
   const [payments, setPayments] = useState([]);
   const [advisorName, setAdvisorName] = useState("");
+  const [placeholder, setPlaceholder] = useState("");
 
   // mode states
   const [isLoading, setIsLoading] = useState(true);
-  const [placeholder, setPlaceholder] = useState("");
 
   // calculate extra data for each invoice
   const calculateData = (payment) => {
@@ -111,7 +107,12 @@ const PaymentManagement = () => {
         getInvoiceListData(idParam, clientInvoiceList);
       } else getInvoiceListData("", clientInvoiceList);
     }
-  }, []);
+    // Otherwise, show message about lack of payments data
+    else
+      setPlaceholder(
+        "No invoice data found. Invoices sent to you by advisors will be listed here."
+      );
+  }, [attributes]);
 
   // define row data. firstname, middlename, lastname, prefix, suffix, nickname, email, phone
   const columns: GridColDef[] = [

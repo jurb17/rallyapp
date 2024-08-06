@@ -22,17 +22,15 @@ const AdvisorLayout = () => {
     if (
       Object.entries(auth.attributes).length === 0 &&
       location.pathname !== "/login"
-    ) {
+    )
       console.log("loading attributes...");
-    }
     // If the ACCOUNT attribute is -1 and ADVISOR or RIA is -1, then the user needs to route to the onboarding page.
     else if (
       auth.attributes.ACCOUNT === -1 &&
       (auth.attributes.ADVISOR === -1 || auth.attributes.RIA === -1) &&
       !location.pathname.includes("/onboarding")
-    ) {
+    )
       navigate("/onboarding");
-    }
   }, [auth.attributes]);
 
   return (

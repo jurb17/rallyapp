@@ -143,7 +143,6 @@ const ClientChatManagement = () => {
   // mode states
   const [backlink, setBacklink] = useState("");
   const [noMessages, setNoMessages] = useState(true);
-  const [noChat, setNoChat] = useState(true);
   const [notSetup, setNotSetup] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [reportAbuse, setReportAbuse] = useState(false);
@@ -160,16 +159,10 @@ const ClientChatManagement = () => {
       let timeA;
       let timeB;
       let today = new Date();
-      if (a.timestamp) {
-        timeA = parseInt(a.timestamp);
-      } else {
-        timeA = today.getTime() + 100;
-      }
-      if (b.timestamp) {
-        timeB = parseInt(b.timestamp);
-      } else {
-        timeB = today.getTime() + 100;
-      }
+      if (a.timestamp) timeA = parseInt(a.timestamp);
+      else timeA = today.getTime() + 100;
+      if (b.timestamp) timeB = parseInt(b.timestamp);
+      else timeB = today.getTime() + 100;
       const num = timeB - timeA;
       return num;
     });
@@ -280,9 +273,7 @@ const ClientChatManagement = () => {
     let searchlist = [];
     chatList.forEach((chat) => {
       const name = new String(chat.name.toLowerCase());
-      if (name.indexOf(value.toLowerCase()) !== -1) {
-        searchlist.push(chat);
-      }
+      if (name.indexOf(value.toLowerCase()) !== -1) searchlist.push(chat);
     });
     return searchlist;
   };
@@ -351,7 +342,7 @@ const ClientChatManagement = () => {
         action="Continue"
         handleConfirm={() => setShowProfile(false)}
       />
-      {!!isLoading ? (
+      {isLoading ? (
         <Box className="horizontal-center">
           <PagePlaceholderText text="Loading..." />
         </Box>
@@ -370,7 +361,7 @@ const ClientChatManagement = () => {
           {(idParam || !matchDownSm) && (
             <Box className={classes.flexPanel}>
               <ClientChat
-                noChat={noChat}
+                noChat={true}
                 firmslug={idParam ? chatObject[idParam].firmslug : undefined}
                 advisorslug={
                   idParam ? chatObject[idParam].advisorslug : undefined
@@ -387,7 +378,7 @@ const ClientChatManagement = () => {
             </Box>
           )}
           {/* CONTACT DETAILS */}
-          {!!matchUpLg ? (
+          {matchUpLg ? (
             <Box className={classes.detailsPanel}>
               <Typography variant="h3" sx={{ mb: 1 }}>
                 Contact Details
@@ -415,9 +406,9 @@ const ClientChatManagement = () => {
                         : ""}
                     </Typography>
                   </Box>
-                  {!!chatObject[idParam].adviceid &&
-                    !!chatObject[idParam].firmslug &&
-                    !!chatObject[idParam].advisorslug && (
+                  {chatObject[idParam].adviceid &&
+                    chatObject[idParam].firmslug &&
+                    chatObject[idParam].advisorslug && (
                       <List>
                         <ListItem disablePadding>
                           <ListItemButton
@@ -468,7 +459,7 @@ const ClientChatManagement = () => {
                                 }
                               )
                             }
-                            disabled={!!noChat}
+                            disabled={true}
                           >
                             Payment History
                           </ListItemButton>

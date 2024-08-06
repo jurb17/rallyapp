@@ -70,6 +70,7 @@ const ClientProfile = () => {
           "Client id does not match existing client list. You will be routed back to the previous page."
         );
         navigate(-1);
+        setIsLoading(false);
       }
     }
   };

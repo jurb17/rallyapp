@@ -12,7 +12,7 @@ import CancelButton from "ui-component/buttons/CancelButton";
 open = boolean to determine if modal is open
 heading = string to display as heading
 body = string to display as body
-action: string (primary button name)
+action = string (primary button name)
 handleCancel = function to handle cancel
 handleConfirm = function to handle confirm
 nonaction = string (cancel button name)

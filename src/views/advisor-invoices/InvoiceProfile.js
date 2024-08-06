@@ -75,6 +75,14 @@ const useStyles = makeStyles((theme) => ({
     float: "right",
     color: theme.palette.success.main,
   },
+  createdText: {
+    fontSize: "1.250rem",
+    fontWeight: 500,
+    marginTop: "12px",
+    paddingRight: "12px",
+    float: "right",
+    color: theme.palette.grey[800],
+  },
 }));
 
 // =============================================================
@@ -92,10 +100,12 @@ const InvoiceProfile = () => {
   const idParam = adviceid;
   const paymentid = id;
 
+  console.log("necesary", idParam, paymentid);
+
   // data states
   const [paymentPayload, setPaymentPayload] = useState({});
   const [adviseePayload, setAdviseePayload] = useState({});
-  const [calcData, setCalcData] = useState({});
+  const [timeData, setTimeData] = useState({});
   const [profileInfo, setProfileInfo] = useState({});
 
   // mode states
@@ -104,10 +114,10 @@ const InvoiceProfile = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isProspect, setIsProspect] = useState(false);
 
-  // function to set the calcData states
-  const getTimeData = (paymentLoad) => {
+  // function to set the timeData states
+  const getTimeData = (payment) => {
     // fill in all missing amounts with zero
-    paymentLoad.lineitems.forEach((item) => {
+    payment.lineitems.forEach((item) => {
       if (!item.amount) item.amount = 0;
     });
     // format dates and times
@@ -119,63 +129,63 @@ const InvoiceProfile = () => {
     let formattedCompleteTime = null;
     let formattedRefundDate = null;
     let formattedRefundTime = null;
-    if (paymentLoad.createdate) {
+    if (payment.createdate) {
       formattedCreateDate = new Date(
-        parseInt(paymentLoad.createdate)
+        parseInt(payment.createdate)
       ).toLocaleDateString("en-US");
       formattedCreateTime = new Date(
-        parseInt(paymentLoad.createdate)
+        parseInt(payment.createdate)
       ).toLocaleTimeString("en-US");
-      setCalcData((prevState) => ({
+      setTimeData((prevState) => ({
         ...prevState,
         createDate: formattedCreateDate,
         createTime: formattedCreateTime,
       }));
     }
-    if (paymentLoad.canceldate) {
+    if (payment.canceldate) {
       formattedCancelDate = new Date(
-        parseInt(paymentLoad.canceldate)
+        parseInt(payment.canceldate)
       ).toLocaleDateString("en-US");
       formattedCancelTime = new Date(
-        parseInt(paymentLoad.canceldate)
+        parseInt(payment.canceldate)
       ).toLocaleTimeString("en-US");
-      setCalcData((prevState) => ({
+      setTimeData((prevState) => ({
         ...prevState,
         cancelDate: formattedCancelDate,
         cancelTime: formattedCancelTime,
       }));
     }
-    if (paymentLoad.completedate) {
+    if (payment.completedate) {
       formattedCompleteDate = new Date(
-        parseInt(paymentLoad.completedate)
+        parseInt(payment.completedate)
       ).toLocaleDateString("en-US");
       formattedCompleteTime = new Date(
-        parseInt(paymentLoad.completedate)
+        parseInt(payment.completedate)
       ).toLocaleTimeString("en-US");
-      setCalcData((prevState) => ({
+      setTimeData((prevState) => ({
         ...prevState,
         completeDate: formattedCompleteDate,
         completeTime: formattedCompleteTime,
       }));
     }
-    if (paymentLoad.refunddate) {
+    if (payment.refunddate) {
       formattedRefundDate = new Date(
-        parseInt(paymentLoad.refunddate)
+        parseInt(payment.refunddate)
       ).toLocaleDateString("en-US");
       formattedRefundTime = new Date(
-        parseInt(paymentLoad.refunddate)
+        parseInt(payment.refunddate)
       ).toLocaleTimeString("en-US");
-      setCalcData((prevState) => ({
+      setTimeData((prevState) => ({
         ...prevState,
         refundDate: formattedRefundDate,
         refundTime: formattedRefundTime,
       }));
     }
     // set the client name state
-    if (paymentLoad.name)
-      setCalcData((prevState) => ({
+    if (payment.name)
+      setTimeData((prevState) => ({
         ...prevState,
-        clientname: paymentLoad.name,
+        clientname: payment.name,
       }));
   };
 
@@ -240,25 +250,70 @@ const InvoiceProfile = () => {
     }
   }, []);
 
+  console.log("data", paymentPayload);
+
   // #region - handle data changes
+  // calculate the invoice fee
+  const calculateFee = (payment) => {
+    if (payment.feerate)
+      return parseFloat(payment.feerate * payment.subtotal).toFixed(2);
+    else return parseFloat(0.15 * payment.subtotal).toFixed(2);
+  };
+
+  // calculaute the invoice total with fee
+  const calculateTotal = (payment) => {
+    if (payment.refundamount && payment.feerefund) {
+      return parseFloat(
+        parseFloat(payment.subtotal) +
+          parseFloat(calculateFee({ ...payment })) -
+          parseFloat(paymentPayload.refundamount * -1) -
+          parseFloat(paymentPayload.feerefund * -1)
+      ).toFixed(2);
+    } else if (paymentPayload.refundamount) {
+      return parseFloat(
+        parseFloat(payment.subtotal) +
+          parseFloat(calculateFee({ ...paymentPayload })) -
+          parseFloat(paymentPayload.refundamount * -1)
+      ).toFixed(2);
+    }
+    return parseFloat(
+      parseFloat(payment.subtotal) + parseFloat(calculateFee(payment))
+    ).toFixed(2);
+  };
+
+  // handle submitting payment (IN PLACE OF STRIPE PROCESS)
+  const handlePaymentSubmit = (payload) => {
+    setIsLoading(true);
+    const newdate = new Date();
+    setPaymentPayload((prevState) => ({
+      ...prevState,
+      status: "complete",
+      completedate: newdate,
+    }));
+    setTimeData((prevState) => ({
+      completeDate: newdate.toLocaleDateString("en-US"),
+      refundTime: newdate.toLocaleTimeString("en-US"),
+    }));
+    dispatch(showSnackbar("Refund submitted successfully", true, "success"));
+    setRefundMode(false);
+  };
+
   // confirm refund
-  const handleRefundSubmit = async (refundObj) => {
+  const handleRefundSubmit = (refundObj) => {
     // !!! A LOT OF STATE CHANGES THAT WILL INSTIGATE PAGE RELOADING.
     setIsLoading(true);
     const newdate = new Date();
     setPaymentPayload((prevState) => ({
       ...prevState,
-      payment: {
-        ...paymentPayload,
-        status: "refunded",
-        refundamount: (
-          parseFloat(
-            paymentPayload.refundamount ? paymentPayload.refundamount : 0.0
-          ) - parseFloat(refundObj.amount)
-        ).toFixed(2),
-      },
+      status: "refunded",
+      refunddate: newdate,
+      refundamount: (
+        parseFloat(
+          paymentPayload.refundamount ? paymentPayload.refundamount : 0.0
+        ) - parseFloat(refundObj.amount)
+      ).toFixed(2),
     }));
-    setCalcData((prevState) => ({
+    setTimeData((prevState) => ({
       ...prevState,
       refundDate: newdate.toLocaleDateString("en-US"),
       refundTime: newdate.toLocaleTimeString("en-US"),
@@ -267,8 +322,8 @@ const InvoiceProfile = () => {
     setRefundMode(false);
   };
 
-  // confirm delete
-  const handleCancelConfirm = async () => {
+  // confirm cancel
+  const handleCancelConfirm = () => {
     // if the user has opened checkout
     if (paymentPayload.status === "in process")
       dispatch(
@@ -282,8 +337,9 @@ const InvoiceProfile = () => {
       setPaymentPayload((prevState) => ({
         ...prevState,
         status: "cancelled",
+        canceldate: newdate,
       }));
-      setCalcData((prevState) => ({
+      setTimeData((prevState) => ({
         ...prevState,
         cancelDate: newdate.toLocaleDateString("en-US"),
         cancelTime: newdate.toLocaleTimeString("en-US"),
@@ -291,27 +347,6 @@ const InvoiceProfile = () => {
       dispatch(showSnackbar("Invoice Cancelled Successfully", true, "success"));
     }
     setDeleteMode(false);
-  };
-
-  // calculate remaining total after refund
-  const calcRemainingTotal = () => {
-    if (paymentPayload.refundamount && paymentPayload.feerefund) {
-      return (
-        parseFloat(paymentPayload.total) -
-        parseFloat(paymentPayload.fee) -
-        parseFloat(paymentPayload.refundamount * -1) +
-        parseFloat(paymentPayload.feerefund * -1)
-      ).toFixed(2);
-    } else if (!!paymentPayload.refundamount) {
-      return (
-        parseFloat(paymentPayload.total) -
-        parseFloat(paymentPayload.fee) -
-        parseFloat(paymentPayload.refundamount * -1)
-      ).toFixed(2);
-    }
-    return (
-      parseFloat(paymentPayload.total) - parseFloat(paymentPayload.fee)
-    ).toFixed(2);
   };
 
   // #endregion
@@ -337,12 +372,9 @@ const InvoiceProfile = () => {
           <RefundForm
             open={refundMode}
             subtotalAfterRefund={
-              !!paymentPayload.refundamount
-                ? Math.max(calcRemainingTotal(), 0).toFixed(2)
-                : (
-                    parseFloat(paymentPayload.total) -
-                    parseFloat(paymentPayload.fee)
-                  ).toFixed(2)
+              paymentPayload.refundamount
+                ? Math.max(calculateTotal({ ...paymentPayload }), 0).toFixed(2)
+                : parseFloat(paymentPayload.subtotal).toFixed(2)
             }
             handleRefundSubmit={handleRefundSubmit}
             handleRefundCancel={() => setRefundMode(false)}
@@ -367,7 +399,8 @@ const InvoiceProfile = () => {
                   ]
                 : paymentPayload.status === "complete" ||
                   (paymentPayload.status === "refunded" &&
-                    calcRemainingTotal() > 0)
+                    calculateTotal({ ...paymentPayload }) >
+                      calculateFee({ ...paymentPayload }))
                 ? [
                     {
                       name: "Process Refund",
@@ -430,119 +463,55 @@ const InvoiceProfile = () => {
                     billfrom={{ ...profileInfo }}
                     lineitems={[...paymentPayload.lineitems]}
                     subtotal={paymentPayload.subtotal}
-                    createdate={calcData.createDate}
-                    canceldate={calcData.cancelDate}
-                    completedate={calcData.completeDate}
-                    refunddate={calcData.refundDate}
+                    platformfee={calculateFee({ ...paymentPayload })}
+                    platformfeerate={
+                      paymentPayload.feerate ? paymentPayload.feerate * 100 : 15
+                    }
+                    refundamount={
+                      paymentPayload.refundamount
+                        ? paymentPayload.refundamount * -1
+                        : 0
+                    }
+                    totalpaid={
+                      paymentPayload.refundamount
+                        ? paymentPayload.subtotal - paymentPayload.refundamount
+                        : paymentPayload.subtotal
+                    }
+                    totalpayout={
+                      paymentPayload.refundamount
+                        ? paymentPayload.subtotal -
+                          calculateFee({ ...paymentPayload }) -
+                          paymentPayload.refundamount
+                        : paymentPayload.subtotal -
+                          calculateFee({ ...paymentPayload })
+                    }
+                    createdate={
+                      timeData.createDate
+                        ? `${timeData.createDate} ${timeData.createTime}`
+                        : ""
+                    }
+                    canceldate={
+                      timeData.cancelDate
+                        ? `${timeData.cancelDate} ${timeData.cancelTime}`
+                        : ""
+                    }
+                    completedate={
+                      timeData.completeDate
+                        ? `${timeData.completeDate} ${timeData.completeTime}`
+                        : ""
+                    }
+                    refunddate={
+                      timeData.refunddate
+                        ? `${timeData.refundDate} ${timeData.refundTime}`
+                        : ""
+                    }
                   />
                 </Paper>
               </Box>{" "}
             </SubsectionWrapper>
-            {!["open", "in process"].includes(paymentPayload.status) && (
-              <SubsectionWrapper
-                pt={0}
-                mb={1.5}
-                title="Additional Details"
-                tipBody="This is a log of the events that have taken place during the life of this invoice."
-              >
-                <Grid container>
-                  {paymentPayload.fee && (
-                    <Grid item xs={12}>
-                      <Typography className={classes.feeLine}>
-                        <em>
-                          Platform Fee:{" "}
-                          <span style={{ fontWeight: "bold" }}>
-                            ${parseFloat(paymentPayload.fee).toFixed(2)}
-                          </span>
-                        </em>
-                        {paymentPayload.feerefund && (
-                          <em>
-                            {" ("}Refunded:{" "}
-                            <span style={{ fontWeight: "bold" }}>
-                              $
-                              {parseFloat(
-                                paymentPayload.feerefund * -1
-                              ).toFixed(2)}
-                            </span>
-                            {")"}
-                          </em>
-                        )}
-                      </Typography>
-                    </Grid>
-                  )}
-                  {paymentPayload.refundamount && (
-                    <Grid item xs={12}>
-                      <Typography className={classes.refundLine}>
-                        <em>
-                          Total Refunded:{" "}
-                          <span style={{ fontWeight: "bold" }}>
-                            $
-                            {parseFloat(
-                              paymentPayload.refundamount * -1
-                            ).toFixed(2)}
-                          </span>
-                        </em>
-                      </Typography>
-                    </Grid>
-                  )}
-                  {!["open", "in process", "cancelled", "declined"].includes(
-                    paymentPayload.status
-                  ) && (
-                    <Grid item xs={12}>
-                      <Typography className={classes.finalTotalAmount}>
-                        {"Total Received: "}
-                        <span style={{ fontWeight: "bold" }}>
-                          {paymentPayload.refundamount
-                            ? "$" + Math.max(calcRemainingTotal(), 0).toFixed(2)
-                            : "$" +
-                              Math.max(
-                                parseFloat(
-                                  paymentPayload.subtotal - paymentPayload.fee
-                                ),
-                                0
-                              ).toFixed(2)}
-                        </span>
-                      </Typography>
-                    </Grid>
-                  )}
-                  {paymentPayload.status === "cancelled" && (
-                    <Grid item xs={12}>
-                      <Typography className={classes.cancelledText}>
-                        <em>
-                          Invoice Cancelled (
-                          {`${calcData.cancelDate} ${calcData.cancelTime}`})
-                        </em>
-                      </Typography>
-                    </Grid>
-                  )}
-                  {paymentPayload.status === "complete" ? (
-                    <Grid item xs={12}>
-                      <Typography className={classes.completeText}>
-                        <em>
-                          Invoice Complete (
-                          {`${calcData.completeDate} ${calcData.completeTime}`})
-                        </em>
-                      </Typography>
-                    </Grid>
-                  ) : paymentPayload.status === "refunded" ? (
-                    <Grid item xs={12}>
-                      <Typography className={classes.refundLine}>
-                        <em>
-                          Last Refund Processed (
-                          {`${calcData.refundDate} ${calcData.refundTime}`})
-                        </em>
-                      </Typography>
-                    </Grid>
-                  ) : (
-                    <p></p>
-                  )}
-                </Grid>
-              </SubsectionWrapper>
-            )}
-            <Divider sx={{ borderColor: theme.palette.grey[300], mt: 1 }} />
+            {/* <Divider sx={{ borderColor: theme.palette.grey[300], mt: 1, mb: 2 }} /> */}
             <Box
               sx={{
-                mt: 2,
                 width: "100%",
                 display: "flex",
                 justifyContent: "end",
@@ -562,12 +531,7 @@ const InvoiceProfile = () => {
                 </>
               ) : (paymentPayload.status === "complete" ||
                   paymentPayload.status === "refunded") &&
-                (
-                  parseFloat(paymentPayload.total) -
-                  parseFloat(paymentPayload.fee) -
-                  parseFloat(paymentPayload.refundamount * -1) +
-                  parseFloat(paymentPayload.feerefund * -1)
-                ).toFixed(2) > 0 ? (
+                calculateTotal({ ...paymentPayload }) > 0 ? (
                 <>
                   <Grid item display="flex" justifyContent={"end"}>
                     <DynamicButton

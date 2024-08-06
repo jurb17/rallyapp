@@ -35,10 +35,19 @@ const PreviewInvoice = () => {
   // console.log(location.state);
 
   // data states
-  const { adviceid, lineitems, adviseeName, subtotal, invited, returnitems } =
-    location.state;
+  const {
+    adviceid,
+    lineitems,
+    adviseeName,
+    subtotal,
+    invited,
+    platformfeerate,
+    returnitems,
+  } = location.state;
   const [profileInfo, setProfileInfo] = useState({});
   const [adviseeData, setAdviseeData] = useState({});
+
+  console.log("WHOA", platformfeerate);
 
   // mode states
   const [isLoading, setIsLoading] = useState(true);
@@ -75,6 +84,7 @@ const PreviewInvoice = () => {
         subtotal: subtotal,
         lineitems: lineitems,
         invited: invited,
+        platformfeerate: platformfeerate,
         returnitems: returnitems,
       },
     });
@@ -131,7 +141,9 @@ const PreviewInvoice = () => {
               billfrom={{ ...profileInfo }}
               lineitems={lineitems}
               subtotal={subtotal}
-              invoiceid=""
+              invoiceid={""}
+              platformfeerate={parseFloat(platformfeerate) * 100}
+              platformfee={parseFloat(platformfeerate) * subtotal}
             />
             <Grid
               container

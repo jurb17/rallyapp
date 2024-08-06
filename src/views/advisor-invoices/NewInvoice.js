@@ -72,6 +72,8 @@ const NewInvoice = () => {
 
   // function to get client or prospect data
   const getAdviseeData = (adviceid, clientlist, prospectlist) => {
+    // Loop through prospect list and see if there is a matching ID
+    // This is not an efficient way of searching, should make list of id and if(list.includes(id))
     prospectlist.forEach((prospect) => {
       if (prospect.id.toString() === adviceid) {
         setNewInvoice((prevState) => ({
@@ -85,6 +87,7 @@ const NewInvoice = () => {
         return { ...prospect };
       }
     });
+    // Loop through client list and see if there is a matching ID
     clientlist.forEach((client) => {
       if (client.id.toString() === adviceid) {
         setNewInvoice((prevState) => ({
@@ -177,7 +180,7 @@ const NewInvoice = () => {
     }));
   };
 
-  // submit new invoice
+  // navigate to preview of new invoice
   const handlePreview = () => {
     invoiceFormRef.current.validateForm().then(async () => {
       if (invoiceFormRef.current.isValid) {
@@ -189,13 +192,14 @@ const NewInvoice = () => {
             amount: parseFloat(item.attribute),
           });
         });
-        navigate("/adv/invoices/preview", {
+        navigate(`/adv/invoices/preview`, {
           state: {
             lineitems: lines,
             adviseeName: newInvoice.adviseeName,
             subtotal: newInvoice.subtotal,
             adviceid: newInvoice.adviceid,
             invited: newInvoice.invited,
+            platformfeerate: newInvoice.invited ? 0.0495 : 0.15,
             returnitems: newInvoice.lineitems,
           },
         });
